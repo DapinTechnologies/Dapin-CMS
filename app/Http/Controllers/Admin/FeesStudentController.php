@@ -3,23 +3,37 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\StudentEnroll;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
+use Auth;
+use Toastr;
+use App\Models\StudentEnroll;
 use App\Models\PrintSetting;
 use App\Models\FeesCategory;
 use App\Models\Transaction;
-use Illuminate\Support\Str;
 use App\Models\Semester;
 use App\Models\Faculty;
 use App\Models\Session;
 use App\Models\Program;
 use App\Models\Section;
 use App\Models\Fee;
-use Carbon\Carbon;
-use Toastr;
-use Auth;
-use DB;
+use App\Models\Invoice;
+use App\Models\MpesaSetting;
+use App\Models\BankMpesaDetails;
+use App\Models\Payment;
+use App\Models\FeePayment;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Spatie\Browsershot\Browsershot;
+use App\Services\SmsService;
 class FeesStudentController extends Controller
 {
     /**
@@ -27,6 +41,11 @@ class FeesStudentController extends Controller
      *
      * @return void
      */
+// In Student.php model
+public function getFullNameAttribute()
+{
+    return "{$this->first_name} {$this->last_name}";
+}
 
 
     public function __construct()
@@ -684,30 +703,48 @@ public function assignedFeesSummary()
      *
      * @return \Illuminate\Http\Response
      */
- public function quickAssign()
-    {
-        //
-        $data['title'] = trans_choice('module_fees_quick_assign', 1);
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = $this->path;
-        $data['access'] = $this->access;
 
 
-        $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
+public function quickAssign(Request $request)
+{
+    $data['title'] = trans_choice('module_fees_quick_assign', 1);
+    $data['route'] = $this->route;
+    $data['view'] = $this->view;
+    $data['path'] = $this->path;
+    $data['access'] = $this->access;
 
-        // Filter Student
-        $students = StudentEnroll::where('status', '1');
-        $students->with('student')->whereHas('student', function ($query){
-            $query->where('status', '1');
-            $query->orderBy('student_id', 'asc');
+    // Fetching active fee categories
+    $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
+
+    // Fetching students
+    $students = StudentEnroll::where('status', '1');
+    $students->with('student')->whereHas('student', function ($query){
+        $query->where('status', '1')->orderBy('student_id', 'asc');
+    });
+    $data['students'] = $students->orderBy('student_id', 'asc')->get();
+
+    // Fetching invoices
+    $invoices = Invoice::whereIn('payment_status', ['partial', 'pending'])
+                        ->with(['studentEnroll.student'])
+                        ->orderBy('due_date', 'asc');
+
+    if ($request->has('search')) {
+        $search = $request->input('search');
+        $invoices->where(function($query) use ($search) {
+            $query->where('invoice_no', 'like', "%{$search}%")
+                  ->orWhereHas('studentEnroll.student', function($q) use ($search) {
+                      $q->where('student_id', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%");
+                  });
         });
-
-        $data['students'] = $students->orderBy('student_id', 'asc')->get();
-
-
-        return view($this->view.'.quick-assign', $data);
     }
+
+    $data['invoices'] = $invoices->take(10)->get();
+    $data['search'] = $request->input('search', '');
+
+    return view($this->view.'.quick-assign', $data);
+}
 
 
 
@@ -728,66 +765,62 @@ public function quickAssignStore(Request $request)
     $assignedFeeIds = [];
     $studentTotals = [];
 
-    foreach ($students as $studentId) {
-        $studentTotal = 0;
+    DB::transaction(function () use ($students, $categories, $assignDate, $dueDate, &$studentTotals) {
+        foreach ($students as $studentId) {
+            $studentTotal = 0;
 
-        foreach ($categories as $categoryId) {
-            $category = \App\Models\FeesCategory::find($categoryId);
-            if (!$category) continue;
+            foreach ($categories as $categoryId) {
+                $category = \App\Models\FeesCategory::find($categoryId);
+                if (!$category) continue;
 
-            $feeAmount = $category->amount;
+                $feeAmount = $category->amount;
 
-            // Check if a fee entry already exists for this student and category
-            $fee = \App\Models\Fee::updateOrCreate(
+                // Create or update fee
+                $fee = \App\Models\Fee::updateOrCreate(
+                    [
+                        'student_enroll_id' => $studentId,
+                        'category_id' => $categoryId,
+                    ],
+                    [
+                        'fee_amount' => $feeAmount,
+                        'assign_date' => $assignDate,
+                        'due_date' => $dueDate,
+                        'amount_type' => 1,
+                        'created_by' => auth()->id(),
+                        'updated_at' => now(),
+                    ]
+                );
+
+                $studentTotal += $feeAmount;
+            }
+
+            $studentTotals[$studentId] = $studentTotal;
+
+            // Safe Invoice Generation with table lock
+            $invoiceNo = DB::table('invoices')->lockForUpdate()->max('invoice_no');
+            $lastNumber = 0;
+
+            if ($invoiceNo && preg_match('/INV-(\d+)/', $invoiceNo, $matches)) {
+                $lastNumber = intval($matches[1]);
+            }
+
+            $newInvoiceNo = 'INV-' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+
+            // Create or update the invoice
+            \App\Models\Invoice::updateOrCreate(
+                ['student_enroll_id' => $studentId, 'assign_date' => $assignDate, 'due_date' => $dueDate],
                 [
-                    'student_enroll_id' => $studentId,
-                    'category_id' => $categoryId,
-                ],
-                [
-                    'fee_amount' => $feeAmount,
-                    'assign_date' => $assignDate,
-                    'due_date' => $dueDate,
-                    'amount_type' => 1,
-                    'created_by' => auth()->id(),
-                    'updated_at' => now(),
+                    'invoice_no' => $newInvoiceNo,
+                    'total_fee' => $studentTotal,
+                    'amount_due' => $studentTotal,
+                    'amount_paid' => 0,
+                    'payment_status' => 'Pending',
                 ]
             );
-
-            $assignedFeeIds[] = $fee->id;
-            $studentTotal += $feeAmount;
         }
+    });
 
-        $studentTotals[$studentId] = $studentTotal;
-
-        // Generate incremental invoice number
-        $lastInvoice = \App\Models\Invoice::orderBy('id', 'desc')->first();
-        $newNumber = 1;
-
-        // Check for the last invoice number and increment
-        if ($lastInvoice) {
-            $lastInvoiceNo = $lastInvoice->invoice_no;
-            if (preg_match('/INV-(\d+)/', $lastInvoiceNo, $matches)) {
-                $lastNumber = intval($matches[1]);
-                $newNumber = $lastNumber + 1;
-            }
-        }
-
-        $invoiceNo = 'INV-' . str_pad($newNumber, 3, '0', STR_PAD_LEFT);
-
-        // Check if an invoice already exists for the student to avoid duplicates
-        \App\Models\Invoice::updateOrCreate(
-            ['student_enroll_id' => $studentId, 'assign_date' => $assignDate, 'due_date' => $dueDate],
-            [
-                'invoice_no' => $invoiceNo,
-                'total_fee' => $studentTotal,
-                'amount_due' => $studentTotal, // Assuming nothing paid yet
-                'amount_paid' => 0,
-                'payment_status' => 'Pending',
-            ]
-        );
-    }
-
-    // Send SMS notifications
+    // ✅ Send SMS Notifications
     $apiUrl = 'https://smsportal.dapintechnologies.com/sms/v3/sendsms';
     $apiKey = '0CHxwhLRQ78MEFablqnsAtkgBNDjrJWou569KYpUd3eySPXT4ZOzv1cIiVG2mf';
     $serviceId = 0;
@@ -824,17 +857,279 @@ public function quickAssignStore(Request $request)
         }
     }
 
+    // ✅ Fetch Invoices for View
+    $invoices = \App\Models\Invoice::whereIn('student_enroll_id', $students)
+        ->where('assign_date', $assignDate)
+        ->where('due_date', $dueDate)
+        ->with('studentEnroll.student')
+        ->orderBy('assign_date', 'desc')
+        ->get();
+
     \Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-    return redirect()->route('fees.invoice', ['feeIds' => implode(',', $assignedFeeIds)]);
+    return redirect()->back()->with([
+        'success' => __('Fees assigned successfully.'),
+        'invoices' => $invoices
+    ]);
 }
 
 
 
 
 
+public function show($id)
+{
+$invoice = Invoice::with(['feeCategories', 'studentEnroll.student', 'studentEnroll.program'])->findOrFail($id);
 
-// Helper method to convert phone number to international format (e.g., 0725547867 => 254725547867)
+    // Debugging: Uncomment to verify relationships
+    // dd($invoice->fees->first()->category);
+    
+    $bankDetails = BankMpesaDetails::first();
+    $mpesaSettings = MpesaSetting::first();
+
+    return view('admin.fees-student.invoice-details', compact('invoice', 'bankDetails', 'mpesaSettings'));
+}
+
+
+public function getInvoiceData(Invoice $invoice)
+{
+    try {
+        $invoice->load(['feeCategories', 'studentEnroll.student']);
+        
+        $invoiceData = [
+            'invoice_no' => $invoice->invoice_no,
+            'student_name' => $invoice->studentEnroll->student->full_name ?? 'N/A',
+            'student_id' => $invoice->studentEnroll->student->student_id ?? 'N/A',
+            'assign_date' => $invoice->assign_date->format('d M Y'),
+            'due_date' => $invoice->due_date->format('d M Y'),
+            'status' => $invoice->payment_status,
+            'total_fee' => number_format($invoice->total_fee, 2),
+            'amount_paid' => number_format($invoice->amount_paid, 2),
+            'amount_due' => number_format($invoice->amount_due, 2),
+            'fee_categories' => $invoice->feeCategories->map(function($category) {
+                return [
+                    'title' => $category->title,
+                    'amount' => number_format($category->amount, 2)
+                ];
+            })
+        ];
+
+        return response()->json([
+            'success' => true,
+            'invoice' => $invoiceData
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+}
+
+
+
+public function generatePDF($id)
+{
+    // Load invoice with all necessary relationships
+    $invoice = Invoice::with([
+        'fees.category',  // Ensure this matches your relationship name
+        'studentEnroll.student', 
+        'studentEnroll.program',
+        'feeCategories'  // Include if you're using this relationship
+    ])->findOrFail($id);
+
+    // For debugging - uncomment to check the data
+    dd($invoice->fees->map(function($fee) {
+        return [
+            'id' => $fee->id,
+            'category_id' => $fee->category_id,
+            'category' => $fee->category,
+            'amount' => $fee->fee_amount
+        ];
+    }));
+
+    $bankDetails = BankMpesaDetails::first();
+    
+    $pdf = Pdf::loadView('admin.fees-student.pdf', [
+        'invoice' => $invoice,
+        'bankDetails' => $bankDetails
+    ]);
+    
+    $pdf->setPaper('A4', 'portrait');
+    return $pdf->download("invoice-{$invoice->invoice_no}.pdf");
+}
+
+
+
+
+public function create(Invoice $invoice)
+{
+    $invoice->load(['studentEnroll.student', 'feeCategories']);
+
+    $previousPayments = FeePayment::where('invoice_id', $invoice->id)
+        ->get()
+        ->groupBy('fee_id')
+        ->map(function ($group) {
+            return $group->sum('amount_applied');
+        });
+
+    return view('admin.fees-student.payment', compact('invoice', 'previousPayments'));
+}
+
+
+public function store(Request $request)
+{
+    // Validate invoice exists first
+    $invoice = Invoice::findOrFail($request->invoice_id);
+
+    $rules = [
+        'invoice_id' => 'required|exists:invoices,id',
+        'student_enroll_id' => 'required|exists:student_enrolls,id',
+        'payment_method' => 'required|in:mpesa,bank,cash',
+        'reference_number' => 'required_if:payment_method,mpesa,bank|nullable|string|max:50',
+        'payment_type' => 'required|in:full,installment',
+        'amount' => [
+            'required',
+            'numeric',
+            'min:0.01',
+            'max:'.$invoice->amount_due,
+            function ($attribute, $value, $fail) use ($invoice) {
+                if ($value > $invoice->amount_due) {
+                    $fail('The payment amount cannot exceed the amount due.');
+                }
+            }
+        ],
+        'fee_categories' => ['required_if:payment_type,installment', 'array'],
+        'fee_categories.*' => ['required_if:payment_type,installment', 'exists:fee_categories,id'],
+        'notes' => 'nullable|string',
+    ];
+
+    $validated = $request->validate($rules);
+
+    // Create payment
+    $payment = Payment::create([
+        'invoice_id' => $validated['invoice_id'],
+        'student_enroll_id' => $validated['student_enroll_id'],
+        'payment_method' => $validated['payment_method'],
+        'reference_number' => $validated['reference_number'] ?? null,
+        'amount' => $validated['amount'],
+        'is_installment' => $validated['payment_type'] === 'installment',
+        'notes' => $validated['notes'],
+    ]);
+
+    // Attach fee categories if installment
+    if ($validated['payment_type'] === 'installment') {
+        $payment->feeCategories()->attach($validated['fee_categories']);
+    }
+
+    // Update invoice
+    $invoice->amount_due -= $validated['amount'];
+    $invoice->payment_status = $invoice->amount_due <= 0 ? 'paid' : 'partial';
+    $invoice->save();
+
+    return redirect()->back()
+        ->with('success', 'Payment of '.number_format($validated['amount'], 2).' recorded successfully');
+}
+
+
+    protected function distributeToCategories($invoiceId, $amount)
+    {
+        $invoice = Invoice::with('feeCategories')->findOrFail($invoiceId);
+        $categories = $invoice->feeCategories;
+
+        $distributions = collect();
+        $totalRemaining = $categories->sum(function ($category) use ($invoice) {
+            $paid = FeePayment::where('fee_id', $category->id)
+                ->whereHas('payment', fn($q) => $q->where('invoice_id', $invoice->id))
+                ->sum('amount_applied');
+            return max(0, $category->amount - $paid);
+        });
+
+        foreach ($categories as $category) {
+            $paid = FeePayment::where('fee_id', $category->id)
+                ->whereHas('payment', fn($q) => $q->where('invoice_id', $invoice->id))
+                ->sum('amount_applied');
+            $remaining = max(0, $category->amount - $paid);
+
+            $distributions->put($category->id, round(($remaining / $totalRemaining) * $amount, 2));
+        }
+
+        return $distributions;
+    }
+
+    public function payshow(Invoice $invoice)
+    {
+        $invoice->load(['studentEnroll.student', 'fees.category']);
+        return view('admin.fees-student.payment', compact('invoice'));
+    }
+
+public function storepayment(Request $request)
+{
+    $request->validate([
+        'invoice_id' => 'required|exists:invoices,id',
+        'student_enroll_id' => 'required|exists:student_enrolls,id',
+        'amount' => 'required|numeric|min:0.01',
+        'payment_method' => 'required|in:mpesa,bank,cash',
+        'payment_type' => 'required|in:full,installment',
+        'categories' => 'nullable|array',
+    ]);
+
+    $payment = new \App\Models\Payment();
+    
+    // Generate a unique transaction ID
+    $payment->transaction_id = 'TNS-0030-' . Str::random(10);
+
+    // Store the payment details
+    $payment->invoice_id = $request->invoice_id;
+    $payment->student_enroll_id = $request->student_enroll_id;
+    $payment->amount = $request->amount;
+    $payment->payment_method = $request->payment_method;
+    $payment->payment_date = Carbon::now();
+    
+    // If payment is installment, mark it as partial and track installment number
+    if ($request->payment_type == 'installment') {
+        $payment->status = 'partial';
+        $payment->is_installment = 1;
+        $payment->installment_number = $this->getNextInstallmentNumber($request->invoice_id);
+    } else {
+        $payment->status = 'completed';
+        $payment->is_installment = 0;
+        $payment->installment_number = 0;
+    }
+
+    // Optional: Add notes if provided
+    $payment->notes = $request->notes;
+
+    // Save payment record
+    $payment->save();
+
+    // If installment, update the associated invoice's payment status
+    if ($payment->is_installment) {
+        $invoice = \App\Models\Invoice::find($payment->invoice_id);
+        $invoice->payment_status = 'Partial';
+        $invoice->save();
+    }
+
+    // Return response
+    \Toastr::success(__('Payment has been processed successfully.'));
+  return redirect()->back();
+}
+
+
+
+
+// Function to get the next installment number
+private function getNextInstallmentNumber($invoiceId)
+{
+    $lastInstallment = \App\Models\Payment::where('invoice_id', $invoiceId)
+                                           ->where('is_installment', 1)
+                                           ->orderBy('installment_number', 'desc')
+                                           ->first();
+
+    return $lastInstallment ? $lastInstallment->installment_number + 1 : 1;
+}
+
+
 private function formatPhoneNumberForSms($phone)
 {
     // Remove all non-numeric characters
@@ -853,6 +1148,166 @@ private function formatPhoneNumberForSms($phone)
     // Otherwise, just return the phone as is (may need adjustment)
     return $phone;
 }
+
+
+
+
+protected function calculateNextInstallmentNumber($invoiceId): int
+{
+    $lastInstallment = Payment::where('invoice_id', $invoiceId)
+        ->where('is_installment', true)
+        ->max('installment_number');
+    return $lastInstallment ? $lastInstallment + 1 : 1;
+}
+
+protected function distributeEvenlyAcrossFees(Payment $payment): void
+{
+    $invoiceFees = $payment->invoice->fees;
+    if ($invoiceFees->isNotEmpty()) {
+        $amountPerFee = $payment->amount / $invoiceFees->count();
+        foreach ($invoiceFees as $fee) {
+            FeePayment::create([
+                'payment_id' => $payment->id,
+                'fee_category_id' => $fee->id,
+                'amount' => round($amountPerFee, 2),
+            ]);
+        }
+    }
+}
+
+protected function updateInvoiceStatus(Invoice $invoice, float $amount, bool $isInstallment): void
+{
+    $invoice->amount_paid += $amount;
+    $invoice->amount_due = max(0, $invoice->total_fee - $invoice->amount_paid);
+    $invoice->payment_status = $invoice->amount_due <= 0.01 ? 'paid' : 'partial';
+
+    if ($invoice->payment_status === 'paid' && $isInstallment) {
+        Payment::where('invoice_id', $invoice->id)
+            ->where('is_installment', true)
+            ->where('status', 'partial')
+            ->update(['status' => 'completed']);
+    }
+
+    $invoice->save();
+}
+
+public function details($id)
+{
+    $invoice = Invoice::with(['studentEnroll.student', 'feeCategories'])->findOrFail($id);
+
+    return response()->json([
+        'invoice_no' => $invoice->invoice_no,
+        'student_name' => optional($invoice->studentEnroll)->student->full_name ?? 'N/A',
+        'student_id' => optional($invoice->studentEnroll)->student->student_id ?? 'N/A',
+        'assign_date_formatted' => \Carbon\Carbon::parse($invoice->assign_date)->format('d M Y'),
+        'due_date_formatted' => \Carbon\Carbon::parse($invoice->due_date)->format('d M Y'),
+        'status' => $invoice->status,
+        'total_fee' => $invoice->total_fee,
+        'total_fee_formatted' => number_format($invoice->total_fee, 2),
+        'amount_paid' => $invoice->amount_paid,
+        'amount_paid_formatted' => number_format($invoice->amount_paid, 2),
+        'amount_due' => $invoice->amount_due,
+        'amount_due_formatted' => number_format($invoice->amount_due, 2),
+        'fee_categories' => $invoice->feeCategories->map(function($category) {
+            return [
+                'title' => $category->title,
+                'amount' => $category->amount,
+                'amount_formatted' => number_format($category->amount, 2)
+            ];
+        })->toArray()
+    ]);
+}
+
+
+public function showReceipt(Payment $payment)
+{
+    // Load all necessary relationships
+    $payment->load([
+        'invoice' => function($query) {
+            $query->with(['studentEnroll' => function($q) {
+                $q->with(['student', 'program', 'session']);
+            }]);
+        }
+    ]);
+
+    // If you have fee items associated with payments, load them too
+    if (method_exists($payment, 'feeItems')) {
+        $payment->load('feeItems');
+    }
+
+    return view('admin.fees-student.receipt-pdf', compact('payment'));
+}
+
+public function showInvoice($id)
+{
+    $invoice = Invoice::with('payments')->findOrFail($id);
+
+    $totalPaid = $invoice->payments->sum('amount');
+    $totalDue = $invoice->total_amount - $totalPaid; // assuming 'total_amount' is the invoice's full charge
+
+    return view('admin.fees-student.invoice-show', compact('invoice', 'totalPaid', 'totalDue'));
+}
+
+
+public function downloadReceipt(Payment $payment)
+{
+    $payment->load([
+        'invoice',
+        'studentEnroll.student',
+        'studentEnroll.program',
+        'feePayments.fee.category'
+    ]);
+    
+    $pdf = PDF::loadView('admin.fees-student.receipt-pdf', compact('payment'));
+    return $pdf->download("receipt-{$payment->id}.pdf");
+}
+
+
+
+// public function showReceipt(Payment $payment)
+// {
+//     $payment->load([
+//         'invoice.fees.category',
+//         'studentEnroll.student',
+//         'studentEnroll.program',
+//         'studentEnroll.semester',
+//         'studentEnroll.section',
+//         'studentEnroll.session',
+//         'feePayments.category'
+//     ]);
+
+//     return view('admin.fees-student.receipt', compact('payment'));
+// }
+
+public function downloadReceipt1(Payment $payment)
+{
+    $payment->load([
+        'invoice.fees.category',
+        'studentEnroll.student',
+        'studentEnroll.program',
+        'studentEnroll.semester',
+        'studentEnroll.section',
+        'studentEnroll.session',
+        'feePayments.category'
+    ]);
+
+    // Render HTML with inline QR
+    $html = View::make('admin.fees-student.receipt-pdf', compact('payment'))->render();
+
+    $filename = 'receipt_' . $payment->transaction_id . '.pdf';
+
+    return response(
+        Browsershot::html($html)
+            ->setOption('no-sandbox', true)
+            ->format('A4')
+            ->margins(10, 10, 10, 10)
+            ->pdf()
+    )->withHeaders([
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . $filename . '"',
+    ]);
+}
+
 
 
 
@@ -882,6 +1337,53 @@ public function invoice()
 
     return view('admin.fees-student.invoice', ['invoices' => $invoiceData]);
 }
+
+ public function download(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|in:pdf,image',
+            'html' => 'required'
+        ]);
+
+        $html = base64_decode($request->html);
+        $type = $request->type;
+        $filename = 'receipt_' . time() . '.' . $type;
+
+        try {
+            if ($type === 'pdf') {
+                $content = Browsershot::html($html)
+                    ->format('A4')
+                    ->margins(10, 10, 10, 10)
+                    ->pdf();
+                
+                return response()->streamDownload(
+                    function () use ($content) {
+                        echo $content;
+                    },
+                    $filename,
+                    ['Content-Type' => 'application/pdf']
+                );
+            } else { // image
+                $content = Browsershot::html($html)
+                    ->windowSize(800, 1200)
+                    ->screenshot();
+                
+                return response()->streamDownload(
+                    function () use ($content) {
+                        echo $content;
+                    },
+                    $filename,
+                    ['Content-Type' => 'image/png']
+                );
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to generate download: ' . $e->getMessage());
+        }
+    }
+
+
+
+
 
 
 

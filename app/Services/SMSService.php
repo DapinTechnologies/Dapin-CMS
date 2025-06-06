@@ -2,98 +2,78 @@
 
 namespace App\Services;
 
-use App\Models\SmsConfiguration;
+use App\Models\StudentEnroll;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\FeePayment;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
-class SMSService
+class SmsService
 {
-    protected $config;
+    protected $apiUrl = 'https://smsportal.dapintechnologies.com/sms/v3/sendsms';
+    protected $apiKey = '0CHxwhLRQ78MEFablqnsAtkgBNDjrJWou569KYpUd3eySPXT4ZOzv1cIiVG2mf';
+    protected $from = 'Dapin';
+    protected $serviceId = 0;
 
-    public function __construct()
+    /**
+     * Format phone number to international format.
+     */
+    public function formatPhone($phone)
     {
-        // Fetch SMS configuration from the database
-        $this->config = SmsConfiguration::first();
+        $phone = preg_replace('/\D+/', '', $phone);
 
-        if (!$this->config) {
-            throw new \Exception('SMS configuration not found in database.');
+        if (strlen($phone) == 10 && str_starts_with($phone, '0')) {
+            return '254' . substr($phone, 1);
         }
+
+        if (str_starts_with($phone, '254')) {
+            return $phone;
+        }
+
+        return $phone;
     }
 
     /**
-     * Send a single SMS
+     * Send a message to one student.
      */
-    public function sendSingleSMS($phoneNumber, $message, $scheduleTime = null)
+    public function sendToStudent($student, $message)
     {
-        // Normalize phone number (e.g. 07xxx -> 2547xxx)
-        if (!Str::startsWith($phoneNumber, '254')) {
-            if (Str::startsWith($phoneNumber, '0')) {
-                $phoneNumber = '254' . substr($phoneNumber, 1);
-            }
+        if (!$student || !$student->phone) {
+            return false;
         }
 
         $payload = [
-            'api_key' => $this->config->api_key,
-            'serviceId' => $this->config->service_id,
-            'from' => $this->config->sender_id ?? 'Dapin', // use DB sender or default
-            'messages' => [
-                [
-                    'mobile' => $phoneNumber,
-                    'message' => $message,
-                    'client_ref' => rand(10000, 99999),
-                ]
-            ],
+            'api_key'       => $this->apiKey,
+            'service_id'    => $this->serviceId,
+            'mobile'        => $this->formatPhone($student->phone),
+            'response_type' => 'json',
+            'shortcode'     => $this->from,
+            'message'       => $message,
+            'date_send'     => Carbon::now()->format('Y-m-d H:i:s'),
         ];
 
-        if ($scheduleTime) {
-            $payload['date_send'] = $scheduleTime->format('Y-m-d H:i:s');
-        }
-
         try {
-            // Disable SSL verification for testing, remove in production!
-            $response = Http::withoutVerifying()->post($this->config->api_url, $payload);
+            $response = Http::withOptions(['verify' => false])
+                ->post($this->apiUrl, $payload);
 
-            $responseJson = $response->json();
-            Log::info('SMS Send Response', ['response' => $responseJson]);
+            Log::info('SMS sent to student', [
+                'student_id' => $student->id,
+                'phone'      => $student->phone,
+                'response'   => $response->json()
+            ]);
 
-            // Check for success (adjust according to your API response)
-            if ($response->successful() && isset($responseJson['status']) && $responseJson['status'] === 'success') {
-                return true;
-            }
-
-            Log::error('SMS sending failed', ['response' => $responseJson]);
-            return false;
+            return true;
         } catch (\Exception $e) {
-            Log::error('SMS sending exception: ' . $e->getMessage());
+            Log::error('SMS failed', ['error' => $e->getMessage()]);
             return false;
         }
     }
 
     /**
-     * Get current SMS balance
+     * Process payment and send SMS notification.
      */
-    public function getBalance()
-    {
-        try {
-            $payload = [
-                'api_key' => $this->config->api_key,
-                'serviceId' => $this->config->service_id,
-            ];
-
-            $response = Http::withoutVerifying()->post($this->config->api_url_balance ?? $this->config->api_url, $payload);
-
-            $responseJson = $response->json();
-            Log::info('SMS Balance Response', ['response' => $responseJson]);
-
-            if ($response->successful() && isset($responseJson['balance'])) {
-                return $responseJson['balance'];
-            }
-
-            return null;
-        } catch (\Exception $e) {
-            Log::error('SMS balance exception: ' . $e->getMessage());
-            return null;
-        }
-    }
 }

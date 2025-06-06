@@ -10,6 +10,31 @@ use App\Http\Controllers\DirectorController;
 use App\Http\Controllers\Admin\FeesStudentController;
 use App\Http\Controllers\Admin\FeesCategoryController;
 use App\Http\Controllers\InvoiceController;
+
+
+
+Route::get('/admin/invoice/{invoice}/data', [FeesStudentController::class, 'getInvoiceData'])->name('invoice.data');
+Route::get('invoice/details/{id}', [FeesStudentController::class, 'details'])->name('invoice.details');
+Route::post('/receipt/download', [FeesStudentController::class, 'download'])->name('receipt.download');
+Route::get('payments/{payment}/receipt', [FeesStudentController::class, 'showReceipt'])->name('payments.receipt');
+Route::get('payments/{payment}/download-receipt', [FeesStudentController::class, 'downloadReceipt1'])->name('payments.receipt.download');
+Route::get('/payments/receipt/pdf/{payment}', [FeesStudentController::class, 'downloadReceipt'])->name('payments.receipt.pdf');
+
+Route::get('/payment/{invoice}', [FeesStudentController::class, 'payshow'])->name('payment.page');
+
+Route::post('/payment/process', [FeesStudentController::class, 'storepayment'])->name('payments.store');
+Route::get('/payments/{payment}/receipt', [FeesStudentController::class, 'showReceipt'])->name('payments.receipt');
+
+Route::get('/payment/receipt/{payment}/download', [FeesStudentController::class, 'downloadReceipt'])->name('payment.receipt.download');
+        Route::get('invoices/{invoice}', [FeesStudentController::class, 'show'])
+            ->name('invoice.show')
+            ->middleware('permission:fees-student-due');
+        
+        Route::post('fees-student/quick-assign-store', [FeesStudentController::class, 'quickAssignStore'])
+            ->name('admin.fees-student.quick.assign.store')
+            ->middleware('permission:fees-student-quick-assign');
+    
+
 Route::get('fees/invoice/{invoice}', [InvoiceController::class, 'show'])->name('fees.invoice.show');
 
 
@@ -18,11 +43,8 @@ Route::get('/sms/test', [SmsController::class, 'sendTestSms'])->name('sms.test')
 
 
 Route::prefix('admin')->middleware(['auth', 'permission:fees-category-assign'])->group(function () {
-    // Show the form to assign fee categories
     Route::get('fees-category/assign-multiple', [FeesCategoryController::class, 'assignMultiple'])
         ->name('admin.fees-category.assign-fee-category');
-    
-    // Handle form submission for assigning categories and amounts
     Route::post('fees-category/assign-multiple', [FeesCategoryController::class, 'storeMultiple'])
         ->name('admin.fees-category.store-multiple');
 });

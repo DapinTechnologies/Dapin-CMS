@@ -1,0 +1,1 @@
+<?php echo e($credits); ?><?php /**PATH C:\Users\User\Desktop\college\resources\views\admin\credit.blade.php ENDPATH**/ ?>

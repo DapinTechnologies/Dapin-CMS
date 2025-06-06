@@ -1,0 +1,1 @@
+<?php /**PATH C:\Users\User\Desktop\college\resources\views\admin\fees-student\show.blade.php ENDPATH**/ ?>

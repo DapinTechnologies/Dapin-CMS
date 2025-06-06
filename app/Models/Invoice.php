@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
@@ -17,13 +18,13 @@ class Invoice extends Model
         'payment_status',
     ];
 
-    // Relationship to StudentEnroll (assuming student enroll table is 'student_enrolls')
+    // Relationship to StudentEnroll
     public function studentEnroll()
     {
         return $this->belongsTo(StudentEnroll::class, 'student_enroll_id');
     }
 
-    // Optional: convenience method to get student name (if loaded)
+    // Method to get student name (if loaded)
     public function getStudentNameAttribute()
     {
         return $this->studentEnroll && $this->studentEnroll->student
@@ -31,10 +32,46 @@ class Invoice extends Model
             : null;
     }
 
+    // Relationship to Fees
     public function fees()
+    {
+        return $this->hasMany(Fee::class, 'student_enroll_id', 'student_enroll_id')
+            ->where('assign_date', $this->assign_date)
+            ->where('due_date', $this->due_date);
+    }
+    // In Invoice model
+public function feeCategories()
 {
-   
-    return $this->hasMany(\App\Models\Fee::class, 'student_enroll_id', 'student_enroll_id');
+    return $this->hasManyThrough(
+        FeesCategory::class,
+        Fee::class,
+        'student_enroll_id', // Foreign key on Fee table
+        'id', // Foreign key on FeesCategory table
+        'student_enroll_id', // Local key on Invoice table
+        'category_id' // Local key on Fee table
+    );
 }
 
+
+
+public function payments()
+{
+    return $this->hasMany(Payment::class);
 }
+// Invoice model
+// In your Invoice model
+public function items()
+{
+    return $this->hasMany(Invoice::class);
+}
+// In your Invoice model
+protected $casts = [
+    'fee_details' => 'array' // If storing as JSON
+];
+
+// Then in your controller
+}
+
+
+
+

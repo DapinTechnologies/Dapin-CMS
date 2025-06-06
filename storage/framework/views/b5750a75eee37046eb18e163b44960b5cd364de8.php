@@ -1,0 +1,1 @@
+<?php echo e($balance); ?><?php /**PATH C:\Users\User\Desktop\college\resources\views\admin\sms\balance.blade.php ENDPATH**/ ?>

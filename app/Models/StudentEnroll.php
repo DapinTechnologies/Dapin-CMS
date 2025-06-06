@@ -69,4 +69,21 @@ class StudentEnroll extends Model
     {
         return $this->hasMany(Fee::class, 'student_enroll_id', 'id');
     }
+    // In app/Models/StudentEnroll.php
+
+public function batch()
+{
+    return $this->belongsTo(Batch::class, 'batch_id');
+}
+public function user()
+{
+    return $this->belongsTo(User::class, 'user_id'); // If student details are stored in users
+}
+
+public function getFullNameAttribute()
+{
+    return $this->user->name ?? 'N/A'; // adjust as per your user structure
+}
+
+
 }
