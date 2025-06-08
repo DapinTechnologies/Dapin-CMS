@@ -152,6 +152,10 @@
         </div>
     </div>
 </div>
+<?php
+  $feeCategories = \App\Models\FeesCategory::where('status', 1)->get();
+?>
+
 
 <!-- Payment Modal -->
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
@@ -168,12 +172,7 @@
         </div>
         <div class="modal-body">
           <!-- Fee Categories Display -->
-          <div class="mb-3">
-            <label class="form-label">Fee Categories</label>
-            <div id="fee-categories-list" class="border p-2" style="max-height: 150px; overflow-y: auto;">
-              <!-- Categories will be populated here -->
-            </div>
-          </div>
+         
 
           <div class="mb-3">
             <label class="form-label">Payment Type</label>
@@ -189,9 +188,19 @@
 
           <div class="mb-3" id="feeCategoriesContainer" style="display: none;">
             <label for="fee_categories" class="form-label">Select Fee Categories</label>
-            <select class="form-select select2" name="fee_categories[]" id="fee_categories" multiple>
-              <!-- Options will be populated via JavaScript -->
-            </select>
+          
+             
+                      <select class="form-select select2" name="fee_categories[]" id="fee_categories" multiple>
+                  <?php $__currentLoopData = $feeCategories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                      <option value="<?php echo e($category->id); ?>">
+                          <?php echo e($category->title); ?> (Ksh <?php echo e(number_format($category->amount, 2)); ?>)
+                      </option>
+                  <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+              </select>
+
+
+
+           
           </div>
 
           <div class="mb-3">
@@ -232,10 +241,9 @@
     </div>
   </div>
 </div>
-
 <!-- Print Modal -->
 <div class="modal fade" id="printModal" tabindex="-1" role="dialog" aria-labelledby="printModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="printModalLabel">Print Invoice</h5>
@@ -243,14 +251,53 @@
           <span>&times;</span>
         </button>
       </div>
-      <div class="modal-body">
-        <!-- Placeholder for print preview -->
-        <p>Invoice preview for printing will load here...</p>
+      <div class="modal-body p-0">
+        <div id="print-content" class="p-4">
+          <!-- Invoice content will be loaded here -->
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <p>Loading invoice details...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="print-invoice-btn">
+          <i class="fas fa-print"></i> Print
+        </button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Print Styles (hidden from normal view) -->
+<style type="text/css" media="print">
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+  body {
+    padding: 20px;
+    font-size: 12px;
+  }
+  .no-print, .modal-header, .modal-footer {
+    display: none !important;
+  }
+  .invoice-header, .invoice-body, .invoice-footer {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table, th, td {
+    border: 1px solid #ddd;
+  }
+</style>
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -399,6 +446,185 @@ $(document).ready(function () {
     });
 });
 </script>
+
+
+<script>
+// Print Modal Handling
+$('#printModal').on('show.bs.modal', function (event) {
+  var button = $(event.relatedTarget); // Button that triggered the modal
+  var invoiceId = button.data('id'); // Extract info from data-* attributes
+  var modal = $(this);
+  
+  // Show loading state
+  modal.find('#print-content').html(`
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <p>Loading invoice details...</p>
+    </div>
+  `);
+  
+  // Fetch invoice details via AJAX
+  $.ajax({
+    url: '/admin/invoice/' + invoiceId + '/print',
+    type: 'GET',
+    dataType: 'json',
+    success: function(response) {
+      if (response.success) {
+        // Populate the print content
+        modal.find('#print-content').html(`
+          <div class="invoice-container">
+            <div class="invoice-header text-center mb-4">
+              <h2 class="mb-1">${response.data.school_name || 'School Name'}</h2>
+              <p class="mb-1">${response.data.school_address || 'School Address'}</p>
+              <p class="mb-1">Phone: ${response.data.school_phone || 'N/A'} | Email: ${response.data.school_email || 'N/A'}</p>
+              <h3 class="mt-3 mb-3">INVOICE</h3>
+            </div>
+            
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <p><strong>Invoice No:</strong> ${response.data.invoice.invoice_no}</p>
+                <p><strong>Issue Date:</strong> ${response.data.invoice.assign_date}</p>
+                <p><strong>Due Date:</strong> ${response.data.invoice.due_date}</p>
+              </div>
+              <div class="col-md-6 text-md-right">
+                <p><strong>Student ID:</strong> ${response.data.student.student_id || 'N/A'}</p>
+                <p><strong>Student Name:</strong> ${response.data.student.first_name || ''} ${response.data.student.last_name || ''}</p>
+                <p><strong>Program:</strong> ${response.data.program || 'N/A'}</p>
+              </div>
+            </div>
+            
+            <div class="table-responsive mb-4">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Fee Category</th>
+                    <th class="text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${response.data.fee_categories.map((category, index) => `
+                    <tr>
+                      <td>${index + 1}</td>
+                      <td>${category.title}</td>
+                      <td class="text-right">${category.pivot.amount.toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <th colspan="2" class="text-right">Total Fee:</th>
+                    <th class="text-right">${response.data.invoice.total_fee.toFixed(2)}</th>
+                  </tr>
+                  <tr>
+                    <th colspan="2" class="text-right">Amount Paid:</th>
+                    <th class="text-right">${response.data.invoice.amount_paid.toFixed(2)}</th>
+                  </tr>
+                  <tr>
+                    <th colspan="2" class="text-right">Amount Due:</th>
+                    <th class="text-right">${response.data.invoice.amount_due.toFixed(2)}</th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <h5>Payment History</h5>
+                ${response.data.payments.length > 0 ? `
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${response.data.payments.map(payment => `
+                        <tr>
+                          <td>${payment.payment_date || payment.created_at}</td>
+                          <td>${payment.amount.toFixed(2)}</td>
+                          <td>${payment.payment_method}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                ` : '<p>No payments recorded</p>'}
+              </div>
+              <div class="col-md-6 text-right">
+                <div class="border-top pt-3 mt-3">
+                  <p>Status: <span class="badge ${getStatusBadgeClass(response.data.invoice.payment_status)}">
+                    ${response.data.invoice.payment_status.toUpperCase()}
+                  </span></p>
+                  <p class="mt-4">_________________________</p>
+                  <p>Authorized Signature</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="invoice-footer mt-4 pt-3 border-top text-center">
+              <p class="mb-1">Thank you for your payment!</p>
+              <p class="mb-1">For any inquiries, please contact: ${response.data.school_contact || 'N/A'}</p>
+              <p>Generated on: ${new Date().toLocaleString()}</p>
+            </div>
+          </div>
+        `);
+      } else {
+        modal.find('#print-content').html(`
+          <div class="alert alert-danger">
+            Error loading invoice details: ${response.message}
+          </div>
+        `);
+      }
+    },
+    error: function(xhr) {
+      modal.find('#print-content').html(`
+        <div class="alert alert-danger">
+          Error loading invoice details. Please try again.
+        </div>
+      `);
+    }
+  });
+});
+
+// Print button handler
+$('#print-invoice-btn').click(function() {
+  var printContent = $('#print-content').html();
+  var originalContent = $('body').html();
+  
+  $('body').html(`
+    <div class="container p-4">${printContent}</div>
+    <script>
+      window.print();
+      setTimeout(function() {
+        window.close();
+      }, 100);
+    </script>
+  `);
+  
+  // Restore original content after printing
+  setTimeout(function() {
+    $('body').html(originalContent);
+  }, 500);
+});
+
+// Helper function for status badge class
+function getStatusBadgeClass(status) {
+  switch(status) {
+    case 'paid': return 'badge-success';
+    case 'partial': return 'badge-warning';
+    default: return 'badge-danger';
+  }
+}
+
+</script>
+
+
+
+
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\college\resources\views/admin/fees-student/quick-assign.blade.php ENDPATH**/ ?>

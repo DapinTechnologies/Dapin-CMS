@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\FeesCategoryController;
 use App\Http\Controllers\InvoiceController;
 
 
-
+Route::get('/admin/invoice/{id}/print', [FeesStudentController::class, 'printr'])->name('invoice.print');
 Route::get('/admin/invoice/{invoice}/data', [FeesStudentController::class, 'getInvoiceData'])->name('invoice.data');
 Route::get('invoice/details/{id}', [FeesStudentController::class, 'details'])->name('invoice.details');
 Route::post('/receipt/download', [FeesStudentController::class, 'download'])->name('receipt.download');

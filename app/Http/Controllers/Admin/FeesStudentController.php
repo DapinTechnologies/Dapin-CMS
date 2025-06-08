@@ -29,7 +29,7 @@ use App\Models\MpesaSetting;
 use App\Models\BankMpesaDetails;
 use App\Models\Payment;
 use App\Models\FeePayment;
-
+use App\Models\Setting;
 use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Spatie\Browsershot\Browsershot;
@@ -660,7 +660,7 @@ public function assignedFeesSummary()
      *
      * @return \Illuminate\Http\Response
      */
-    public function print($id)
+    public function printr($id)
     {
         //
         $data['title'] = trans_choice('module_fees_report', 1);
@@ -1031,6 +1031,33 @@ public function store(Request $request)
         ->with('success', 'Payment of '.number_format($validated['amount'], 2).' recorded successfully');
 }
 
+public function print($id)
+{
+    $invoice = Invoice::with([
+        'studentEnroll.student', 
+        'studentEnroll.program', 
+        'feeCategories',
+        'payments'
+    ])->findOrFail($id);
+
+    $school = Setting::where('type', 'school')->pluck('value', 'key')->toArray();
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'invoice' => $invoice,
+            'student' => $invoice->studentEnroll->student ?? null,
+            'program' => $invoice->studentEnroll->program->title ?? null,
+            'fee_categories' => $invoice->feeCategories,
+            'payments' => $invoice->payments,
+            'school_name' => $school['school_name'] ?? null,
+            'school_address' => $school['address'] ?? null,
+            'school_phone' => $school['phone'] ?? null,
+            'school_email' => $school['email'] ?? null,
+            'school_contact' => $school['contact_email'] ?? $school['email'] ?? null,
+        ]
+    ]);
+}
 
     protected function distributeToCategories($invoiceId, $amount)
     {
@@ -1114,6 +1141,12 @@ public function storepayment(Request $request)
     \Toastr::success(__('Payment has been processed successfully.'));
   return redirect()->back();
 }
+
+
+
+
+
+
 
 
 
