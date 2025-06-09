@@ -312,6 +312,8 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+  
 $(document).ready(function() {
   // Initialize Select2
   $('.select2').select2();
@@ -462,6 +464,142 @@ $(document).ready(function() {
   });
 });
 </script>
+
+
+<!-- ... existing code ... -->
+
+<!-- Print Styles (hidden from normal view) -->
+<style type="text/css" media="print">
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+  body {
+    padding: 20px;
+    font-size: 12px;
+  }
+  .no-print, .modal-header, .modal-footer {
+    display: none !important;
+  }
+  .invoice-header, .invoice-body, .invoice-footer {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  table, th, td {
+    border: 1px solid #ddd;
+  }
+  
+  /* Add receipt specific styles */
+  .receipt-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  .receipt-container h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  .receipt-container table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+  }
+  .receipt-container th {
+    background-color: #f5f5f5;
+    text-align: left;
+    padding: 8px;
+  }
+  .receipt-container td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+</style>
+<style>
+.receipt-container {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin: 20px auto;
+}
+.receipt-container h3 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+}
+.receipt-container p {
+    margin-bottom: 5px;
+}
+.receipt-container .total-amount {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #27ae60;
+}
+.receipt-container table {
+    margin: 20px 0;
+}
+</style>
+<!-- Receipt Template -->
+<?php if(session('print_receipt')): ?>
+    <div class="receipt-container" id="receipt-to-print">
+        <h3>Payment Receipt</h3>
+        <p>Receipt No: <?php echo e(session('receipt_data.receipt_no')); ?></p>
+        <p>Transaction ID: <?php echo e(session('receipt_data.transaction_id')); ?></p>
+        <p>Date: <?php echo e(session('receipt_data.date')); ?></p>
+        <p>Student: <?php echo e(session('receipt_data.student_name')); ?> (ID: <?php echo e(session('receipt_data.student_id')); ?>)</p>
+        
+        <?php if(session('receipt_data.is_installment')): ?>
+            <p>Installment #<?php echo e(session('receipt_data.installment_number')); ?></p>
+        <?php endif; ?>
+        
+        <h4>Payment Details:</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $__currentLoopData = session('receipt_data.items'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <tr>
+                        <td><?php echo e($item['category']); ?></td>
+                        <td><?php echo e($item['amount']); ?></td>
+                    </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </tbody>
+        </table>
+        
+        <p><strong>Total Paid:</strong> <?php echo e(session('receipt_data.amount_paid')); ?></p>
+        <p><strong>Remaining Balance:</strong> <?php echo e(session('receipt_data.remaining_balance')); ?></p>
+        <p>Payment Method: <?php echo e(session('receipt_data.payment_method')); ?></p>
+        <?php if(session('receipt_data.reference_number')): ?>
+            <p>Reference: <?php echo e(session('receipt_data.reference_number')); ?></p>
+        <?php endif; ?>
+    </div>
+    
+    <script>
+        window.onload = function() {
+            // Auto-print the receipt
+            window.print();
+            
+            // Optional: Close after printing
+            setTimeout(function() {
+                window.close();
+            }, 1000);
+        };
+    </script>
+<?php endif; ?>
+
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\college\resources\views/admin/fees-student/quick-assign.blade.php ENDPATH**/ ?>

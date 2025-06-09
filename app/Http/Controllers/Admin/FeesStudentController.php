@@ -1091,7 +1091,7 @@ public function print($id)
         return view('admin.fees-student.payment', compact('invoice'));
     }
 
-public function storepayment(Request $request)
+public function storePayment(Request $request)
 {
     $request->validate([
         'invoice_id' => 'required|exists:invoices,id',
@@ -1099,70 +1099,140 @@ public function storepayment(Request $request)
         'amount' => 'required|numeric|min:0.01',
         'payment_method' => 'required|in:mpesa,bank,cash',
         'payment_type' => 'required|in:full,installment',
-        'categories' => 'nullable|array',
+        'reference_number' => 'required_if:payment_method,mpesa,bank|nullable|max:50',
+        'notes' => 'nullable|string|max:255',
+        'fee_categories' => 'required_if:payment_type,installment|array',
+        'fee_categories.*' => 'exists:fee_categories,id',
     ]);
 
-    $payment = new \App\Models\Payment();
-    
-    // Generate a unique transaction ID
-    $payment->transaction_id = 'TNS-0030-' . Str::random(10);
+    DB::beginTransaction();
 
-    // Store the payment details
-    $payment->invoice_id = $request->invoice_id;
-    $payment->student_enroll_id = $request->student_enroll_id;
-    $payment->amount = $request->amount;
-    $payment->payment_method = $request->payment_method;
-    $payment->payment_date = Carbon::now();
-    
-    // If payment is installment, mark it as partial and track installment number
-    if ($request->payment_type == 'installment') {
-        $payment->status = 'partial';
-        $payment->is_installment = 1;
-        $payment->installment_number = $this->getNextInstallmentNumber($request->invoice_id);
-    } else {
-        $payment->status = 'completed';
-        $payment->is_installment = 0;
-        $payment->installment_number = 0;
+    try {
+        // Generate receipt number and transaction ID
+        $receiptNo = 'RCPT-' . strtoupper(Str::random(8));
+        $transactionId = 'TNS-' . strtoupper(Str::random(10));
+
+        // Get the invoice
+        $invoice = Invoice::findOrFail($request->invoice_id);
+        $totalAmount = $invoice->total_amount;
+        $paidAmount = $invoice->paid_amount;
+        $remainingAmount = $totalAmount - $paidAmount;
+
+        // Validate installment payment doesn't exceed remaining amount
+        if ($request->payment_type == 'installment' && $request->amount > $remainingAmount) {
+            throw new \Exception("Installment amount cannot exceed remaining balance of " . number_format($remainingAmount, 2));
+        }
+
+        // Create payment record
+        $payment = Payment::create([
+            'receipt_no' => $receiptNo,
+            'transaction_id' => $transactionId,
+            'invoice_id' => $request->invoice_id,
+            'student_enroll_id' => $request->student_enroll_id,
+            'date' => now(),
+            'amount' => $request->amount,
+            'payment_method' => $request->payment_method,
+            'reference_number' => $request->reference_number,
+            'notes' => $request->notes,
+            'created_by' => auth()->id(),
+            'status' => $request->payment_type == 'installment' ? 'partial' : 'completed',
+            'is_installment' => $request->payment_type == 'installment' ? 1 : 0,
+            'installment_number' => $request->payment_type == 'installment' ? $this->getNextInstallmentNumber($request->invoice_id) : 0,
+        ]);
+
+        $amountToAllocate = $request->amount;
+
+        if ($request->payment_type === 'full') {
+            // Pay all outstanding fees
+            foreach ($invoice->fees as $fee) {
+                $balance = $fee->amount - $fee->paid_amount;
+                if ($balance > 0) {
+                    $paymentAmount = min($balance, $amountToAllocate);
+                    
+                    FeePayment::create([
+                        'fee_id' => $fee->id,
+                        'payment_id' => $payment->id,
+                        'amount' => $paymentAmount,
+                        'date' => now(),
+                    ]);
+                    
+                    $amountToAllocate -= $paymentAmount;
+                    if ($amountToAllocate <= 0) break;
+                }
+            }
+        } else {
+            // Pay selected categories in installment
+            foreach ($request->fee_categories as $categoryId) {
+                $fee = $invoice->fees()->where('category_id', $categoryId)->first();
+                if ($fee) {
+                    $balance = $fee->amount - $fee->paid_amount;
+                    if ($balance > 0) {
+                        $paymentAmount = min($balance, $amountToAllocate);
+                        
+                        FeePayment::create([
+                            'fee_id' => $fee->id,
+                            'payment_id' => $payment->id,
+                            'amount' => $paymentAmount,
+                            'date' => now(),
+                        ]);
+                        
+                        $amountToAllocate -= $paymentAmount;
+                        if ($amountToAllocate <= 0) break;
+                    }
+                }
+            }
+        }
+
+        // Update invoice status
+        $invoice->updateStatus();
+
+        DB::commit();
+
+        // Generate receipt data
+      // Update the receipt data generation to be more defensive
+$receiptData = [
+    'receipt_no' => $receiptNo,
+    'transaction_id' => $transactionId,
+    'date' => now()->format('Y-m-d H:i:s'),
+    'student_name' => optional(optional(optional($payment->studentEnroll)->student)->user)->name ?? 'N/A',
+    'student_id' => optional(optional($payment->studentEnroll)->student)->id ?? 'N/A',
+    'amount_paid' => number_format($payment->amount, 2),
+    'payment_method' => ucfirst($payment->payment_method),
+    'reference_number' => $payment->reference_number,
+    'remaining_balance' => number_format($invoice->fresh()->total_amount - $invoice->fresh()->paid_amount, 2),
+    'installment_number' => $payment->installment_number,
+    'is_installment' => $payment->is_installment,
+    'items' => $payment->feePayments->map(function($item) {
+        return [
+            'category' => optional($item->fee)->category->name ?? 'N/A',
+            'amount' => number_format($item->amount, 2)
+        ];
+    })->toArray()
+];
+
+        \Toastr::success(__('Payment has been processed successfully.'));
+
+        return redirect()->back()->with([
+            'receipt_data' => $receiptData,
+            'print_receipt' => true
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Toastr::error(__('Payment failed: ') . $e->getMessage());
+        return redirect()->back()->withInput();
     }
-
-    // Optional: Add notes if provided
-    $payment->notes = $request->notes;
-
-    // Save payment record
-    $payment->save();
-
-    // If installment, update the associated invoice's payment status
-    if ($payment->is_installment) {
-        $invoice = \App\Models\Invoice::find($payment->invoice_id);
-        $invoice->payment_status = 'Partial';
-        $invoice->save();
-    }
-
-    // Return response
-    \Toastr::success(__('Payment has been processed successfully.'));
-  return redirect()->back();
 }
 
-
-
-
-
-
-
-
-
-
-// Function to get the next installment number
 private function getNextInstallmentNumber($invoiceId)
 {
-    $lastInstallment = \App\Models\Payment::where('invoice_id', $invoiceId)
-                                           ->where('is_installment', 1)
-                                           ->orderBy('installment_number', 'desc')
-                                           ->first();
+    $lastInstallment = Payment::where('invoice_id', $invoiceId)
+                            ->where('is_installment', 1)
+                            ->orderBy('installment_number', 'desc')
+                            ->first();
 
     return $lastInstallment ? $lastInstallment->installment_number + 1 : 1;
 }
-
 
 private function formatPhoneNumberForSms($phone)
 {

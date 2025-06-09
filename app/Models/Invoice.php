@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
@@ -39,39 +38,64 @@ class Invoice extends Model
             ->where('assign_date', $this->assign_date)
             ->where('due_date', $this->due_date);
     }
-    // In Invoice model
-public function feeCategories()
+
+    public function feeCategories()
+    {
+        return $this->hasManyThrough(
+            FeesCategory::class,
+            Fee::class,
+            'student_enroll_id',
+            'id',
+            'student_enroll_id',
+            'category_id'
+        );
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    protected $casts = [
+        'fee_details' => 'array'
+    ];
+
+    public function updateStatus()
+    {
+        $totalFee = $this->total_fee;
+        $totalPaid = $this->payments()->sum('amount'); // Changed from feePayments() to payments()
+        
+        if ($totalPaid >= $totalFee) {
+            $status = 'paid';
+        } elseif ($totalPaid > 0) {
+            $status = 'partial';
+        } else {
+            $status = 'unpaid';
+        }
+        
+        $this->update([
+            'payment_status' => $status,
+            'amount_due' => $totalFee - $totalPaid,
+        ]);
+    }
+
+public function feePayments()
 {
     return $this->hasManyThrough(
-        FeesCategory::class,
-        Fee::class,
-        'student_enroll_id', // Foreign key on Fee table
-        'id', // Foreign key on FeesCategory table
-        'student_enroll_id', // Local key on Invoice table
-        'category_id' // Local key on Fee table
-    );
+        FeePayment::class,
+        Payment::class,
+        'invoice_id', // Foreign key on Payment table
+        'payment_id', // Foreign key on FeePayment table
+        'id', // Local key on Invoice table
+        'id' // Local key on Payment table
+    )->with('fee.category');
 }
 
-
-
-public function payments()
-{
-    return $this->hasMany(Payment::class);
+    
+    
 }
-// Invoice model
-// In your Invoice model
-public function items()
-{
-    return $this->hasMany(Invoice::class);
-}
-// In your Invoice model
-protected $casts = [
-    'fee_details' => 'array' // If storing as JSON
-];
-
-// Then in your controller
-}
-
-
-
-
