@@ -715,6 +715,7 @@ public function quickAssign(Request $request)
 
     // Fetching active fee categories
     $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
+    $data['feeCategories'] = $data['categories']; // Add this line to make feeCategories available
 
     // Fetching students
     $students = StudentEnroll::where('status', '1');
