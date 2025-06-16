@@ -1,16 +1,16 @@
 <?php return array (
   'app' => 
   array (
-    'name' => 'University Management',
+    'name' => 'Laravel',
     'env' => 'local',
     'debug' => true,
-    'url' => 'https://b1bc-154-159-252-59.ngrok-free.app',
+    'url' => 'http://localhost',
     'asset_url' => NULL,
-    'timezone' => 'Africa/Nairobi',
+    'timezone' => 'Asia/Dhaka',
     'locale' => 'en',
     'fallback_locale' => 'en',
     'faker_locale' => 'en_US',
-    'key' => 'base64:kNN9mb0TSfZf5lv/4iMMuXHJ8xNcWdDlUpapPDYVelA=',
+    'key' => 'base64:2ataiwyO2F0Gzz5jC59wzb+wlHfDmZcbvQcMZvMzOOs=',
     'cipher' => 'AES-256-CBC',
     'providers' => 
     array (
@@ -158,18 +158,18 @@
   ),
   'broadcasting' => 
   array (
-    'default' => 'log',
+    'default' => 'null',
     'connections' => 
     array (
       'pusher' => 
       array (
         'driver' => 'pusher',
-        'key' => '',
-        'secret' => '',
-        'app_id' => '',
+        'key' => NULL,
+        'secret' => NULL,
+        'app_id' => NULL,
         'options' => 
         array (
-          'cluster' => 'mt1',
+          'cluster' => NULL,
           'encrypted' => true,
         ),
       ),
@@ -210,7 +210,7 @@
       'file' => 
       array (
         'driver' => 'file',
-        'path' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\framework/cache/data',
+        'path' => 'C:\\wamp64\\www\\Dapin-CMS-main\\storage\\framework/cache/data',
       ),
       'memcached' => 
       array (
@@ -242,13 +242,13 @@
       'dynamodb' => 
       array (
         'driver' => 'dynamodb',
-        'key' => '',
-        'secret' => '',
+        'key' => NULL,
+        'secret' => NULL,
         'region' => 'us-east-1',
         'table' => 'cache',
       ),
     ),
-    'prefix' => 'university_management_cache',
+    'prefix' => 'laravel_cache',
   ),
   'database' => 
   array (
@@ -259,7 +259,7 @@
       array (
         'driver' => 'sqlite',
         'url' => NULL,
-        'database' => 'alluni',
+        'database' => 'dapin_cms',
         'prefix' => '',
         'foreign_key_constraints' => true,
       ),
@@ -269,7 +269,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'alluni',
+        'database' => 'dapin_cms',
         'username' => 'root',
         'password' => '',
         'unix_socket' => '',
@@ -289,7 +289,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'alluni',
+        'database' => 'dapin_cms',
         'username' => 'root',
         'password' => '',
         'charset' => 'utf8',
@@ -304,7 +304,7 @@
         'url' => NULL,
         'host' => '127.0.0.1',
         'port' => '3306',
-        'database' => 'alluni',
+        'database' => 'dapin_cms',
         'username' => 'root',
         'password' => '',
         'charset' => 'utf8',
@@ -319,20 +319,20 @@
       'options' => 
       array (
         'cluster' => 'predis',
-        'prefix' => 'university_management_database_',
+        'prefix' => 'laravel_database_',
       ),
       'default' => 
       array (
         'host' => '127.0.0.1',
         'password' => NULL,
-        'port' => '6379',
+        'port' => 6379,
         'database' => 0,
       ),
       'cache' => 
       array (
         'host' => '127.0.0.1',
         'password' => NULL,
-        'port' => '6379',
+        'port' => 6379,
         'database' => 1,
       ),
     ),
@@ -437,7 +437,7 @@
     ),
     'temporary_files' => 
     array (
-      'local_path' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\framework/laravel-excel',
+      'local_path' => 'C:\\wamp64\\www\\Dapin-CMS-main\\storage\\framework/laravel-excel',
       'remote_disk' => NULL,
       'remote_prefix' => NULL,
       'force_resync_remote' => NULL,
@@ -452,30 +452,30 @@
       'local' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\app',
+        'root' => 'C:\\wamp64\\www\\Dapin-CMS-main\\storage\\app',
       ),
       'public' => 
       array (
         'driver' => 'local',
-        'root' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\app/public',
-        'url' => 'https://b1bc-154-159-252-59.ngrok-free.app/storage',
+        'root' => 'C:\\wamp64\\www\\Dapin-CMS-main\\storage\\app/public',
+        'url' => '/storage',
         'visibility' => 'public',
       ),
       's3' => 
       array (
         'driver' => 's3',
-        'key' => '',
-        'secret' => '',
-        'region' => 'us-east-1',
-        'bucket' => '',
+        'key' => NULL,
+        'secret' => NULL,
+        'region' => NULL,
+        'bucket' => NULL,
         'url' => NULL,
       ),
     ),
   ),
   'flutterwave' => 
   array (
-    'publicKey' => '',
-    'secretKey' => '',
+    'publicKey' => NULL,
+    'secretKey' => NULL,
     'secretHash' => '',
   ),
   'hashing' => 
@@ -509,13 +509,13 @@
       'single' => 
       array (
         'driver' => 'single',
-        'path' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\logs/laravel.log',
+        'path' => 'C:\\wamp64\\www\\Dapin-CMS-main\\storage\\logs/laravel.log',
         'level' => 'debug',
       ),
       'daily' => 
       array (
         'driver' => 'daily',
-        'path' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\logs/laravel.log',
+        'path' => 'C:\\wamp64\\www\\Dapin-CMS-main\\storage\\logs/laravel.log',
         'level' => 'debug',
         'days' => 14,
       ),
@@ -563,77 +563,77 @@
   'mail' => 
   array (
     'driver' => 'smtp',
-    'host' => 'smtp.dapintechnologies.co.ke',
-    'port' => '2525',
+    'host' => 'smtp.mailgun.org',
+    'port' => 587,
     'from' => 
     array (
       'address' => 'hello@example.com',
       'name' => 'Example',
     ),
     'encryption' => 'tls',
-    'username' => 'info@dapintechnologies.co.ke',
-    'password' => 'e177cd2e8894b5',
+    'username' => NULL,
+    'password' => NULL,
     'sendmail' => '/usr/sbin/sendmail -bs',
     'markdown' => 
     array (
       'theme' => 'default',
       'paths' => 
       array (
-        0 => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\resources\\views/vendor/mail',
+        0 => 'C:\\wamp64\\www\\Dapin-CMS-main\\resources\\views/vendor/mail',
       ),
     ),
     'log_channel' => NULL,
   ),
   'payment' => 
   array (
-    'status' => 'mpesa',
+    'status' => NULL,
     'paypal' => 
     array (
-      'client_id' => '44',
-      'secret' => '44',
-      'mode' => 'live',
+      'client_id' => NULL,
+      'secret' => NULL,
+      'mode' => NULL,
     ),
     'stripe' => 
     array (
-      'key' => '',
-      'secret' => '',
+      'key' => NULL,
+      'secret' => NULL,
     ),
     'razorpay' => 
     array (
-      'key' => '',
-      'secret' => '',
+      'key' => NULL,
+      'secret' => NULL,
     ),
     'paystack' => 
     array (
-      'key' => '',
-      'secret' => '',
-      'email' => '',
+      'key' => NULL,
+      'secret' => NULL,
+      'email' => NULL,
     ),
     'flutterwave' => 
     array (
-      'key' => '',
-      'secret' => '',
-      'hash' => '',
+      'key' => NULL,
+      'secret' => NULL,
+      'hash' => NULL,
     ),
     'skrill' => 
     array (
-      'email' => '',
-      'secret' => '',
+      'email' => NULL,
+      'secret' => NULL,
     ),
   ),
   'paypal' => 
   array (
-    'mode' => 'live',
+    'mode' => 'sandbox',
     'sandbox' => 
     array (
-      'client_id' => '44',
-      'client_secret' => '44',
+      'client_id' => '',
+      'client_secret' => '',
       'app_id' => 'APP-80W284485P519543T',
     ),
     'live' => 
     array (
-      'client_id' => '44',
-      'client_secret' => '44',
+      'client_id' => '',
+      'client_secret' => '',
       'app_id' => '',
     ),
     'payment_action' => 'Sale',
@@ -644,10 +644,10 @@
   ),
   'paystack' => 
   array (
-    'publicKey' => '',
-    'secretKey' => '',
-    'paymentUrl' => 'https://api.paystack.co',
-    'merchantEmail' => '',
+    'publicKey' => false,
+    'secretKey' => false,
+    'paymentUrl' => false,
+    'merchantEmail' => false,
   ),
   'permission' => 
   array (
@@ -687,7 +687,7 @@
   ),
   'queue' => 
   array (
-    'default' => 'database',
+    'default' => 'sync',
     'connections' => 
     array (
       'sync' => 
@@ -712,8 +712,8 @@
       'sqs' => 
       array (
         'driver' => 'sqs',
-        'key' => '',
-        'secret' => '',
+        'key' => NULL,
+        'secret' => NULL,
         'prefix' => 'https://sqs.us-east-1.amazonaws.com/your-account-id',
         'queue' => 'your-queue-name',
         'region' => 'us-east-1',
@@ -747,8 +747,8 @@
     ),
     'ses' => 
     array (
-      'key' => '',
-      'secret' => '',
+      'key' => NULL,
+      'secret' => NULL,
       'region' => 'us-east-1',
     ),
     'sparkpost' => 
@@ -757,13 +757,13 @@
     ),
     'envato' => 
     array (
-      'license' => 'd9e2015d85a54686ac0617a3cf5de350',
+      'license' => 'dev00000000000000000000000000000',
     ),
     'stripe' => 
     array (
       'model' => 'App\\User',
-      'key' => '',
-      'secret' => '',
+      'key' => NULL,
+      'secret' => NULL,
       'webhook' => 
       array (
         'secret' => NULL,
@@ -780,10 +780,10 @@
   'session' => 
   array (
     'driver' => 'file',
-    'lifetime' => '120',
+    'lifetime' => 120,
     'expire_on_close' => false,
     'encrypt' => false,
-    'files' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\framework/sessions',
+    'files' => 'C:\\wamp64\\www\\Dapin-CMS-main\\storage\\framework/sessions',
     'connection' => NULL,
     'table' => 'sessions',
     'store' => NULL,
@@ -792,7 +792,7 @@
       0 => 2,
       1 => 100,
     ),
-    'cookie' => 'university_management_session',
+    'cookie' => 'laravel_session',
     'path' => '/',
     'domain' => NULL,
     'secure' => false,
@@ -801,38 +801,38 @@
   ),
   'sms' => 
   array (
-    'status' => 'none',
+    'status' => NULL,
     'vonage' => 
     array (
-      'key' => 'your_vonage_key',
-      'secret' => 'your_vonage_secret',
-      'number' => 'your_vonage_number',
+      'key' => NULL,
+      'secret' => NULL,
+      'number' => NULL,
     ),
     'twilio' => 
     array (
-      'sid' => 'your_twilio_sid',
-      'token' => 'your_twilio_token',
-      'number' => 'your_twilio_number',
+      'sid' => NULL,
+      'token' => NULL,
+      'number' => NULL,
     ),
     'africastalking' => 
     array (
-      'username' => 'your_africastalking_username',
-      'key' => 'your_africastalking_api_key',
+      'username' => NULL,
+      'key' => NULL,
     ),
     'textlocal' => 
     array (
-      'key' => 'your_textlocal_api_key',
-      'sender' => 'your_textlocal_sender_name',
+      'key' => NULL,
+      'sender' => NULL,
     ),
     'clickatell' => 
     array (
-      'key' => 'your_clickatell_api_key',
+      'key' => NULL,
     ),
     'smscountry' => 
     array (
-      'user' => 'your_smscountry_user',
-      'password' => 'your_smscountry_password',
-      'sender_id' => 'your_smscountry_sender_id',
+      'user' => NULL,
+      'password' => NULL,
+      'sender_id' => NULL,
     ),
   ),
   'toastr' => 
@@ -889,9 +889,9 @@
   array (
     'paths' => 
     array (
-      0 => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\resources\\views',
+      0 => 'C:\\wamp64\\www\\Dapin-CMS-main\\resources\\views',
     ),
-    'compiled' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\framework\\views',
+    'compiled' => 'C:\\wamp64\\www\\Dapin-CMS-main\\storage\\framework\\views',
   ),
   'image' => 
   array (
@@ -906,7 +906,7 @@
       2 => '127.0.0.1',
       3 => '127.0.0.1:8000',
       4 => '::1',
-      5 => 'b1bc-154-159-252-59.ngrok-free.app',
+      5 => 'localhost',
     ),
     'guard' => 
     array (
@@ -922,7 +922,7 @@
   'livewire' => 
   array (
     'class_namespace' => 'App\\Http\\Livewire',
-    'view_path' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\resources\\views/livewire',
+    'view_path' => 'C:\\wamp64\\www\\Dapin-CMS-main\\resources\\views/livewire',
     'layout' => 'layouts.app',
     'asset_url' => NULL,
     'app_url' => NULL,
@@ -1143,7 +1143,7 @@
     array (
     ),
     'enable_runnable_solutions' => NULL,
-    'remote_sites_path' => 'C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin',
+    'remote_sites_path' => 'C:\\wamp64\\www\\Dapin-CMS-main',
     'local_sites_path' => '',
     'housekeeping_endpoint_prefix' => '_ignition',
     'settings_file_path' => '',

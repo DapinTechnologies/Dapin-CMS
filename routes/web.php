@@ -402,7 +402,17 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::get('exam/admit-card-multiprint', 'AdmitCardController@multiPrint')->name('admit-card.multiprint');
     Route::get('exam/admit-card-download/{id}', 'AdmitCardController@download')->name('admit-card.download');
     Route::resource('exam/admit-setting', 'AdmitCardSettingController');
-
+    Route::post('exam/exam-routine-repo/print', 'ExamRoutineRepoController@print')->name('exam-routine-repo.print');
+    Route::resource('exam/exam-routine-repo', 'ExamRoutineRepoController');
+    Route::resource('exam/attendance-repo', 'ExamAttendanceRepoController');
+    Route::resource('exam/result-repo', 'ExamResultRepoController');
+    Route::resource('exam/exam-teacher-repo', 'ExamTeacherRepoController');
+    Route::resource('exam/subject-repo', 'SubjectRepoController');
+    Route::resource('exam/result2-repo', 'Exam2ResultRepoController');
+     Route::resource('exam/teacher-report', 'ExamTeacherReportController');
+     Route::resource('exam/department-repo', 'ExamDepartmentRepoController');
+     Route::resource('exam/dashboard-repo', 'ExamDashboardRepoController');
+     Route::resource('exam/result3-repo', 'ExamResult3RepoController');
 
 
     // Assignment Routes
@@ -754,6 +764,14 @@ Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')-
     // Fees Routes
     Route::get('fees', 'FeesController@index')->name('fees.index');
     Route::get('fees/pay/{id}', 'FeesController@pay')->name('fees.pay');
+
+  
+     // Custom delete route
+Route::delete('student/subjects/remove/{id}', [StudentSubjectController::class, 'destroy'])
+    ->name('student.subjects.remove');
+
+// Resource route (keep this)
+Route::resource('subject', 'App\Http\Controllers\Student\StudentSubjectController');
 
     // Library Routes
     Route::get('library', 'LibraryController@index')->name('library.index');
