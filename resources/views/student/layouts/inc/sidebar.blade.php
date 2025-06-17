@@ -15,7 +15,8 @@
             </a>
         </li>
 
-        @if(panel('panel_class_routine')->status == 1)
+
+        @if(($panel = panel('panel_class_routine')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/class-routine*') ? 'active' : '' }}">
             <a href="{{ route('student.class-routine.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-clock"></i></span>
@@ -24,7 +25,7 @@
         </li>
         @endif
 
-        @if(panel('panel_exam_routine')->status == 1)
+        @if(($panel = panel('panel_exam_routine')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/exam-routine*') ? 'active' : '' }}">
             <a href="{{ route('student.exam-routine.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-align-left"></i></span>
@@ -33,7 +34,7 @@
         </li>
         @endif
 
-        @if(panel('panel_attendance')->status == 1)
+        @if(($panel = panel('panel_attendance')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/attendance*') ? 'active' : '' }}">
             <a href="{{ route('student.attendance.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-calendar-check"></i></span>
@@ -42,7 +43,7 @@
         </li>
         @endif
 
-        @if(panel('panel_leave')->status == 1)
+        @if(($panel = panel('panel_leave')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/leave*') ? 'active' : '' }}">
             <a href="{{ route('student.leave.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="far fa-edit"></i></span>
@@ -51,14 +52,7 @@
         </li>
         @endif
 
-        {{-- <li class="nav-item {{ Request::is('student/event-calendar*') ? 'active' : '' }}">
-            <a href="{{ route('student.event.calendar') }}" class="nav-link">
-                <span class="pcoded-micon"><i class="fas fa-calendar-alt"></i></span>
-                <span class="pcoded-mtext">{{ trans_choice('module_calendar', 1) }}</span>
-            </a>
-        </li> --}}
-
-        @if(panel('panel_fees_report')->status == 1)
+        @if(($panel = panel('panel_fees_report')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/fees*') ? 'active' : '' }}">
             <a href="{{ route('student.fees.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-money-bill-wave"></i></span>
@@ -67,7 +61,17 @@
         </li>
         @endif
 
-        @if(panel('panel_library')->status == 1)
+         
+     
+
+<li class="nav-item {{ Request::is('student/subject*') ? 'active' : '' }}">
+    <a href="{{ route('student.subject.index') }}" class="nav-link">
+        <span class="pcoded-micon"><i class="fas fa-clipboard-list"></i></span>
+        <span class="pcoded-mtext">{{ __('Register Units') }}</span>
+    </a>
+</li>
+
+        @if(($panel = panel('panel_library')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/library*') ? 'active' : '' }}">
             <a href="{{ route('student.library.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
@@ -76,7 +80,7 @@
         </li>
         @endif
     
-        @if(panel('panel_digital')->status == 1)
+        @if(($panel = panel('panel_digital')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/digital*') ? 'active' : '' }}">
             <a href="{{ route('studentlibrarydigital') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
@@ -85,9 +89,7 @@
         </li>
         @endif
 
-
-
-        @if(panel('panel_notice')->status == 1)
+        @if(($panel = panel('panel_notice')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/notice*') ? 'active' : '' }}">
             <a href="{{ route('student.notice.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-bullhorn"></i></span>
@@ -96,7 +98,7 @@
         </li>
         @endif
 
-        @if(panel('panel_assignment')->status == 1)
+        @if(($panel = panel('panel_assignment')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/assignment*') ? 'active' : '' }}">
             <a href="{{ route('student.assignment.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-newspaper"></i></span>
@@ -105,7 +107,7 @@
         </li>
         @endif
 
-        @if(panel('panel_download')->status == 1)
+        @if(($panel = panel('panel_download')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/download*') ? 'active' : '' }}">
             <a href="{{ route('student.download.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-download"></i></span>
@@ -114,7 +116,7 @@
         </li>
         @endif
 
-        @if(panel('panel_transcript')->status == 1)
+        @if(($panel = panel('panel_transcript')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/transcript*') ? 'active' : '' }}">
             <a href="{{ route('student.transcript.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-pen-square"></i></span>
@@ -123,7 +125,7 @@
         </li>
         @endif
 
-        @if(panel('panel_profile')->status == 1)
+        @if(($panel = panel('panel_profile')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/profile*') ? 'active' : '' }}">
             <a href="{{ route('student.profile.index') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-id-card"></i></span>
