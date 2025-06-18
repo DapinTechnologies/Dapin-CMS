@@ -5,22 +5,24 @@ use Illuminate\Support\Facades\Http;
 use App\Models\SmsConfiguration;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PesaController;
+use App\Http\Controllers\DirectorController;
 
 
 
-//
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group whichlo
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
-// Web Routes
+
+Route::get('/index/director',[DirectorController::class,'index'])->name('directors.index');
+Route::get('/create/director',[DirectorController::class,'create'])->name('directors.create');
+Route::post('/store/director',[DirectorController::class,'store'])->name('directors.store');
+//Route::post('/update/director/{id}',[DirectorController::class,'update'])->name('directors.update');
+Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
+
+Route::get('/home/about',[DirectorController::class,'About'])->name('aboutus');
+
+
+
+
+
 Route::middleware(['XSS'])->namespace('Web')->group(function () {
 
     // Home Route
