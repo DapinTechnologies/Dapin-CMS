@@ -19,6 +19,33 @@ use App\Http\Controllers\PesaController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
+Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
+Route::get('/admin/invoice/{id}/print', [FeesStudentController::class, 'printr'])->name('invoice.print');
+Route::get('/admin/invoice/{invoice}/data', [FeesStudentController::class, 'getInvoiceData'])->name('invoice.data');
+Route::get('invoice/details/{id}', [FeesStudentController::class, 'details'])->name('invoice.details');
+Route::post('/receipt/download', [FeesStudentController::class, 'download'])->name('receipt.download');
+Route::get('/payment/receipt/{payment}', [FeesStudentController::class, 'showReceipt'])->name('payment.receipt');
+Route::get('payments/{payment}/download-receipt', [FeesStudentController::class, 'downloadReceipt1'])->name('payments.receipt.download');
+Route::get('/payments/receipt/pdf/{payment}', [FeesStudentController::class, 'downloadReceipt'])->name('payments.receipt.pdf');
+
+Route::get('/payment/{invoice}', [FeesStudentController::class, 'payshow'])->name('payment.page');
+
+Route::post('/payment/process', [FeesStudentController::class, 'storepayment'])->name('payments.store');
+Route::get('/payments/{payment}/receipt', [FeesStudentController::class, 'showReceipt'])->name('payments.receipt');
+
+Route::get('/payment/receipt/{payment}/download', [FeesStudentController::class, 'downloadReceipt'])->name('payment.receipt.download');
+        Route::get('invoices/{invoice}', [FeesStudentController::class, 'show'])
+            ->name('invoice.show')
+            ->middleware('permission:fees-student-due');
+        
+        Route::post('fees-student/quick-assign-store', [FeesStudentController::class, 'quickAssignStore'])
+            ->name('admin.fees-student.quick.assign.store')
+            ->middleware('permission:fees-student-quick-assign');
+    
+
+Route::get('fees/invoice/{invoice}', [InvoiceController::class, 'show'])->name('fees.invoice.show');
+
 
 // Web Routes
 Route::middleware(['XSS'])->namespace('Web')->group(function () {
