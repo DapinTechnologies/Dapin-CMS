@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\SmsConfiguration;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PesaController;
+use App\Http\Controller\DirectorController;
 
 
 
@@ -19,6 +20,8 @@ use App\Http\Controllers\PesaController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
 Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
 Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
 Route::get('/admin/invoice/{id}/print', [FeesStudentController::class, 'printr'])->name('invoice.print');
