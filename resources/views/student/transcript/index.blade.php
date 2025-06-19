@@ -22,48 +22,7 @@
                     <li class="list-group-item"><mark class="text-primary">{{ __('field_batch') }} :</mark> {{ $row->batch->title ?? '' }}</li>
                     <li class="list-group-item"><mark class="text-primary">{{ __('field_program') }} :</mark> {{ $row->program->title ?? '' }} ({{ $row->program->shortcode ?? '' }})</li>
 
-                    @php
-                        $total_credits = 0;
-                        $total_cgpa = 0;
-                    @endphp
-                    @foreach( $row->studentEnrolls as $key => $item )
-
-                        @if(isset($item->subjectMarks))
-                        @foreach($item->subjectMarks as $mark)
-                        @if((date('Y-m-d', strtotime($mark->publish_date)) == date('Y-m-d') && date('H:i:s', strtotime($mark->publish_time)) <= date('H:i:s')) || date('Y-m-d', strtotime($mark->publish_date)) < date('Y-m-d'))
-
-                            @php
-                            $marks_per = round($mark->total_marks);
-                            @endphp
-
-                            @foreach($grades as $grade)
-                            @if($marks_per >= $grade->min_mark && $marks_per <= $grade->max_mark)
-                            @php
-                            if($grade->point > 0){
-                            $total_cgpa = $total_cgpa + ($grade->point * $mark->subject->credit_hour);
-                            $total_credits = $total_credits + $mark->subject->credit_hour;
-                            }
-                            @endphp
-                            @break
-                            @endif
-                            @endforeach
-
-                        @endif
-                        @endforeach
-                        @endif
-
-                    @endforeach
-
-                    <li class="list-group-item"><mark class="text-primary">{{ __('field_total_credit_hour') }} :</mark> {{ round($total_credits, 2) }}</li>
-
-                    <li class="list-group-item"><mark class="text-primary">{{ __('field_cumulative_gpa') }} :</mark> 
-                        @php
-                        if($total_credits <= 0){
-                            $total_credits = 1;
-                        }
-                        $com_gpa = $total_cgpa / $total_credits;
-                        echo number_format((float)$com_gpa, 2, '.', '');
-                        @endphp
+                    
                     </li>
                   </ul>
                 </div>

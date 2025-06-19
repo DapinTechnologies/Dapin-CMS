@@ -5,20 +5,46 @@ use Illuminate\Support\Facades\Http;
 use App\Models\SmsConfiguration;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PesaController;
+use App\Http\Controllers\DirectorController;
 
 
 
-//
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group whichlo
-| contains the "web" middleware group. Now create something great!
-|
-*/
+
+Route::get('/index/director',[DirectorController::class,'index'])->name('directors.index');
+Route::get('/create/director',[DirectorController::class,'create'])->name('directors.create');
+Route::post('/store/director',[DirectorController::class,'store'])->name('directors.store');
+Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
+Route::get('/home/about',[DirectorController::class,'About'])->name('aboutus');
+
+
+
+Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
+Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
+Route::get('/admin/invoice/{id}/print', [FeesStudentController::class, 'printr'])->name('invoice.print');
+Route::get('/admin/invoice/{invoice}/data', [FeesStudentController::class, 'getInvoiceData'])->name('invoice.data');
+Route::get('invoice/details/{id}', [FeesStudentController::class, 'details'])->name('invoice.details');
+Route::post('/receipt/download', [FeesStudentController::class, 'download'])->name('receipt.download');
+Route::get('/payment/receipt/{payment}', [FeesStudentController::class, 'showReceipt'])->name('payment.receipt');
+Route::get('payments/{payment}/download-receipt', [FeesStudentController::class, 'downloadReceipt1'])->name('payments.receipt.download');
+Route::get('/payments/receipt/pdf/{payment}', [FeesStudentController::class, 'downloadReceipt'])->name('payments.receipt.pdf');
+
+Route::get('/payment/{invoice}', [FeesStudentController::class, 'payshow'])->name('payment.page');
+
+Route::post('/payment/process', [FeesStudentController::class, 'storepayment'])->name('payments.store');
+Route::get('/payments/{payment}/receipt', [FeesStudentController::class, 'showReceipt'])->name('payments.receipt');
+
+Route::get('/payment/receipt/{payment}/download', [FeesStudentController::class, 'downloadReceipt'])->name('payment.receipt.download');
+        Route::get('invoices/{invoice}', [FeesStudentController::class, 'show'])
+            ->name('invoice.show')
+            ->middleware('permission:fees-student-due');
+        
+        Route::post('fees-student/quick-assign-store', [FeesStudentController::class, 'quickAssignStore'])
+            ->name('admin.fees-student.quick.assign.store')
+            ->middleware('permission:fees-student-quick-assign');
+    
+
+Route::get('fees/invoice/{invoice}', [InvoiceController::class, 'show'])->name('fees.invoice.show');
+
 
 // Web Routes
 Route::middleware(['XSS'])->namespace('Web')->group(function () {
@@ -402,7 +428,17 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::get('exam/admit-card-multiprint', 'AdmitCardController@multiPrint')->name('admit-card.multiprint');
     Route::get('exam/admit-card-download/{id}', 'AdmitCardController@download')->name('admit-card.download');
     Route::resource('exam/admit-setting', 'AdmitCardSettingController');
-
+    Route::post('exam/exam-routine-repo/print', 'ExamRoutineRepoController@print')->name('exam-routine-repo.print');
+    Route::resource('exam/exam-routine-repo', 'ExamRoutineRepoController');
+    Route::resource('exam/attendance-repo', 'ExamAttendanceRepoController');
+    Route::resource('exam/result-repo', 'ExamResultRepoController');
+    Route::resource('exam/exam-teacher-repo', 'ExamTeacherRepoController');
+    Route::resource('exam/subject-repo', 'SubjectRepoController');
+    Route::resource('exam/result2-repo', 'Exam2ResultRepoController');
+     Route::resource('exam/teacher-report', 'ExamTeacherReportController');
+     Route::resource('exam/department-repo', 'ExamDepartmentRepoController');
+     Route::resource('exam/dashboard-repo', 'ExamDashboardRepoController');
+     Route::resource('exam/result3-repo', 'ExamResult3RepoController');
 
 
     // Assignment Routes
@@ -754,6 +790,14 @@ Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')-
     // Fees Routes
     Route::get('fees', 'FeesController@index')->name('fees.index');
     Route::get('fees/pay/{id}', 'FeesController@pay')->name('fees.pay');
+
+  
+     // Custom delete route
+Route::delete('student/subjects/remove/{id}', [StudentSubjectController::class, 'destroy'])
+    ->name('student.subjects.remove');
+
+// Resource route (keep this)
+Route::resource('subject', 'App\Http\Controllers\Student\StudentSubjectController');
 
     // Library Routes
     Route::get('library', 'LibraryController@index')->name('library.index');

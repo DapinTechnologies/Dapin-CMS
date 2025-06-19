@@ -75,51 +75,96 @@
                         <h5>{{ trans_choice('module_calendar', 2) }}</h5>
                     </div>
                     <div class="card-block">
-
                         <!-- [ Calendar ] start -->
                         <div id='calendar' class='calendar'></div>
                         <!-- [ Calendar ] end -->
-
                     </div>
                 </div>
             </div>
-            <!-- [Event List] start -->
+           
             <div class="col-xl-4 col-md-4 col-sm-12">
+                <!-- [Today's Classes] start -->
                 <div class="card statistial-visit">
                     <div class="card-header">
-                        <h5>{{ __('upcoming') }} {{ trans_choice('module_event', 1) }}</h5>
+                        <h5>{{ __('Today\'s Classes') }} ({{ \Carbon\Carbon::now()->format('l') }})</h5>
+                        @if(isset($program_id))
+                            <span class="badge badge-primary">
+                                <i class="fas fa-graduation-cap"></i> 
+                                Program: {{ App\Models\Program::find($program_id)->name ?? 'N/A' }}
+                            </span>
+                        @endif
                     </div>
                     <div class="card-block">
-                        @foreach($latest_events as $key => $latest_event)
-                        @if($key <= 9)
-                        <p>
-                        <mark style="color: {{ $latest_event->color }}">
-                            <i class="fas fa-calendar-check"></i> {{ $latest_event->title }}
-                        </mark>
-                        <br>
-                        <small>
-                            @if(isset($setting->date_format))
-                            {{ date($setting->date_format, strtotime($latest_event->start_date)) }}
-                            @else
-                            {{ date("Y-m-d", strtotime($latest_event->start_date)) }}
-                            @endif
-
-                            @if($latest_event->start_date != $latest_event->end_date)
-                             <i class="fas fa-exchange-alt"></i> 
-                            @if(isset($setting->date_format))
-                            {{ date($setting->date_format, strtotime($latest_event->end_date)) }}
-                            @else
-                            {{ date("Y-m-d", strtotime($latest_event->end_date)) }}
-                            @endif
-                            @endif
-                        </small>
-                        </p>
+                        @if($today_classes->isNotEmpty())
+                            @foreach($today_classes as $class)
+                            <p>
+                                <mark style="color: #6777ef;">
+                                    <i class="fas fa-book-open"></i>
+                                    <span style="color: inherit;">
+                                        {{ $class->subject->code ?? 'N/A' }} - 
+                                        @if(isset($setting->time_format))
+                                        {{ date($setting->time_format, strtotime($class->start_time)) }} to 
+                                        {{ date($setting->time_format, strtotime($class->end_time)) }}
+                                        @else
+                                        {{ date("h:i A", strtotime($class->start_time)) }} to 
+                                        {{ date("h:i A", strtotime($class->end_time)) }}
+                                        @endif
+                                    </span>
+                                </mark>
+                                <br>
+                                <small>
+                                    {{ __('Unit') }}: {{ $class->subject->code ?? 'N/A' }} |
+                                    {{ __('Room') }}: {{ $class->room->title ?? 'N/A' }} | 
+                                    {{ __('Lecturer') }}: {{ $class->teacher->first_name ?? '' }} {{ $class->teacher->last_name ?? '' }} 
+                                </small>
+                            </p>
+                            @endforeach
+                        @else
+                            <p>
+                                <mark style="color: #6777ef;">
+                                    <i class="fas fa-book-open"></i>
+                                    <span style="color: inherit;">
+                                        {{ __('No classes scheduled for today') }}
+                                    </span>
+                                </mark>
+                            </p>
                         @endif
-                        @endforeach
                     </div>
                 </div>
+                <!-- [Today's Classes] end -->
+                
+                <!-- [Notice List] start -->
+                <div class="card statistial-visit" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5>{{ __('Recent Notices') }}</h5>
+                    </div>
+                    <div class="card-block">
+                        @if($latest_notices->isNotEmpty())
+                            @foreach($latest_notices as $notice)
+                            <p>
+                                <mark style="color: #6777ef;">
+                                    <i class="fas fa-bullhorn"></i>
+                                    <a href="{{ route('student.notice.show', $notice->id) }}" style="color: inherit;">
+                                        {{ $notice->title }}
+                                    </a>
+                                </mark>
+                                <br>
+                                <small>
+                                    @if(isset($setting->date_format))
+                                    {{ date($setting->date_format, strtotime($notice->date)) }}
+                                    @else
+                                    {{ date("Y-m-d", strtotime($notice->date)) }}
+                                    @endif
+                                </small>
+                            </p>
+                            @endforeach
+                        @else
+                            <p>{{ __('No recent notices') }}</p>
+                        @endif
+                    </div>
+                </div>
+                <!-- [Notice List] end -->
             </div>
-            <!-- [Event List] end -->
         </div>
         <!-- [ Main Content ] end -->
     </div>
@@ -133,7 +178,6 @@
     <script src="{{ asset('dashboard/plugins/fullcalendar/js/lib/moment.min.js') }}"></script>
     <script src="{{ asset('dashboard/plugins/fullcalendar/js/lib/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('dashboard/plugins/fullcalendar/js/fullcalendar.min.js') }}"></script>
-
 
     <script type="text/javascript">
         // Full calendar
@@ -149,7 +193,6 @@
                 editable: false,
                 droppable: false,
                 events: [
-
                 @php
                     foreach($events as $key => $row){
                         echo "{
@@ -162,7 +205,6 @@
                             }, ";
                     }
                 @endphp
-
                 ],
             });
         });

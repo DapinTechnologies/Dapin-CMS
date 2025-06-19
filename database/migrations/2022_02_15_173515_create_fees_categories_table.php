@@ -14,12 +14,13 @@ class CreateFeesCategoriesTable extends Migration
     public function up()
     {
         Schema::create('fees_categories', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id(); // Auto-incrementing primary key (bigint)
             $table->string('title')->unique();
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->boolean('status')->default('1');
-            $table->timestamps();
+            $table->double('amount')->nullable(); // New amount field
+            $table->boolean('status')->default(true); // Default to true (1)
+            $table->timestamps(); // created_at & updated_at
         });
     }
 
