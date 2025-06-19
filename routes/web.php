@@ -5,23 +5,14 @@ use Illuminate\Support\Facades\Http;
 use App\Models\SmsConfiguration;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PesaController;
-use App\Http\Controller\DirectorController;
+use App\Http\Controllers\DirectorController;
 
 
 
-//
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group whichlo
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
 
+Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
+Route::get('/index/director',[DirectorController::class,'index'])->name('directors.index');
 Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
 Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
 Route::get('/admin/invoice/{id}/print', [FeesStudentController::class, 'printr'])->name('invoice.print');

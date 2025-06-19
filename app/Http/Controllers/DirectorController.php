@@ -12,6 +12,7 @@ class DirectorController extends Controller
     
     public function index()
     {
+        
         $director = Director::first(); // Fetch only one director (not an array)
         return view('admin.director.index', compact('director'));
     }
