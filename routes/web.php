@@ -10,9 +10,14 @@ use App\Http\Controllers\DirectorController;
 
 
 
-
-Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
 Route::get('/index/director',[DirectorController::class,'index'])->name('directors.index');
+Route::get('/create/director',[DirectorController::class,'create'])->name('directors.create');
+Route::post('/store/director',[DirectorController::class,'store'])->name('directors.store');
+Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
+Route::get('/home/about',[DirectorController::class,'About'])->name('aboutus');
+
+
+
 Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
 Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
 Route::get('/admin/invoice/{id}/print', [FeesStudentController::class, 'printr'])->name('invoice.print');
