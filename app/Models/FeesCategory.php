@@ -11,8 +11,10 @@ class FeesCategory extends Model
      *
      * @var array
      */
+
+       protected $table = 'fees_categories';
     protected $fillable = [
-        'title', 'slug', 'description', 'status',
+        'title', 'slug', 'description', 'status','amount'
     ];
 
     public function masters()

@@ -55,6 +55,48 @@ class FeesCategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+public function assignMultiple()
+{
+    // Fetch all categories to display in the form
+    $data['categories'] = FeesCategory::where('status', 1)->orderBy('title')->get();
+    return view('admin.fees-category.assign-fee-category', $data);
+}
+
+public function storeMultiple(Request $request)
+{
+    // Validate input
+    $request->validate([
+        'categories' => 'required|array|min:1',
+        'amounts' => 'required|array|min:1',
+    ]);
+
+    // Basic validation: categories and amounts count must match
+    if (count($request->categories) !== count($request->amounts)) {
+        return redirect()->back()->withErrors(['Category count and Amount count must match']);
+    }
+
+    $assignedCategories = [];
+
+    // Loop through each category and its amount
+    foreach ($request->categories as $index => $categoryId) {
+        $amount = $request->amounts[$index];
+
+        // Save or perform any action you need with the category and amount
+        // Here we just prepare the data to be returned to the view
+
+        $assignedCategories[] = [
+            'name' => FeesCategory::find($categoryId)->title,
+            'amount' => $amount,
+        ];
+    }
+
+    // Return to the view with the assigned categories data
+    return redirect()->route('admin.fees-category.assign-fee-category')
+        ->with('assignedCategories', $assignedCategories);
+}
+
+    
     public function create()
     {
         //
@@ -66,26 +108,25 @@ class FeesCategoryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        // Field Validation
-        $request->validate([
-            'title' => 'required|max:191|unique:fees_categories,title',
-        ]);
+  public function store(Request $request)
+{
+    $request->validate([
+        'title' => 'required|max:191|unique:fees_categories,title',
+        'amount' => 'required|numeric|min:0',
+    ]);
 
-        // Insert Data
-        $feesCategory = new FeesCategory;
-        $feesCategory->title = $request->title;
-        $feesCategory->slug = Str::slug($request->title, '-');
-        $feesCategory->description = $request->description;
-        $feesCategory->save();
+    $feesCategory = new FeesCategory;
+    $feesCategory->title = $request->title;
+    $feesCategory->amount = $request->amount;
+    $feesCategory->slug = Str::slug($request->title, '-');
+    $feesCategory->description = $request->description;
+    $feesCategory->status = 1; // or default status
+    $feesCategory->save();
 
+    Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-        Toastr::success(__('msg_created_successfully'), __('msg_success'));
-
-        return redirect()->back();
-    }
-
+    return redirect()->back();
+}
     /**
      * Display the specified resource.
      *
@@ -116,25 +157,23 @@ class FeesCategoryController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, FeesCategory $feesCategory)
-    {
-        // Field Validation
-        $request->validate([
-            'title' => 'required|max:191|unique:fees_categories,title,'.$feesCategory->id,
-        ]);
+{
+    $request->validate([
+        'title' => 'required|max:191|unique:fees_categories,title,'.$feesCategory->id,
+        'amount' => 'required|numeric|min:0',
+    ]);
 
-        // Update Data
-        $feesCategory->title = $request->title;
-        $feesCategory->slug = Str::slug($request->title, '-');
-        $feesCategory->description = $request->description;
-        $feesCategory->status = $request->status;
-        $feesCategory->save();
+    $feesCategory->title = $request->title;
+    $feesCategory->amount = $request->amount;
+    $feesCategory->slug = Str::slug($request->title, '-');
+    $feesCategory->description = $request->description;
+    $feesCategory->status = $request->status;
+    $feesCategory->save();
 
+    Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
-        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
-
-        return redirect()->back();
-    }
-
+    return redirect()->back();
+}
     /**
      * Remove the specified resource from storage.
      *
