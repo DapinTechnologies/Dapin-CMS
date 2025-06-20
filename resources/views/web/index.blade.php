@@ -24,7 +24,7 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
 <style>
     /* General Styles */
     body {
@@ -350,38 +350,7 @@
 
     <!-- main-area -->
     <main>
-        <!-- slider-area -->
-        <section id="home" class="slider-area fix p-relative">
-           
-            <div class="slider-active" style="background: #141b22;">
-
-                @foreach($sliders as $slider)
-                <div class="single-slider slider-bg" style="background-image: url({{ asset('uploads/slider/'.$slider->attach) }}); background-size: cover;">
-                    <div class="overlay"></div>
-                    <div class="container">
-                       <div class="row">
-                            <div class="col-lg-7 col-md-7">
-                                <div class="slider-content s-slider-content mt-130">
-                                    <h2 data-animation="fadeInUp" data-delay=".4s">{{ $slider->title }}</h2>
-                                    <p data-animation="fadeInUp" data-delay=".6s">{!! strip_tags($slider->sub_title, '<b><u><i><br>') !!}</p>
-                                    
-                                    @if(isset($slider->button_link))
-                                    <div class="slider-btn mt-30">     
-                                        <a href="{{ $slider->button_link }}" target="_blank" class="btn ss-btn mr-15" data-animation="fadeInLeft" data-delay=".4s">{{ $slider->button_text }} <i class="fal fa-long-arrow-right"></i></a>
-                                    </div>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="col-lg-5 col-md-5 p-relative">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endforeach
-
-            </div>
-        </section>
-        <!-- slider-area-end -->
+       @include('web.slider')
 
 
         @if(count($features) > 0)
@@ -899,6 +868,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </style>
 
+<!-- Optionally, initialize AOS (Animate On Scroll) if you're using it -->
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script>
+    // Initialize AOS if you're using it for scroll animations
+    AOS.init({
+        duration: 5000, // Duration of the animation
+        delay: 700,     // Delay before the animation starts
+        once: true,     // Animation happens only once
+    });
+</script>
 
 <!-- Statistics Section -->
 
