@@ -55,7 +55,8 @@
     }
 </style>
 
-<section class="statistics-area py-5" aria-labelledby="statistics-heading">
+<section class="statistics-area pt-60 pb-30" style="background-color: #f8f9fa;">
+
     <div class="container">
         <header class="text-center mb-5" data-aos="fade-up">
             <h2 id="statistics-heading" class="fw-bold">Our Achievements</h2>

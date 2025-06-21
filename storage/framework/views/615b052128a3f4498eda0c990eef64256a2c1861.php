@@ -367,109 +367,17 @@
 
 <?php echo $__env->make('web.stats', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
+<?php echo $__env->make('web.newshead', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+
+<?php echo $__env->make('web.exams', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 
 
-  
 
 
 
 
-
-
-
-<div class="container">
-    <h2 class="text-center mb-4"> News & Media</h2>
-
-    <?php
-        use App\Models\News;
-        $newsItems = News::where('status', 1)->orderBy('date', 'desc')->get();
-    ?>
-
-    <div class="news-grid">
-        <?php $__empty_1 = true; $__currentLoopData = $newsItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $news): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-            <div class="news-card">
-                <div class="news-content">
-                    <h3 class="news-title"><?php echo e($news->title); ?></h3>
-                    <p class="news-description">
-                        <?php echo e(Str::limit(strip_tags($news->description), 150, '...')); ?>
-
-                    </p>
-                    <div class="news-date">
-                        <i class="fas fa-calendar-alt"></i> <?php echo e(\Carbon\Carbon::parse($news->date)->format('M d, Y')); ?>
-
-                    </div>
-                </div>
-                <a href="<?php echo e(route('news.single', ['id' => $news->id, 'slug' => $news->slug])); ?>" class="news-read-more">Read More <i class="fas fa-arrow-right"></i></a>
-            </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-            <p class="text-center text-muted">No news articles available at the moment.</p>
-        <?php endif; ?>
-    </div>
-</div>
-
-
-
-<!-- Custom CSS for Modern News Section -->
-<style>
-    .news-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        padding: 20px;
-    }
-    .news-card {
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .news-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-    .news-content {
-        padding: 20px;
-    }
-    .news-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #333;
-    }
-    .news-description {
-        font-size: 14px;
-        color: #666;
-        line-height: 1.6;
-        margin-bottom: 15px;
-    }
-    .news-date {
-        font-size: 12px;
-        color: #888;
-        display: flex;
-        align-items: center;
-    }
-    .news-date i {
-        margin-right: 5px;
-    }
-    .news-read-more {
-        display: block;
-        text-align: center;
-        padding: 10px;
-        background: #007bff;
-        color: #fff;
-        text-decoration: none;
-        font-size: 14px;
-        transition: background 0.3s ease;
-    }
-    .news-read-more:hover {
-        background: #0056b3;
-    }
-    .news-read-more i {
-        margin-left: 5px;
-    }
-</style>
 
 
         <?php if(count($testimonials) > 0): ?>

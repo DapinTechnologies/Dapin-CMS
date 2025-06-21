@@ -367,107 +367,17 @@
 
 @include('web.stats')
 
+@include('web.newshead')
+
+
+@include('web.exams')
 
 
 
-  
 
 
 
 
-
-
-
-<div class="container">
-    <h2 class="text-center mb-4"> News & Media</h2>
-
-    @php
-        use App\Models\News;
-        $newsItems = News::where('status', 1)->orderBy('date', 'desc')->get();
-    @endphp
-
-    <div class="news-grid">
-        @forelse($newsItems as $news)
-            <div class="news-card">
-                <div class="news-content">
-                    <h3 class="news-title">{{ $news->title }}</h3>
-                    <p class="news-description">
-                        {{ Str::limit(strip_tags($news->description), 150, '...') }}
-                    </p>
-                    <div class="news-date">
-                        <i class="fas fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($news->date)->format('M d, Y') }}
-                    </div>
-                </div>
-                <a href="{{ route('news.single', ['id' => $news->id, 'slug' => $news->slug]) }}" class="news-read-more">Read More <i class="fas fa-arrow-right"></i></a>
-            </div>
-        @empty
-            <p class="text-center text-muted">No news articles available at the moment.</p>
-        @endforelse
-    </div>
-</div>
-
-
-
-<!-- Custom CSS for Modern News Section -->
-<style>
-    .news-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        padding: 20px;
-    }
-    .news-card {
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .news-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-    .news-content {
-        padding: 20px;
-    }
-    .news-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #333;
-    }
-    .news-description {
-        font-size: 14px;
-        color: #666;
-        line-height: 1.6;
-        margin-bottom: 15px;
-    }
-    .news-date {
-        font-size: 12px;
-        color: #888;
-        display: flex;
-        align-items: center;
-    }
-    .news-date i {
-        margin-right: 5px;
-    }
-    .news-read-more {
-        display: block;
-        text-align: center;
-        padding: 10px;
-        background: #007bff;
-        color: #fff;
-        text-decoration: none;
-        font-size: 14px;
-        transition: background 0.3s ease;
-    }
-    .news-read-more:hover {
-        background: #0056b3;
-    }
-    .news-read-more i {
-        margin-left: 5px;
-    }
-</style>
 
 
         @if(count($testimonials) > 0)
