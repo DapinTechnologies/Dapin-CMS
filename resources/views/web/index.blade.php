@@ -359,7 +359,7 @@
 
   @include('web.message')
         
-      
+        @include('web.cot')
 
 
 
@@ -370,33 +370,7 @@
 
 
 
-        @isset($callToAction)
-        <!-- cta-area -->
-        <section class="cta-area cta-bg pt-50 pb-50" style="background-color: #125875;">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="section-title cta-title wow fadeInLeft animated" data-animation="fadeInDown animated" data-delay=".2s">
-                            <h2>{{ $callToAction->title }}</h2>
-                            <p>{{ $callToAction->sub_title }}</p>
-                        </div>
-                                         
-                    </div>
-                    <div class="col-lg-4 text-right"> 
-                        <div class="cta-btn s-cta-btn wow fadeInRight animated mt-30" data-animation="fadeInDown animated" data-delay=".2s">
-                            @if(isset($callToAction->button_link))
-                            <a href="{{ $callToAction->button_link }}" target="_blank" class="btn ss-btn smoth-scroll">{{ $callToAction->button_text }} <i class="fal fa-long-arrow-right"></i></a>
-                            @endif
-                        </div>
-                    </div>
-                
-                </div>
-            </div>
-        </section>
-        <!-- cta-area-end -->
-        @endisset
-
-
+  
 
 
 <!-- Course Area -->

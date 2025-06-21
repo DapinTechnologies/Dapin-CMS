@@ -359,7 +359,7 @@
 
   <?php echo $__env->make('web.message', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
         
-      
+        <?php echo $__env->make('web.cot', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 
 
@@ -370,33 +370,7 @@
 
 
 
-        <?php if(isset($callToAction)): ?>
-        <!-- cta-area -->
-        <section class="cta-area cta-bg pt-50 pb-50" style="background-color: #125875;">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-lg-8">
-                        <div class="section-title cta-title wow fadeInLeft animated" data-animation="fadeInDown animated" data-delay=".2s">
-                            <h2><?php echo e($callToAction->title); ?></h2>
-                            <p><?php echo e($callToAction->sub_title); ?></p>
-                        </div>
-                                         
-                    </div>
-                    <div class="col-lg-4 text-right"> 
-                        <div class="cta-btn s-cta-btn wow fadeInRight animated mt-30" data-animation="fadeInDown animated" data-delay=".2s">
-                            <?php if(isset($callToAction->button_link)): ?>
-                            <a href="<?php echo e($callToAction->button_link); ?>" target="_blank" class="btn ss-btn smoth-scroll"><?php echo e($callToAction->button_text); ?> <i class="fal fa-long-arrow-right"></i></a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                
-                </div>
-            </div>
-        </section>
-        <!-- cta-area-end -->
-        <?php endif; ?>
-
-
+  
 
 
 <!-- Course Area -->
