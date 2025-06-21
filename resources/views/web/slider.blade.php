@@ -6,22 +6,31 @@
     $features = Feature::all();
 @endphp
 
-<section class="slider-area position-relative">
+<section class="slider-area position-relative" aria-label="Homepage Slideshow" itemscope itemtype="https://schema.org/WebPage">
     <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
         @if($sliders->isNotEmpty())
             <div class="carousel-inner">
                 @foreach($sliders as $key => $slider)
-                    <div class="carousel-item @if($key == 0) active @endif">
-                        <img src="{{ asset('Uploads/slider/' . $slider->attach) }}" class="d-block w-100" alt="{{ $slider->title }}" aria-describedby="slide-caption-{{ $key }}" loading="lazy">
+                    <div class="carousel-item @if($key == 0) active @endif" itemscope itemtype="https://schema.org/CreativeWork">
+                        <figure itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+                            <img src="{{ asset('Uploads/slider/' . $slider->attach) }}"
+                                 class="d-block w-100"
+                                 alt="{{ $slider->alt ?? $slider->title }}"
+                                 loading="lazy"
+                                 itemprop="contentUrl"
+                                 aria-describedby="slide-caption-{{ $key }}">
+                            <meta itemprop="name" content="{{ $slider->title }}">
+                        </figure>
+
                         <div class="carousel-caption text-center" id="slide-caption-{{ $key }}">
-                            <h2 class="moving-letters">
+                            <h2 class="moving-letters" itemprop="headline">
                                 @foreach(str_split($slider->title) as $letter)
                                     <span>{{ $letter }}</span>
                                 @endforeach
                             </h2>
-                            <p>{!! Purify::clean($slider->sub_title) !!}</p>
+                            <p itemprop="text">{!! Purify::clean($slider->sub_title) !!}</p>
                             @if($slider->button_link)
-                                <a href="{{ $slider->button_link }}" class="btn btn-primary mt-2">
+                                <a href="{{ $slider->button_link }}" class="btn btn-primary mt-2" itemprop="url">
                                     {{ $slider->button_text }} <i class="fas fa-arrow-right"></i>
                                 </a>
                             @endif
@@ -31,25 +40,31 @@
             </div>
         @else
             <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img src="{{ asset('web/img/placeholder.jpg') }}" class="d-block w-100" alt="Placeholder" aria-describedby="slide-caption-placeholder" loading="lazy">
+                <div class="carousel-item active" itemscope itemtype="https://schema.org/CreativeWork">
+                    <img src="{{ asset('web/img/placeholder.jpg') }}"
+                         class="d-block w-100"
+                         alt="Placeholder"
+                         loading="lazy"
+                         aria-describedby="slide-caption-placeholder"
+                         itemprop="image">
                     <div class="carousel-caption text-center" id="slide-caption-placeholder">
-                        <h2>No Sliders Available</h2>
-                        <p>Please add sliders in the admin panel.</p>
+                        <h2 itemprop="headline">No Sliders Available</h2>
+                        <p itemprop="text">Please add sliders in the admin panel.</p>
                     </div>
                 </div>
             </div>
         @endif
 
-        <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev" aria-label="Previous Slide">
+        <button class="carousel-control-prev custom-carousel-control" type="button"
+                data-bs-target="#carouselExampleIndicators" data-bs-slide="prev" aria-label="Previous Slide">
             <span><i class="fas fa-chevron-left"></i></span>
         </button>
-      <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next" aria-label="Next Slide">
-
+        <button class="carousel-control-next custom-carousel-control" type="button"
+                data-bs-target="#carouselExampleIndicators" data-bs-slide="next" aria-label="Next Slide">
             <span><i class="fas fa-chevron-right"></i></span>
         </button>
     </div>
-
+</section>
 
 <style>
     body {

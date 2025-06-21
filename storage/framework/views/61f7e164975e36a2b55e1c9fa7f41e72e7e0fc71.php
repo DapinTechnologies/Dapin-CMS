@@ -6,22 +6,31 @@
     $features = Feature::all();
 ?>
 
-<section class="slider-area position-relative">
+<section class="slider-area position-relative" aria-label="Homepage Slideshow" itemscope itemtype="https://schema.org/WebPage">
     <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
         <?php if($sliders->isNotEmpty()): ?>
             <div class="carousel-inner">
                 <?php $__currentLoopData = $sliders; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $slider): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <div class="carousel-item <?php if($key == 0): ?> active <?php endif; ?>">
-                        <img src="<?php echo e(asset('Uploads/slider/' . $slider->attach)); ?>" class="d-block w-100" alt="<?php echo e($slider->title); ?>" aria-describedby="slide-caption-<?php echo e($key); ?>" loading="lazy">
+                    <div class="carousel-item <?php if($key == 0): ?> active <?php endif; ?>" itemscope itemtype="https://schema.org/CreativeWork">
+                        <figure itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+                            <img src="<?php echo e(asset('Uploads/slider/' . $slider->attach)); ?>"
+                                 class="d-block w-100"
+                                 alt="<?php echo e($slider->alt ?? $slider->title); ?>"
+                                 loading="lazy"
+                                 itemprop="contentUrl"
+                                 aria-describedby="slide-caption-<?php echo e($key); ?>">
+                            <meta itemprop="name" content="<?php echo e($slider->title); ?>">
+                        </figure>
+
                         <div class="carousel-caption text-center" id="slide-caption-<?php echo e($key); ?>">
-                            <h2 class="moving-letters">
+                            <h2 class="moving-letters" itemprop="headline">
                                 <?php $__currentLoopData = str_split($slider->title); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $letter): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <span><?php echo e($letter); ?></span>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </h2>
-                            <p><?php echo Purify::clean($slider->sub_title); ?></p>
+                            <p itemprop="text"><?php echo Purify::clean($slider->sub_title); ?></p>
                             <?php if($slider->button_link): ?>
-                                <a href="<?php echo e($slider->button_link); ?>" class="btn btn-primary mt-2">
+                                <a href="<?php echo e($slider->button_link); ?>" class="btn btn-primary mt-2" itemprop="url">
                                     <?php echo e($slider->button_text); ?> <i class="fas fa-arrow-right"></i>
                                 </a>
                             <?php endif; ?>
@@ -31,25 +40,31 @@
             </div>
         <?php else: ?>
             <div class="carousel-inner">
-                <div class="carousel-item active">
-                    <img src="<?php echo e(asset('web/img/placeholder.jpg')); ?>" class="d-block w-100" alt="Placeholder" aria-describedby="slide-caption-placeholder" loading="lazy">
+                <div class="carousel-item active" itemscope itemtype="https://schema.org/CreativeWork">
+                    <img src="<?php echo e(asset('web/img/placeholder.jpg')); ?>"
+                         class="d-block w-100"
+                         alt="Placeholder"
+                         loading="lazy"
+                         aria-describedby="slide-caption-placeholder"
+                         itemprop="image">
                     <div class="carousel-caption text-center" id="slide-caption-placeholder">
-                        <h2>No Sliders Available</h2>
-                        <p>Please add sliders in the admin panel.</p>
+                        <h2 itemprop="headline">No Sliders Available</h2>
+                        <p itemprop="text">Please add sliders in the admin panel.</p>
                     </div>
                 </div>
             </div>
         <?php endif; ?>
 
-        <button class="carousel-control-prev custom-carousel-control" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev" aria-label="Previous Slide">
+        <button class="carousel-control-prev custom-carousel-control" type="button"
+                data-bs-target="#carouselExampleIndicators" data-bs-slide="prev" aria-label="Previous Slide">
             <span><i class="fas fa-chevron-left"></i></span>
         </button>
-      <button class="carousel-control-next custom-carousel-control" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next" aria-label="Next Slide">
-
+        <button class="carousel-control-next custom-carousel-control" type="button"
+                data-bs-target="#carouselExampleIndicators" data-bs-slide="next" aria-label="Next Slide">
             <span><i class="fas fa-chevron-right"></i></span>
         </button>
     </div>
-
+</section>
 
 <style>
     body {
