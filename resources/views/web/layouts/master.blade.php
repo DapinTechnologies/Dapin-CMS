@@ -155,72 +155,7 @@
 
  	<!-- header -->
     <header class="header-area header-three">  
-       <div class="header-top second-header d-none d-md-block">
-            <div class="container">
-                <div class="row align-items-center">      
-                   
-                    <div class="col-lg-4 col-md-4 d-none d-lg-block ">
-                        @if(isset($topbarSetting) && $topbarSetting->social_status == 1)
-                        <div class="header-social">
-                            <span>
-                            @if(isset($socialSetting->facebook))
-                            <a href="{{ $socialSetting->facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                            @endif
-                            @if(isset($socialSetting->instagram))
-                            <a href="{{ $socialSetting->instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>
-                            @endif
-                            @if(isset($socialSetting->twitter))
-                            <a href="{{ $socialSetting->twitter }}" target="_blank"><i class="fab fa-twitter"></i></a>
-                            @endif
-                            @if(isset($socialSetting->linkedin))
-                            <a href="{{ $socialSetting->linkedin }}" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                            @endif
-                            @if(isset($socialSetting->pinterest))
-                            <a href="{{ $socialSetting->pinterest }}" target="_blank"><i class="fab fa-pinterest"></i></a>
-                            @endif
-                            @if(isset($socialSetting->youtube))
-                            <a href="{{ $socialSetting->youtube }}" target="_blank"><i class="fab fa-youtube"></i></a>
-                            @endif
-                           </span>                    
-                           <!--  /social media icon redux -->                               
-                        </div>
-                        @endif
-                    </div>
-
-                    <div class="col-lg-8 col-md-8 d-none d-lg-block text-right">
-                        <div class="header-cta">
-                            <ul>
-                               @isset($topbarSetting->phone)
-                               <li>
-                                  <div class="call-box">
-                                     <div class="icon">
-                                        <img src="{{ asset('web/img/icon/phone-call.png') }}" alt="img">
-                                     </div>
-                                     <div class="text">
-                                        <strong><a href="tel:{{ str_replace(' ', '', $topbarSetting->phone ?? '') }}">{{ $topbarSetting->phone ?? '' }}</a></strong>
-                                     </div>
-                                  </div>
-                               </li>
-                               @endisset
-                               @isset($topbarSetting->email)
-                               <li>
-                                  <div class="call-box">
-                                     <div class="icon">
-                                        <img src="{{ asset('web/img/icon/mailing.png') }}" alt="img">
-                                     </div>
-                                     <div class="text">
-                                        <strong><a href="mailto:{{ $topbarSetting->email ?? '' }}">{{ $topbarSetting->email ?? '' }}</a></strong>
-                                     </div>
-                                  </div>
-                               </li>
-                               @endisset
-                            </ul>
-                        </div>                        
-                    </div>
-                    
-                </div>
-            </div>
-        </div>    
+       @include('web.layouts.nav')  
 
 
         <div id="header-sticky" class="menu-area">

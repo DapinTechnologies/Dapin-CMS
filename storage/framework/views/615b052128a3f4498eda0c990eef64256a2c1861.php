@@ -352,35 +352,9 @@
     <main>
        <?php echo $__env->make('web.slider', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
+  <?php echo $__env->make('web.features', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-        <?php if(count($features) > 0): ?>
-        <!-- service-area -->
-        <section class="service-details-two p-relative">
-            <div class="container">
-                <div class="row">
-                  
-                    <?php $__currentLoopData = $features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <div class="col-lg-4 col-md-12 col-sm-12">
-                        <div class="services-box07 <?php if($key == 1): ?> active <?php endif; ?>">
-                            <div class="sr-contner">
-                                <div class="icon">
-                                    <img src="<?php echo e(asset('web/img/icon/sve-icon4.png')); ?>" alt="icon">
-                                </div>
-                                <div class="text">
-                                    <h5><?php echo e($feature->title); ?></h5>
-                                    <p><?php echo $feature->description; ?></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                 
-                </div>
-            </div>
-        </section>
-        <!-- service-area-end -->
-        <?php endif; ?>
-        
+    
 
 
         
@@ -872,18 +846,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </style>
 
-<!-- Optionally, initialize AOS (Animate On Scroll) if you're using it -->
-<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-<script>
-    // Initialize AOS if you're using it for scroll animations
-    AOS.init({
-        duration: 5000, // Duration of the animation
-        delay: 700,     // Delay before the animation starts
-        once: true,     // Animation happens only once
-    });
-</script>
 
-<!-- Statistics Section -->
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('web.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/index.blade.php ENDPATH**/ ?>
