@@ -355,102 +355,17 @@
   @include('web.features')
 
     
+  @include('web.abouthead')
 
-
+  @include('web.message')
         
       
 
 
-        @isset($about)
-        <!-- about-area -->
-        <section class="about-area about-p pt-120 pb-120 p-relative fix" style="background: #eff7ff;">
-            <div class="animations-02"><img src="{{ asset('web/img/bg/an-img-02.png') }}" alt="About"></div>
-            <div class="container">
-                <div class="row justify-content-center align-items-center">
-
-                    <div class="col-lg-6 col-md-12 col-sm-12">
-                        <div class="s-about-img p-relative wow fadeInLeft animated" data-animation="fadeInLeft" data-delay=".4s">
-                            <img src="{{ asset('uploads/about-us/'.$about->attach) }}" alt="img">
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-6 col-md-12 col-sm-12">
-                        <div class="about-content s-about-content pl-15 wow fadeInRight animated" data-animation="fadeInRight" data-delay=".4s">
-                            <div class="about-title second-title pb-25">  
-                                <h5><i class="fal fa-graduation-cap"></i> {{ $about->label }}</h5>
-                                <h2>{{ $about->title }}</h2>
-                            </div>
-
-                            {!! strip_tags($about->description, '<a><b><i><u><strong>') !!}
-
-                            <div class="about-content2">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <ul class="green2">
-                                            @isset($about->mission_title)
-                                            <li>
-                                                <div class="abcontent">
-                                                    <div class="text">
-                                                        <h3>{{ $about->mission_title }}</h3>
-                                                        <p>{!! strip_tags($about->mission_desc, '<a><b><i><u><strong>') !!}</p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            @endisset
-                                            @isset($about->vision_title)
-                                            <li>
-                                                <div class="abcontent">
-                                                    <div class="text">
-                                                        <h3>{{ $about->vision_title }}</h3>
-                                                        <p>{!! strip_tags($about->vision_desc, '<a><b><i><u><strong>') !!}</p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            @endisset
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                 
-                </div>
-            </div>
-        </section>
-        <!-- about-area-end -->
-        @endisset
 
 
 
 
-<section class="director-message">
-    <div class="container">
-        @php $director = \App\Models\Director::first(); @endphp
-
-        @if($director)
-        <div class="director-content">
-            <!-- Director's Image -->
-            <div class="director-image">
-                <img src="{{ url($director->image) }}" alt="Director Image">
-
-              
-
-                
-                
-            </div>
-
-            <!-- Director's Message -->
-            <div class="director-text">
-                <h5><i class="fal fa-user-tie"></i> Message from the Director</h5>
-                <h2>{{ $director->title }}</h2>
-                <p>{{ $director->message }}</p>
-                <h3>{{ $director->name }}</h3>
-                <p><i>Director</i></p>
-            </div>
-        </div>
-        @endif
-    </div>
-</section>
 
 
 

@@ -355,103 +355,17 @@
   <?php echo $__env->make('web.features', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     
+  <?php echo $__env->make('web.abouthead', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-
+  <?php echo $__env->make('web.message', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
         
       
 
 
-        <?php if(isset($about)): ?>
-        <!-- about-area -->
-        <section class="about-area about-p pt-120 pb-120 p-relative fix" style="background: #eff7ff;">
-            <div class="animations-02"><img src="<?php echo e(asset('web/img/bg/an-img-02.png')); ?>" alt="About"></div>
-            <div class="container">
-                <div class="row justify-content-center align-items-center">
-
-                    <div class="col-lg-6 col-md-12 col-sm-12">
-                        <div class="s-about-img p-relative wow fadeInLeft animated" data-animation="fadeInLeft" data-delay=".4s">
-                            <img src="<?php echo e(asset('uploads/about-us/'.$about->attach)); ?>" alt="img">
-                        </div>
-                    </div>
-                    
-                    <div class="col-lg-6 col-md-12 col-sm-12">
-                        <div class="about-content s-about-content pl-15 wow fadeInRight animated" data-animation="fadeInRight" data-delay=".4s">
-                            <div class="about-title second-title pb-25">  
-                                <h5><i class="fal fa-graduation-cap"></i> <?php echo e($about->label); ?></h5>
-                                <h2><?php echo e($about->title); ?></h2>
-                            </div>
-
-                            <?php echo strip_tags($about->description, '<a><b><i><u><strong>'); ?>
-
-
-                            <div class="about-content2">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <ul class="green2">
-                                            <?php if(isset($about->mission_title)): ?>
-                                            <li>
-                                                <div class="abcontent">
-                                                    <div class="text">
-                                                        <h3><?php echo e($about->mission_title); ?></h3>
-                                                        <p><?php echo strip_tags($about->mission_desc, '<a><b><i><u><strong>'); ?></p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <?php endif; ?>
-                                            <?php if(isset($about->vision_title)): ?>
-                                            <li>
-                                                <div class="abcontent">
-                                                    <div class="text">
-                                                        <h3><?php echo e($about->vision_title); ?></h3>
-                                                        <p><?php echo strip_tags($about->vision_desc, '<a><b><i><u><strong>'); ?></p>
-                                                    </div>
-                                                </div>
-                                            </li>
-                                            <?php endif; ?>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                 
-                </div>
-            </div>
-        </section>
-        <!-- about-area-end -->
-        <?php endif; ?>
 
 
 
 
-<section class="director-message">
-    <div class="container">
-        <?php $director = \App\Models\Director::first(); ?>
-
-        <?php if($director): ?>
-        <div class="director-content">
-            <!-- Director's Image -->
-            <div class="director-image">
-                <img src="<?php echo e(url($director->image)); ?>" alt="Director Image">
-
-              
-
-                
-                
-            </div>
-
-            <!-- Director's Message -->
-            <div class="director-text">
-                <h5><i class="fal fa-user-tie"></i> Message from the Director</h5>
-                <h2><?php echo e($director->title); ?></h2>
-                <p><?php echo e($director->message); ?></p>
-                <h3><?php echo e($director->name); ?></h3>
-                <p><i>Director</i></p>
-            </div>
-        </div>
-        <?php endif; ?>
-    </div>
-</section>
 
 
 
