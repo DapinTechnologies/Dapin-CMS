@@ -374,44 +374,13 @@
 
 
 
+@include('web.testimonial')
+
+
+@include('web.choose')
 
 
 
-
-
-
-        @if(count($testimonials) > 0)
-        <!-- testimonial-area -->
-        <section class="testimonial-area pt-120 pb-115 p-relative fix">
-            <div class="container">
-                <div class="row">
-                    
-                    <div class="col-lg-12">
-                        <div class="testimonial-active wow fadeInUp animated" data-animation="fadeInUp" data-delay=".4s">
-
-                            @foreach($testimonials as $testimonial)
-                            <div class="single-testimonial text-center">
-                                <div class="qt-img">
-                                    <img src="{{ asset('web/img/testimonial/qt-icon.png') }}" alt="img">
-                                </div>
-                                <p>{{ Str::limit(strip_tags($testimonial->description), 100, '...') }}</p>
-                                <div class="testi-author">
-                                    <img src="{{ asset('uploads/testimonial/'.$testimonial->attach) }}" alt="img">
-                                </div>
-                                <div class="ta-info">
-                                    <h6>{{ $testimonial->name }}</h6>
-                                    <span>{{ $testimonial->designation ?? '' }}</span>
-                                </div>                                    
-                            </div>
-                            @endforeach
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- testimonial-area-end -->
-        @endif
      
     </main>
     <!-- main-area-end -->

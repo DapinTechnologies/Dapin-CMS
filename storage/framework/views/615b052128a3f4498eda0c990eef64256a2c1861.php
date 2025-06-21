@@ -374,44 +374,13 @@
 
 
 
+<?php echo $__env->make('web.testimonial', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+
+<?php echo $__env->make('web.choose', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 
 
-
-
-
-        <?php if(count($testimonials) > 0): ?>
-        <!-- testimonial-area -->
-        <section class="testimonial-area pt-120 pb-115 p-relative fix">
-            <div class="container">
-                <div class="row">
-                    
-                    <div class="col-lg-12">
-                        <div class="testimonial-active wow fadeInUp animated" data-animation="fadeInUp" data-delay=".4s">
-
-                            <?php $__currentLoopData = $testimonials; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $testimonial): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <div class="single-testimonial text-center">
-                                <div class="qt-img">
-                                    <img src="<?php echo e(asset('web/img/testimonial/qt-icon.png')); ?>" alt="img">
-                                </div>
-                                <p><?php echo e(Str::limit(strip_tags($testimonial->description), 100, '...')); ?></p>
-                                <div class="testi-author">
-                                    <img src="<?php echo e(asset('uploads/testimonial/'.$testimonial->attach)); ?>" alt="img">
-                                </div>
-                                <div class="ta-info">
-                                    <h6><?php echo e($testimonial->name); ?></h6>
-                                    <span><?php echo e($testimonial->designation ?? ''); ?></span>
-                                </div>                                    
-                            </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- testimonial-area-end -->
-        <?php endif; ?>
      
     </main>
     <!-- main-area-end -->
