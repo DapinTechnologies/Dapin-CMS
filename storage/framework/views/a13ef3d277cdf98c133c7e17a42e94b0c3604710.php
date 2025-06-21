@@ -36,7 +36,7 @@
                 <li class="me-3"><a href="<?php echo e(route('student.login')); ?>">Student Portal</a></li>
                 <li class="me-3"><a href="<?php echo e(route('login')); ?>">Admin Portal</a></li>
                 <li class="me-3"><a href="#">E-learning</a></li>
-                <li><a href="#">Digital Library</a></li>
+                <li><a href="<?php echo e(route('materialhome')); ?>">Digital Library</a></li>
             </ul>
         </div>
 

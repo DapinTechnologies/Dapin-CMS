@@ -262,6 +262,53 @@
     line-height: 1.2;
     letter-spacing: 1.5px;
 }
+/* Reduce top space - adjust if your navbar is sticky */
+.slider-area {
+    margin-top: 0;             /* Removed unnecessary top margin */
+    height: 450px;             /* Keep compact */
+    overflow: hidden;
+    position: relative;
+}
+
+/* Ensure all slides fill space without margin between them */
+.carousel-inner {
+    display: flex;
+}
+
+.carousel-item {
+    flex: 1 0 100%;
+    margin: 0 !important;      /* No margin between items */
+    padding: 0 !important;
+}
+
+.carousel-item img {
+    height: 100%;
+    object-fit: cover;
+    margin: 0;
+    padding: 0;
+    display: block;
+    width: 100%;
+}
+
+/* Tighten caption spacing */
+.carousel-caption {
+    bottom: 5rem !important;       /* Adjust position */
+    padding: 0.5rem 1rem;          /* Reduce internal padding */
+}
+
+/* Headline spacing and sizing */
+.carousel-caption h2 {
+    font-size: 3rem;               /* Slightly smaller */
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+}
+
+/* Paragraph spacing */
+.carousel-caption p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
 
 </style>
 

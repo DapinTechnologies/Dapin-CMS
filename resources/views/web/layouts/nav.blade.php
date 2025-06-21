@@ -36,7 +36,7 @@
                 <li class="me-3"><a href="{{ route('student.login') }}">Student Portal</a></li>
                 <li class="me-3"><a href="{{ route('login') }}">Admin Portal</a></li>
                 <li class="me-3"><a href="#">E-learning</a></li>
-                <li><a href="#">Digital Library</a></li>
+                <li><a href="{{ route('materialhome') }}">Digital Library</a></li>
             </ul>
         </div>
 
