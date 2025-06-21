@@ -361,7 +361,7 @@
         
         <?php echo $__env->make('web.cot', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-
+      <?php echo $__env->make('web.coursehead', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 
 
@@ -373,36 +373,6 @@
   
 
 
-<!-- Course Area -->
-<div class="container">
-    <h2 class="text-center">Available Courses</h2>
-
-    <?php
-        use App\Models\Course;
-        $courses = Course::where('status', 1)->orderBy('faculty')->get();
-    ?>
-
-    <div class="courses-slider">
-        <?php $__empty_1 = true; $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-            <div class="course-card">
-
-                <a href="<?php echo e(route('course.single', ['slug' => $course->slug])); ?>">
-
-                <div class="course-title"><?php echo e($course->title); ?></div>
-                <div class="course-info">
-                    <strong>Department:</strong> <?php echo e($course->faculty); ?><br>
-                    <strong>Duration:</strong> <?php echo e($course->duration); ?>
-
-                </div>
-                <div class="fee">Fee: KSH <?php echo e(number_format($course->fee, 2)); ?></div>
-            </a>
-
-            </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-            <p class="text-center text-muted">No courses available at the moment.</p>
-        <?php endif; ?>
-    </div>
-</div>
 
 
 

@@ -361,7 +361,7 @@
         
         @include('web.cot')
 
-
+      @include('web.coursehead')
 
 
 
@@ -373,35 +373,6 @@
   
 
 
-<!-- Course Area -->
-<div class="container">
-    <h2 class="text-center">Available Courses</h2>
-
-    @php
-        use App\Models\Course;
-        $courses = Course::where('status', 1)->orderBy('faculty')->get();
-    @endphp
-
-    <div class="courses-slider">
-        @forelse($courses as $course)
-            <div class="course-card">
-
-                <a href="{{ route('course.single', ['slug' => $course->slug]) }}">
-
-                <div class="course-title">{{ $course->title }}</div>
-                <div class="course-info">
-                    <strong>Department:</strong> {{ $course->faculty }}<br>
-                    <strong>Duration:</strong> {{ $course->duration }}
-                </div>
-                <div class="fee">Fee: KSH {{ number_format($course->fee, 2) }}</div>
-            </a>
-
-            </div>
-        @empty
-            <p class="text-center text-muted">No courses available at the moment.</p>
-        @endforelse
-    </div>
-</div>
 
 
 
