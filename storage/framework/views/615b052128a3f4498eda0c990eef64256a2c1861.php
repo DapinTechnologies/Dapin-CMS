@@ -365,7 +365,7 @@
 
 
 
-
+<?php echo $__env->make('web.stats', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 
 
@@ -377,77 +377,6 @@
 
 
 
-
-<!-- Statistics Section -->
-<section class="statistics-area pt-60 pb-60" style="background-color: #f8f9fa;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-12">
-                <div class="section-title text-center wow fadeInUp animated" data-animation="fadeInUp" data-delay=".2s">
-                    <h2>Our Achievements</h2>
-                    <p>Here are some key statistics about our institution.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row justify-content-center">
-            <!-- Students Statistic -->
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="statistic-card wow fadeInLeft animated" data-animation="fadeInLeft" data-delay=".4s">
-                    <div class="statistic-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="statistic-content">
-                        <h3 class="statistic-number" data-count="5000">0</h3>
-                        <p class="statistic-label">Students</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Departments Statistic -->
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="statistic-card wow fadeInLeft animated" data-animation="fadeInLeft" data-delay=".6s">
-                    <div class="statistic-icon">
-                        <i class="fas fa-building"></i>
-                    </div>
-                    <div class="statistic-content">
-                        <h3 class="statistic-number" data-count="10">0</h3>
-                        <p class="statistic-label">Departments</p>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Courses Statistic -->
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="statistic-card wow fadeInRight animated" data-animation="fadeInRight" data-delay=".4s">
-                    <div class="statistic-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="statistic-content">
-                        <h3 class="statistic-number" data-count="50">0</h3>
-                        <p class="statistic-label">Courses</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Lecturers Statistic -->
-            <div class="col-lg-3 col-md-6 col-sm-12">
-                <div class="statistic-card wow fadeInRight animated" data-animation="fadeInRight" data-delay=".6s">
-                    <div class="statistic-icon">
-                        <i class="fa-solid fa-chalkboard-user"></i> 
-                    </div>
-                    <div class="statistic-content">
-                        <h3 class="statistic-number" data-count="200">0</h3>
-                        <p class="statistic-label">Lecturers</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- Statistics Section End -->
-    
 
 <div class="container">
     <h2 class="text-center mb-4"> News & Media</h2>
