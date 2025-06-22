@@ -50,6 +50,23 @@
         }
     }
 
+    @media (min-width: 769px) {
+        .course-card {
+            min-height: 280px;
+            padding: 15px 20px;
+        }
+
+        .course-card h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .course-card p {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+    }
+
     /* Mobile-specific center alignment fix */
     .courses-glide .glide__slide {
         display: flex;
@@ -121,6 +138,7 @@
         color: #fff;
     }
 </style>
+
 
 @php
     use App\Models\Course;
