@@ -1,6 +1,8 @@
+<!-- Glide.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/css/glide.core.min.css" />
+
 <!-- News & Media Section -->
 <section class="news-section pt-3 pb-5" aria-labelledby="news-heading">
-
     <div class="container">
         <header class="text-center mb-4">
             <h2 id="news-heading" class="fw-bold">Latest News & Media</h2>
@@ -12,48 +14,83 @@
             $newsItems = News::where('status', 1)->orderBy('date', 'desc')->get();
         ?>
 
-        <div class="news-grid">
-            <?php $__empty_1 = true; $__currentLoopData = $newsItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $news): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                <article class="news-card" itemscope itemtype="https://schema.org/NewsArticle">
-                    <div class="news-content">
-                        <header>
-                            <h3 class="news-title" itemprop="headline"><?php echo e($news->title); ?></h3>
-                            <time class="news-date" itemprop="datePublished" datetime="<?php echo e($news->date); ?>">
-                                <i class="fas fa-calendar-alt text-primary"></i>
-                                <?php echo e(\Carbon\Carbon::parse($news->date)->format('M d, Y')); ?>
+        <?php if($newsItems->count()): ?>
+        <div class="glide" id="newsCarousel">
+            <div class="glide__track" data-glide-el="track">
+                <ul class="glide__slides">
+                    <?php $__currentLoopData = $newsItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $news): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li class="glide__slide">
+                            <article class="news-card" itemscope itemtype="https://schema.org/NewsArticle">
+                                <div class="news-content">
+                                    <header>
+                                        <h3 class="news-title" itemprop="headline"><?php echo e($news->title); ?></h3>
+                                        <time class="news-date" itemprop="datePublished" datetime="<?php echo e($news->date); ?>">
+                                            <i class="fas fa-calendar-alt text-primary"></i>
+                                            <?php echo e(\Carbon\Carbon::parse($news->date)->format('M d, Y')); ?>
 
-                            </time>
-                        </header>
+                                        </time>
+                                    </header>
 
-                        <p class="news-description" itemprop="description">
-                            <?php echo e(Str::limit(strip_tags($news->description), 150, '...')); ?>
+                                    <p class="news-description" itemprop="description">
+                                        <?php echo e(Str::limit(strip_tags($news->description), 150, '...')); ?>
 
-                        </p>
-                    </div>
+                                    </p>
+                                </div>
 
-                    <a href="<?php echo e(route('news.single', ['id' => $news->id, 'slug' => $news->slug])); ?>"
-                       class="news-read-more" itemprop="url">
-                        Read More <i class="fas fa-arrow-right"></i>
-                    </a>
-                </article>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                <p class="text-center text-muted">No news articles available at the moment.</p>
-            <?php endif; ?>
+                                <a href="<?php echo e(route('news.single', ['id' => $news->id, 'slug' => $news->slug])); ?>"
+                                   class="news-read-more" itemprop="url">
+                                    Read More <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </article>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </ul>
+            </div>
+
+            <!-- Arrows -->
+            <div class="glide__arrows" data-glide-el="controls">
+                <button class="glide__arrow glide__arrow--left" data-glide-dir="<"><i class="fas fa-chevron-left"></i></button>
+                <button class="glide__arrow glide__arrow--right" data-glide-dir=">"><i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
+        <?php else: ?>
+            <p class="text-center text-muted">No news articles available at the moment.</p>
+        <?php endif; ?>
     </div>
 </section>
 
-<!-- Styles -->
+<!-- Styles (merge with your current styles) -->
 <style>
     .news-section {
         background-color: #f9f9f9;
     }
 
-    .news-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 24px;
+    .glide__slide {
         padding: 0 10px;
+    }
+
+    .glide__arrows {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+        margin-top: 10px;
+    }
+
+    .glide__arrow {
+        background: #fff;
+        border: none;
+        padding: 10px;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        color: #007bff;
+        font-size: 1.2rem;
+        transition: background 0.3s ease;
+    }
+
+    .glide__arrow:hover {
+        background: #007bff;
+        color: #fff;
     }
 
     .news-card {
@@ -65,6 +102,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        height: 100%;
     }
 
     .news-card:hover {
@@ -123,4 +161,20 @@
         margin-left: 5px;
     }
 </style>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        new Glide('#newsCarousel', {
+            type: 'carousel',
+            perView: 3,
+            gap: 24,
+            breakpoints: {
+                992: { perView: 2 },
+                576: { perView: 1 }
+            }
+        }).mount();
+    });
+</script>
 <?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/newshead.blade.php ENDPATH**/ ?>

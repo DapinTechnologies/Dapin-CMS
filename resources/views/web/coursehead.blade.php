@@ -1,6 +1,8 @@
 <!-- AOS & Font Awesome CSS -->
 <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Glide.js CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/css/glide.core.min.css">
 
 <style>
     .course-card {
@@ -48,7 +50,68 @@
             margin-bottom: 1rem;
         }
     }
+
+    /* Scoped styles for the courses-glide carousel only */
+    .courses-glide .glide__slide {
+        display: flex;
+        justify-content: center;
+        padding: 0 10px;
+    }
+
+    .courses-glide .glide__bullets {
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
+        gap: 8px;
+    }
+
+    .courses-glide .glide__bullet {
+        width: 10px;
+        height: 10px;
+        background: rgba(0,0,0,0.3);
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .courses-glide .glide__bullet--active {
+        background: #007bff;
+        transform: scale(1.2);
+    }
+
+    .courses-glide .glide__arrows {
+        display: flex;
+        justify-content: space-between;
+        position: absolute;
+        top: 40%;
+        left: 0;
+        right: 0;
+        padding: 0 15px;
+        z-index: 10;
+    }
+
+    .courses-glide .glide__arrow {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #fff;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        color: #007bff;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s ease;
+    }
+
+    .courses-glide .glide__arrow:hover {
+        background: #007bff;
+        color: #fff;
+    }
 </style>
+
 
 @php
     use App\Models\Course;
@@ -58,17 +121,18 @@
 <section class="container py-5" aria-labelledby="courses-heading">
     <h2 id="courses-heading" class="text-center mb-4">Our Courses</h2>
 
-    <div class="row g-4" id="course-list">
+    <!-- Desktop Grid -->
+    <div class="row g-4 d-none d-md-flex" id="course-list">
         @forelse($courses as $course)
             <div class="col-lg-4 col-md-6 col-sm-12" data-aos="fade-up" data-aos-duration="800">
-                <article class="course-card" itemscope itemtype="https://schema.org/Course">
-                    <a href="{{ route('course.single', ['slug' => $course->slug]) }}" class="text-decoration-none text-dark d-block" itemprop="url">
-                        <h3 itemprop="name">{{ $course->title }}</h3>
-                        <p><i class="fas fa-building"></i><strong>Department:</strong> <span itemprop="provider">{{ $course->faculty }}</span></p>
+                <article class="course-card">
+                    <a href="{{ route('course.single', ['slug' => $course->slug]) }}" class="text-decoration-none text-dark d-block">
+                        <h3>{{ $course->title }}</h3>
+                        <p><i class="fas fa-building"></i><strong>Department:</strong> {{ $course->faculty }}</p>
                         <p><i class="fas fa-clock"></i><strong>Duration:</strong> {{ $course->duration }}</p>
                         <p class="course-fee"><i class="fas fa-money-bill-wave"></i><strong>Fee:</strong> KSH {{ number_format($course->fee, 2) }}</p>
 
-                        <div class="course-extra mt-2" itemprop="description">
+                        <div class="course-extra mt-2">
                             <p><strong>Description:</strong> {!! Str::limit($course->description, 150) !!}</p>
                             @if($course->award)
                                 <p><strong>Award:</strong> {{ $course->award }}</p>
@@ -84,12 +148,78 @@
             <p class="text-center">No courses available.</p>
         @endforelse
     </div>
+
+  <!-- Mobile Carousel -->
+
+    <div class="glide courses-glide d-md-none mt-4 position-relative">
+
+    <div class="glide__track" data-glide-el="track">
+        <ul class="glide__slides">
+            @forelse($courses as $course)
+                <li class="glide__slide">
+                    <article class="course-card">
+                        <a href="{{ route('course.single', ['slug' => $course->slug]) }}" class="text-decoration-none text-dark d-block">
+                            <h3>{{ $course->title }}</h3>
+                            <p><i class="fas fa-building"></i><strong>Department:</strong> {{ $course->faculty }}</p>
+                            <p><i class="fas fa-clock"></i><strong>Duration:</strong> {{ $course->duration }}</p>
+                            <p class="course-fee"><i class="fas fa-money-bill-wave"></i><strong>Fee:</strong> KSH {{ number_format($course->fee, 2) }}</p>
+
+                            <div class="course-extra mt-2">
+                                <p><strong>Description:</strong> {!! Str::limit($course->description, 150) !!}</p>
+                                @if($course->award)
+                                    <p><strong>Award:</strong> {{ $course->award }}</p>
+                                @endif
+                                @if($course->semesters)
+                                    <p><strong>Semesters:</strong> {{ $course->semesters }}</p>
+                                @endif
+                            </div>
+                        </a>
+                    </article>
+                </li>
+            @empty
+                <li class="glide__slide">
+                    <p class="text-center">No courses available.</p>
+                </li>
+            @endforelse
+        </ul>
+    </div>
+
+    <!-- Arrows -->
+    <div class="glide__arrows" data-glide-el="controls">
+        <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <!-- Bullets -->
+    <div class="glide__bullets" data-glide-el="controls[nav]">
+        @foreach($courses as $index => $course)
+            <button class="glide__bullet" data-glide-dir="={{ $index }}"></button>
+        @endforeach
+    </div>
+</div>
+
 </section>
 
-<!-- AOS Script -->
+<!-- JS Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         AOS.init({ once: true });
+
+        if (window.innerWidth <= 768) {
+            new Glide('.glide', {
+                type: 'carousel',
+                perView: 1,
+                gap: 20,
+                autoplay: 4000,
+                hoverpause: true,
+                animationDuration: 600
+            }).mount();
+        }
     });
 </script>

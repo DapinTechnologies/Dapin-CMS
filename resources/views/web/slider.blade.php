@@ -69,30 +69,59 @@
 <style>
     body {
         font-family: 'Poppins', sans-serif;
-       
         color: #fff;
         overflow-x: hidden;
     }
 
+    /* Slider Container */
     .slider-area {
-        height: 450px;
-        position: relative;
-        overflow: hidden;
+        height: 600px; /* Increased height */
+        margin-top: 0;
         margin-bottom: 100px;
+        overflow: hidden;
+        position: relative;
     }
 
+    /* Carousel Image */
     .carousel-item img {
         height: 100%;
+        width: 100%;
         object-fit: cover;
+        display: block;
+        margin: 0;
+        padding: 0;
     }
 
+    /* Carousel Inner Flex */
+    .carousel-inner {
+        display: flex;
+    }
+
+    .carousel-item {
+        flex: 1 0 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Caption Styles */
     .carousel-caption {
-        bottom: 5rem;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 10;
-        text-align: center;
+        position: absolute;
+        bottom: 7rem;
+        left: 5%;
+        transform: none;
+        text-align: left;
         max-width: 90%;
+        z-index: 10;
+        padding: 0.5rem 1rem;
+    }
+
+    .carousel-caption h2 {
+        font-size: 4.5rem;
+        font-weight: 800;
+        color: #fff !important;
+        line-height: 1.2;
+        letter-spacing: 1.5px;
+        margin-bottom: 0.5rem;
     }
 
     .carousel-caption h2 span {
@@ -113,6 +142,20 @@
         }
     }
 
+    .carousel-caption p {
+        font-size: 1.2rem;
+        color: #fff;
+        line-height: 1.4;
+        margin-bottom: 1rem;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        font-weight: 500;
+        padding: 0.5rem 1.25rem;
+    }
+
+    /* Controls */
     .custom-carousel-control {
         width: 50px;
         height: 50px;
@@ -123,15 +166,21 @@
         color: #fff;
         font-size: 1.5rem;
         border-radius: 50%;
+        position: absolute;
+        z-index: 10;
     }
+
     .custom-carousel-control:hover {
         background-color: rgba(255, 255, 255, 0.2);
     }
+
     .carousel-control-prev { left: 20px; }
     .carousel-control-next { right: 20px; }
+
+    /* Feature Cards Below Slider */
     .feature-floating {
         position: absolute;
-        bottom: -50px;
+        bottom: -70px;
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
@@ -142,175 +191,36 @@
         min-height: 150px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
     .feature-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
 
-    /* Responsive */
+    /* Responsive Styles */
     @media (max-width: 768px) {
-        .slider-area { height: 350px; }
-        .carousel-caption h2 { font-size: 1.8rem; }
+        .slider-area { height: 450px; }
+        .carousel-caption h2 { font-size: 2.5rem; }
         .carousel-caption p { font-size: 1rem; }
     }
+
     @media (max-width: 576px) {
-        .slider-area { height: 300px; }
-        .carousel-caption h2 { font-size: 1.5rem; }
+        .slider-area { height: 350px; }
+        .carousel-caption h2 { font-size: 2rem; }
         .carousel-caption p { font-size: 0.9rem; }
         .feature-floating { bottom: -80px; }
         .feature-floating .col-12 { width: 100%; }
     }
     .slider-area {
-    margin-top: 80px; /* Adjust this value to match your navbar height */
-    height: 450px;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 100px;
-}
-.carousel-caption {
-    z-index: 1; /* lower than navbar's 1050 */
-    position: absolute;
-    bottom: 5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    max-width: 90%;
-}
-.carousel-caption {
-    bottom: 5rem;
-    left: 5%; /* Align content to the left */
-    transform: none; /* Remove center alignment */
-    text-align: left; /* Left-align text */
-    max-width: 90%;
-    z-index: 10;
-}
-
-.carousel-caption h2 {
-    font-weight: bold;       /* Make title bold */
-    color: #fff !important;  /* Make title white */
-    text-align: left;        /* Align title text to left */
-}
-
-.carousel-caption p {
-    color: #fff;             /* Ensure subtitle is white too */
-    text-align: left;        /* Align subtitle text to left */
-}
-.carousel-caption {
-    bottom: 7rem;              /* Move the entire caption up (was 5rem) */
-    left: 5%;
-    transform: none;
-    text-align: left;
-    max-width: 90%;
-    z-index: 10;
-}
-.carousel-caption h2 {
-    font-weight: bold;
-    font-size: 3.5rem;         /* Larger title size */
-    color: #fff !important;
-    text-align: left;
-    line-height: 1.2;
-}
-@media (max-width: 768px) {
-    .carousel-caption h2 {
-        font-size: 2.5rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .carousel-caption h2 {
-        font-size: 2rem;
-    }
-}
-
-
-
-
-
-.slider-area {
-    height: 500px;
-}
-.carousel-caption {
-    bottom: 10rem;
-    left: 5%;
-    transform: none;
-    text-align: left;
-    max-width: 90%;
-    z-index: 10;
-}
-.carousel-caption h2 {
-    font-size: 3.5rem;
-    font-weight: bold;
-    color: #fff !important;
-    text-align: left;
-    line-height: 1.2;
-}
-.carousel-caption p {
-    font-size: 1.2rem;
-    color: #fff;
-    text-align: left;
-    padding-bottom: 1.5rem;
-}
-.feature-floating {
-    bottom: -70px;
-}
-
-.carousel-caption h2 {
-    font-size: 4.5rem; /* increased */
-    font-weight: 800;
-    color: #fff !important;
-    text-align: left;
-    line-height: 1.2;
-    letter-spacing: 1.5px;
-}
-/* Reduce top space - adjust if your navbar is sticky */
-.slider-area {
-    margin-top: 0;             /* Removed unnecessary top margin */
-    height: 450px;             /* Keep compact */
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    height: 600px;
     overflow: hidden;
     position: relative;
-}
-
-/* Ensure all slides fill space without margin between them */
-.carousel-inner {
-    display: flex;
-}
-
-.carousel-item {
-    flex: 1 0 100%;
-    margin: 0 !important;      /* No margin between items */
-    padding: 0 !important;
-}
-
-.carousel-item img {
-    height: 100%;
-    object-fit: cover;
-    margin: 0;
-    padding: 0;
-    display: block;
-    width: 100%;
-}
-
-/* Tighten caption spacing */
-.carousel-caption {
-    bottom: 5rem !important;       /* Adjust position */
-    padding: 0.5rem 1rem;          /* Reduce internal padding */
-}
-
-/* Headline spacing and sizing */
-.carousel-caption h2 {
-    font-size: 3rem;               /* Slightly smaller */
-    line-height: 1.1;
-    margin-bottom: 0.5rem;
-}
-
-/* Paragraph spacing */
-.carousel-caption p {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    line-height: 1.4;
 }
 
 </style>
+
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

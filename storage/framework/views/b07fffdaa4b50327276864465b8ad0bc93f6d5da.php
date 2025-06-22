@@ -142,9 +142,45 @@
 }
 
 
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+
 </style>
 
-    
+    <style>
+/* Add this to remove default body spacing */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* Ensure header has no top margin */
+.header-area {
+    margin-top: 0;
+}
+
+/* Remove any potential top spacing from slider */
+.slider-area {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.menu-area {
+    padding: 10px 0; /* or whatever makes your topbar look good */
+    margin: 0;
+}
+
+
+
+</style>
 
 
 

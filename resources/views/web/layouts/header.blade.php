@@ -82,13 +82,37 @@
         padding: 8px 20px;
     }
 }
+.header-social {
+    flex: 0 0 auto;
+    margin-right: auto; /* Pushes the next content to the right */
+    padding-left: 20px;
+}
+
+.header-social .social-icons a {
+    color: #333;
+    font-size: 16px;
+    margin-right: 12px;
+    transition: color 0.3s ease;
+}
+
+.header-social .social-icons a:hover {
+    color: #4361ee;
+}
+.header-area {
+    margin: 0 !important;
+    padding: 10px 0;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
 
    </style>
    <header class="header-area header-three">  
     @include('web.layouts.nav')
 
     <div id="header-sticky" class="menu-area">
-        <div class="container-fluid d-flex justify-content-between" style="max-width: 900px; padding: 0 15px;">
+       <div class="container-fluid d-flex justify-content-start align-items-center" style="max-width: 100%; padding: 0 15px;">
+
             <!-- Social Media Section -->
             <div class="header-social d-flex align-items-center">
                 @if(isset($topbarSetting) && $topbarSetting->social_status == 1)

@@ -1049,7 +1049,11 @@
         </li>
         @endcanany
 
-        @canany(['topbar-setting-view', 'social-setting-view', 'slider-view', 'slider-create', 'about-us-view', 'feature-view', 'feature-create', 'course-view', 'course-create', 'web-event-view', 'web-event-create', 'news-view', 'news-create', 'gallery-view', 'gallery-create', 'faq-view', 'faq-create', 'testimonial-view', 'testimonial-create', 'page-view', 'page-create', 'call-to-action-view'])
+
+
+
+      @canany(['topbar-setting-view', 'social-setting-view', 'slider-view', 'slider-create', 'about-us-view', 'feature-view', 'feature-create', 'course-view', 'course-create', 'web-event-view', 'web-event-create', 'news-view', 'news-create', 'gallery-view', 'gallery-create', 'faq-view', 'faq-create', 'testimonial-view', 'testimonial-create', 'page-view', 'page-create', 'call-to-action-view', 'director'])
+
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/web*') ? 'pcoded-trigger active' : '' }}">
             <a href="#!" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-globe"></i></span>
@@ -1094,7 +1098,15 @@
                     <a href="{{ route('directors.index') }}">{{ __('Add Directors') }}</a>
                 </li>
                 @endcanany
+                      @canany('director-view')
+                <li class="{{ Request::is('admin/directors') ? 'active' : '' }}">
+                    <a href="{{ route('directors.index') }}">{{ __('Abouts Page') }}</a>
+                </li>
+                @endcanany
 
+                 @canany(['page-view', 'page-create'])
+                <li class="{{ Request::is('admin/web/page*') ? 'active' : '' }}"><a href="{{ route('admin.page.index') }}" class="">{{ trans_choice('module_footer_page', 2) }}</a></li>
+                @endcanany
 
                 @canany(['faq-view', 'faq-create'])
                 <li class="{{ Request::is('admin/web/faq*') ? 'active' : '' }}"><a href="{{ route('admin.faq.index') }}" class="">{{ trans_choice('module_faq', 2) }}</a></li>
@@ -1118,6 +1130,9 @@
             </ul>
         </li>
         @endcanany
+
+
+        
 
         @canany(['setting-view', 'province-view', 'province-create', 'district-view', 'district-create', 'language-view', 'language-create', 'translations-view', 'translations-create', 'setting-mail', 'setting-sms', 'setting-payment', 'application-setting-view', 'schedule-setting-view', 'role-view', 'role-edit', 'field-staff', 'field-student', 'field-application', 'student-panel-view'])
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/setting*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/translations*') ? 'pcoded-trigger active' : '' }}">

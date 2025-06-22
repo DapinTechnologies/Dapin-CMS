@@ -1049,7 +1049,11 @@
         </li>
         <?php endif; ?>
 
-        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['topbar-setting-view', 'social-setting-view', 'slider-view', 'slider-create', 'about-us-view', 'feature-view', 'feature-create', 'course-view', 'course-create', 'web-event-view', 'web-event-create', 'news-view', 'news-create', 'gallery-view', 'gallery-create', 'faq-view', 'faq-create', 'testimonial-view', 'testimonial-create', 'page-view', 'page-create', 'call-to-action-view'])): ?>
+
+
+
+      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['topbar-setting-view', 'social-setting-view', 'slider-view', 'slider-create', 'about-us-view', 'feature-view', 'feature-create', 'course-view', 'course-create', 'web-event-view', 'web-event-create', 'news-view', 'news-create', 'gallery-view', 'gallery-create', 'faq-view', 'faq-create', 'testimonial-view', 'testimonial-create', 'page-view', 'page-create', 'call-to-action-view', 'director'])): ?>
+
         <li class="nav-item pcoded-hasmenu <?php echo e(Request::is('admin/web*') ? 'pcoded-trigger active' : ''); ?>">
             <a href="#!" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-globe"></i></span>
@@ -1094,7 +1098,15 @@
                     <a href="<?php echo e(route('directors.index')); ?>"><?php echo e(__('Add Directors')); ?></a>
                 </li>
                 <?php endif; ?>
+                      <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any('director-view')): ?>
+                <li class="<?php echo e(Request::is('admin/directors') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route('directors.index')); ?>"><?php echo e(__('Abouts Page')); ?></a>
+                </li>
+                <?php endif; ?>
 
+                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['page-view', 'page-create'])): ?>
+                <li class="<?php echo e(Request::is('admin/web/page*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.page.index')); ?>" class=""><?php echo e(trans_choice('module_footer_page', 2)); ?></a></li>
+                <?php endif; ?>
 
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['faq-view', 'faq-create'])): ?>
                 <li class="<?php echo e(Request::is('admin/web/faq*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.faq.index')); ?>" class=""><?php echo e(trans_choice('module_faq', 2)); ?></a></li>
@@ -1118,6 +1130,9 @@
             </ul>
         </li>
         <?php endif; ?>
+
+
+        
 
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['setting-view', 'province-view', 'province-create', 'district-view', 'district-create', 'language-view', 'language-create', 'translations-view', 'translations-create', 'setting-mail', 'setting-sms', 'setting-payment', 'application-setting-view', 'schedule-setting-view', 'role-view', 'role-edit', 'field-staff', 'field-student', 'field-application', 'student-panel-view'])): ?>
         <li class="nav-item pcoded-hasmenu <?php echo e(Request::is('admin/setting*') ? 'pcoded-trigger active' : ''); ?> <?php echo e(Request::is('admin/translations*') ? 'pcoded-trigger active' : ''); ?>">
