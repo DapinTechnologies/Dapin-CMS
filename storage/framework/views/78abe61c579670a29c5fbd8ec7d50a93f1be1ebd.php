@@ -1,7 +1,6 @@
-<!-- AOS & Font Awesome CSS -->
+<!-- CSS & Libraries -->
 <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<!-- Glide.js CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/css/glide.core.min.css">
 
 <style>
@@ -51,11 +50,22 @@
         }
     }
 
-    /* Scoped styles for the courses-glide carousel only */
+    /* Mobile-specific center alignment fix */
     .courses-glide .glide__slide {
         display: flex;
         justify-content: center;
+        align-items: center;
         padding: 0 10px;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .courses-glide .course-card {
+            max-width: 95%;
+            margin: 0 auto;
+        }
     }
 
     .courses-glide .glide__bullets {
@@ -112,7 +122,6 @@
     }
 </style>
 
-
 <?php
     use App\Models\Course;
     $courses = Course::where('status', 1)->orderBy('faculty')->get();
@@ -128,18 +137,13 @@
                 <article class="course-card">
                     <a href="<?php echo e(route('course.single', ['slug' => $course->slug])); ?>" class="text-decoration-none text-dark d-block">
                         <h3><?php echo e($course->title); ?></h3>
-                        <p><i class="fas fa-building"></i><strong>Department:</strong> <?php echo e($course->faculty); ?></p>
-                        <p><i class="fas fa-clock"></i><strong>Duration:</strong> <?php echo e($course->duration); ?></p>
-                        <p class="course-fee"><i class="fas fa-money-bill-wave"></i><strong>Fee:</strong> KSH <?php echo e(number_format($course->fee, 2)); ?></p>
-
+                        <p><i class="fas fa-building"></i><strong> Department:</strong> <?php echo e($course->faculty); ?></p>
+                        <p><i class="fas fa-clock"></i><strong> Duration:</strong> <?php echo e($course->duration); ?></p>
+                        <p class="course-fee"><i class="fas fa-money-bill-wave"></i><strong> Fee:</strong> KSH <?php echo e(number_format($course->fee, 2)); ?></p>
                         <div class="course-extra mt-2">
                             <p><strong>Description:</strong> <?php echo Str::limit($course->description, 150); ?></p>
-                            <?php if($course->award): ?>
-                                <p><strong>Award:</strong> <?php echo e($course->award); ?></p>
-                            <?php endif; ?>
-                            <?php if($course->semesters): ?>
-                                <p><strong>Semesters:</strong> <?php echo e($course->semesters); ?></p>
-                            <?php endif; ?>
+                            <?php if($course->award): ?><p><strong>Award:</strong> <?php echo e($course->award); ?></p><?php endif; ?>
+                            <?php if($course->semesters): ?><p><strong>Semesters:</strong> <?php echo e($course->semesters); ?></p><?php endif; ?>
                         </div>
                     </a>
                 </article>
@@ -149,59 +153,47 @@
         <?php endif; ?>
     </div>
 
-  <!-- Mobile Carousel -->
-
+    <!-- Mobile Carousel -->
     <div class="glide courses-glide d-md-none mt-4 position-relative">
+        <div class="glide__track" data-glide-el="track">
+            <ul class="glide__slides">
+                <?php $__empty_1 = true; $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <li class="glide__slide">
+                        <article class="course-card">
+                            <a href="<?php echo e(route('course.single', ['slug' => $course->slug])); ?>" class="text-decoration-none text-dark d-block">
+                                <h3><?php echo e($course->title); ?></h3>
+                                <p><i class="fas fa-building"></i><strong> Department:</strong> <?php echo e($course->faculty); ?></p>
+                                <p><i class="fas fa-clock"></i><strong> Duration:</strong> <?php echo e($course->duration); ?></p>
+                                <p class="course-fee"><i class="fas fa-money-bill-wave"></i><strong> Fee:</strong> KSH <?php echo e(number_format($course->fee, 2)); ?></p>
+                                <div class="course-extra mt-2">
+                                    <p><strong>Description:</strong> <?php echo Str::limit($course->description, 150); ?></p>
+                                    <?php if($course->award): ?><p><strong>Award:</strong> <?php echo e($course->award); ?></p><?php endif; ?>
+                                    <?php if($course->semesters): ?><p><strong>Semesters:</strong> <?php echo e($course->semesters); ?></p><?php endif; ?>
+                                </div>
+                            </a>
+                        </article>
+                    </li>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    <li class="glide__slide">
+                        <p class="text-center">No courses available.</p>
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
 
-    <div class="glide__track" data-glide-el="track">
-        <ul class="glide__slides">
-            <?php $__empty_1 = true; $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                <li class="glide__slide">
-                    <article class="course-card">
-                        <a href="<?php echo e(route('course.single', ['slug' => $course->slug])); ?>" class="text-decoration-none text-dark d-block">
-                            <h3><?php echo e($course->title); ?></h3>
-                            <p><i class="fas fa-building"></i><strong>Department:</strong> <?php echo e($course->faculty); ?></p>
-                            <p><i class="fas fa-clock"></i><strong>Duration:</strong> <?php echo e($course->duration); ?></p>
-                            <p class="course-fee"><i class="fas fa-money-bill-wave"></i><strong>Fee:</strong> KSH <?php echo e(number_format($course->fee, 2)); ?></p>
+        <!-- Arrows -->
+        <div class="glide__arrows" data-glide-el="controls">
+            <button class="glide__arrow glide__arrow--left" data-glide-dir="<"><i class="fas fa-chevron-left"></i></button>
+            <button class="glide__arrow glide__arrow--right" data-glide-dir=">"><i class="fas fa-chevron-right"></i></button>
+        </div>
 
-                            <div class="course-extra mt-2">
-                                <p><strong>Description:</strong> <?php echo Str::limit($course->description, 150); ?></p>
-                                <?php if($course->award): ?>
-                                    <p><strong>Award:</strong> <?php echo e($course->award); ?></p>
-                                <?php endif; ?>
-                                <?php if($course->semesters): ?>
-                                    <p><strong>Semesters:</strong> <?php echo e($course->semesters); ?></p>
-                                <?php endif; ?>
-                            </div>
-                        </a>
-                    </article>
-                </li>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                <li class="glide__slide">
-                    <p class="text-center">No courses available.</p>
-                </li>
-            <?php endif; ?>
-        </ul>
+        <!-- Bullets -->
+        <div class="glide__bullets" data-glide-el="controls[nav]">
+            <?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <button class="glide__bullet" data-glide-dir="=<?php echo e($index); ?>"></button>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </div>
     </div>
-
-    <!-- Arrows -->
-    <div class="glide__arrows" data-glide-el="controls">
-        <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-
-    <!-- Bullets -->
-    <div class="glide__bullets" data-glide-el="controls[nav]">
-        <?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <button class="glide__bullet" data-glide-dir="=<?php echo e($index); ?>"></button>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-    </div>
-</div>
-
 </section>
 
 <!-- JS Scripts -->
@@ -209,10 +201,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        AOS.init({ once: true });
-
-        if (window.innerWidth <= 768) {
-            new Glide('.glide', {
+        if (window.innerWidth <= 768 && document.querySelector('.courses-glide')) {
+            new Glide('.courses-glide', {
                 type: 'carousel',
                 perView: 1,
                 gap: 20,
@@ -223,4 +213,5 @@
         }
     });
 </script>
+
 <?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/coursehead.blade.php ENDPATH**/ ?>

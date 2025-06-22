@@ -7,213 +7,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
     <!-- Glide.js for carousel -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/css/glide.core.min.css">
-   <style>
-    :root {
-        --primary: #ff6600; /* Orange theme */
-        --secondary: #3f37c9;
-        --accent: #4cc9f0;
-        --light: #f8f9fa;
-        --dark: #212529;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f0f2f5;
-        color: #333;
-    }
-
-    .statistics-area {
-        position: relative;
-        background-color: #f8f9fa;
-        overflow: hidden;
-        z-index: 1;
-        padding: 80px 0;
-    }
-
-    .statistics-area::before {
-        content: "";
-        position: absolute;
-        top: -80px;
-        left: 0;
-        width: 100%;
-        height: 200px;
-        background: url('https://www.svgrepo.com/show/353755/abstract-shapes.svg') no-repeat center;
-        background-size: cover;
-        opacity: 0.05;
-        z-index: 0;
-    }
-
+<style>
     .statistic-card {
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-        position: relative;
-        z-index: 2;
-        transition: transform 0.4s ease, box-shadow 0.4s ease;
-        height: 100%;
-        text-align: center;
-        border: 1px solid rgba(0,0,0,0.05);
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        min-height: 200px;
     }
 
-    .statistic-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    .statistic-icon {
-        font-size: 40px;
-        color: var(--primary);
-        margin-bottom: 15px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 90px;
-        height: 90px;
-        border-radius: 50%;
-        margin: 0 auto 1.5rem;
-        background: linear-gradient(135deg, rgba(255, 102, 0, 0.1), rgba(255, 102, 0, 0.05));
-    }
-
-    .statistic-number {
-        font-size: 36px;
-        font-weight: bold;
-        color: var(--primary);
-        margin-bottom: 10px;
-        font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
-        letter-spacing: -1px;
-    }
-
-    .statistic-label {
-        font-size: 18px;
-        font-weight: 600;
-        color: #555;
-        margin-bottom: 0;
-    }
-
-    .section-header {
-        margin-bottom: 60px;
-    }
-
-    .section-title {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--dark);
-        margin-bottom: 1rem;
-        position: relative;
-        display: inline-block;
-    }
-
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: var(--primary);
-        border-radius: 2px;
-    }
-
-    .section-subtitle {
-        font-size: 1.2rem;
-        color: #666;
-        max-width: 700px;
-        margin: 0 auto;
-    }
-
-    /* Mobile Carousel */
-    .mobile-carousel {
-        display: none;
-        padding: 20px 0 60px;
-    }
-
-    .glide__slide {
-        padding: 10px;
-    }
-
-    .glide__bullets {
-        position: absolute;
-        bottom: 20px;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-    }
-
-    .glide__bullet {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: rgba(0,0,0,0.2);
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .glide__bullet--active {
-        background: var(--primary);
-        transform: scale(1.2);
-    }
-
-    .glide__arrows {
-        position: absolute;
-        top: 50%;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        padding: 0 15px;
-        transform: translateY(-50%);
-    }
-
-    .glide__arrow {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: white;
-        border: none;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        color: var(--primary);
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-
-    .glide__arrow:hover {
-        background: var(--primary);
-        color: white;
-        transform: scale(1.1);
-    }
-
-    /* Responsive Adjustments */
-    @media (max-width: 992px) {
-        .statistics-area {
-            padding: 60px 0;
-        }
-
-        .statistic-card {
-            padding: 25px;
-        }
-
-        .statistic-icon {
-            width: 80px;
-            height: 80px;
-            font-size: 2.4rem;
-        }
-
-        .statistic-number {
-            font-size: 2.4rem;
-        }
-
-        .section-title {
-            font-size: 2.2rem;
-        }
-    }
-
+    /* Glide only affects mobile */
     @media (max-width: 768px) {
         .desktop-grid {
             display: none;
@@ -221,79 +24,85 @@
 
         .mobile-carousel {
             display: block;
+            position: relative;
         }
 
-        .statistics-area {
-            padding: 50px 0;
+       .statistics-glide .glide__slide {
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 16px;
+}
+
+.statistics-glide .statistic-card {
+    width: 100%;
+    max-width: 360px;
+}
+
+
+        .statistics-glide .glide__arrows {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 40%;
+            left: 0;
+            right: 0;
+            padding: 0 15px;
+            z-index: 10;
         }
 
-        .section-header {
-            margin-bottom: 40px;
+        .statistics-glide .glide__arrow {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #fff;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: #343a40;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s ease;
         }
 
-        .section-title {
-            font-size: 2rem;
+        .statistics-glide .glide__arrow:hover {
+            background: #343a40;
+            color: #fff;
         }
 
-        .section-subtitle {
-            font-size: 1.1rem;
+        .statistics-glide .glide__bullets {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 8px;
         }
 
-        .statistic-card {
-            padding: 30px 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        .statistics-glide .glide__bullet {
+            width: 10px;
+            height: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .statistic-icon {
-            width: 70px;
-            height: 70px;
-            font-size: 2rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .statistic-number {
-            font-size: 2.2rem;
-        }
-
-        .statistic-label {
-            font-size: 1.1rem;
+        .statistics-glide .glide__bullet--active {
+            background: #343a40;
+            transform: scale(1.2);
         }
     }
 
-    @media (max-width: 576px) {
-        .statistics-area {
-            padding: 40px 0;
-        }
-
-        .section-title {
-            font-size: 1.8rem;
-        }
-
-        .section-subtitle {
-            font-size: 1rem;
-        }
-
-        .statistic-card {
-            padding: 25px 15px;
-        }
-
-        .statistic-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 1.8rem;
-        }
-
-        .statistic-number {
-            font-size: 2rem;
-        }
-
-        .glide__arrow {
-            width: 36px;
-            height: 36px;
-            font-size: 1rem;
+    @media (min-width: 769px) {
+        .mobile-carousel {
+            display: none;
         }
     }
 </style>
+
+
+
 
 
     <section class="statistics-area">
@@ -427,17 +236,31 @@
     <!-- Glide.js for carousel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
     
-    <script>
-        // Initialize AOS
-        AOS.init({
-            once: true,
-            duration: 800,
-            easing: 'ease-out-quad'
-        });
-        
-        // Initialize Glide carousel for mobile
-        if (window.innerWidth <= 768) {
-            const glide = new Glide('.glide', {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startCounter = (element) => {
+            const target = +element.getAttribute('data-count');
+            let current = +element.innerText;
+            if (current >= target) return;
+            const increment = target / 50;
+            const update = () => {
+                current += increment;
+                if (current < target) {
+                    element.innerText = Math.ceil(current);
+                    requestAnimationFrame(update);
+                } else {
+                    element.innerText = target;
+                }
+            };
+            update();
+        };
+
+        // Animate all counters in desktop grid
+        document.querySelectorAll('.desktop-grid .statistic-number').forEach(startCounter);
+
+        // Initialize Glide only on mobile
+        if (window.innerWidth <= 768 && document.querySelector('.statistics-glide')) {
+            const glideStats = new Glide('.statistics-glide', {
                 type: 'carousel',
                 perView: 1,
                 gap: 20,
@@ -445,60 +268,20 @@
                 hoverpause: true,
                 animationDuration: 600
             });
-            
-            glide.mount();
-        }
-        
-        // Counter animation
-        document.addEventListener('DOMContentLoaded', function () {
-            const startCounter = (element) => {
-                const counter = element;
-                const target = +counter.getAttribute('data-count');
-                const count = +counter.innerText;
-                
-                if (count >= target) return;
-                
-                const increment = target / 50;
-                let current = count;
-                
-                const updateCounter = () => {
-                    current += increment;
-                    if (current < target) {
-                        counter.innerText = Math.ceil(current);
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.innerText = target;
-                    }
-                };
-                
-                updateCounter();
-            };
-            
-            // Start counters for desktop grid
-            const gridCounters = document.querySelectorAll('.desktop-grid .statistic-number');
-            gridCounters.forEach(counter => {
-                startCounter(counter);
+
+            glideStats.on('run.after', () => {
+                const active = document.querySelector('.statistics-glide .glide__slide--active .statistic-number');
+                if (active && active.innerText === '0') startCounter(active);
             });
-            
-            // Start counters for mobile carousel (only active slide)
-            if (window.innerWidth <= 768) {
-                const glideInstance = new Glide('.glide');
-                
-                glideInstance.on('run.after', () => {
-                    const activeSlide = document.querySelector('.glide__slide--active .statistic-number');
-                    if (activeSlide && activeSlide.innerText === '0') {
-                        startCounter(activeSlide);
-                    }
-                });
-                
-                // Start the first slide counter
-                const firstSlide = document.querySelector('.glide__slide--active .statistic-number');
-                if (firstSlide) {
-                    startCounter(firstSlide);
-                }
-                
-                glideInstance.mount();
-            }
-        });
-    </script>
+
+            glideStats.mount();
+
+            // Start first counter
+            const firstStat = document.querySelector('.statistics-glide .glide__slide--active .statistic-number');
+            if (firstStat && firstStat.innerText === '0') startCounter(firstStat);
+        }
+    });
+</script>
+
+
 <?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/stats.blade.php ENDPATH**/ ?>

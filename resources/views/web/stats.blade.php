@@ -7,70 +7,101 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" />
     <!-- Glide.js for carousel -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/css/glide.core.min.css">
-  <style>
-    /* Statistics Slide Container */
-    .statistics-glide .glide__slide {
-        padding: 0 10px;
-        display: flex;
-        justify-content: center;
-        box-sizing: border-box;
-    }
-
-    /* Statistics Arrows Container */
-    .statistics-glide .glide__arrows {
-        display: flex;
-        justify-content: space-between;
-        position: absolute;
-        top: 40%;
-        left: 0;
-        right: 0;
-        padding: 0 15px;
-        z-index: 10;
-    }
-
-    .statistics-glide .glide__arrow {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
+<style>
+    .statistic-card {
         background: #fff;
-        border: none;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        color: #343a40;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: 0.3s ease;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        min-height: 200px;
     }
 
-    .statistics-glide .glide__arrow:hover {
-        background: #343a40;
-        color: #fff;
+    /* Glide only affects mobile */
+    @media (max-width: 768px) {
+        .desktop-grid {
+            display: none;
+        }
+
+        .mobile-carousel {
+            display: block;
+            position: relative;
+        }
+
+       .statistics-glide .glide__slide {
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 16px;
+}
+
+.statistics-glide .statistic-card {
+    width: 100%;
+    max-width: 360px;
+}
+
+
+        .statistics-glide .glide__arrows {
+            display: flex;
+            justify-content: space-between;
+            position: absolute;
+            top: 40%;
+            left: 0;
+            right: 0;
+            padding: 0 15px;
+            z-index: 10;
+        }
+
+        .statistics-glide .glide__arrow {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #fff;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: #343a40;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s ease;
+        }
+
+        .statistics-glide .glide__arrow:hover {
+            background: #343a40;
+            color: #fff;
+        }
+
+        .statistics-glide .glide__bullets {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            gap: 8px;
+        }
+
+        .statistics-glide .glide__bullet {
+            width: 10px;
+            height: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .statistics-glide .glide__bullet--active {
+            background: #343a40;
+            transform: scale(1.2);
+        }
     }
 
-    /* Bullets for Statistics Glide */
-    .statistics-glide .glide__bullets {
-        display: flex;
-        justify-content: center;
-        margin-top: 15px;
-        gap: 8px;
-    }
-
-    .statistics-glide .glide__bullet {
-        width: 10px;
-        height: 10px;
-        background: rgba(0,0,0,0.3);
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .statistics-glide .glide__bullet--active {
-        background: #343a40;
-        transform: scale(1.2);
+    @media (min-width: 769px) {
+        .mobile-carousel {
+            display: none;
+        }
     }
 </style>
+
+
 
 
 
@@ -205,17 +236,31 @@
     <!-- Glide.js for carousel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
     
-    <script>
-        // Initialize AOS
-        AOS.init({
-            once: true,
-            duration: 800,
-            easing: 'ease-out-quad'
-        });
-        
-        // Initialize Glide carousel for mobile
-        if (window.innerWidth <= 768) {
-            const glide = new Glide('.glide', {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const startCounter = (element) => {
+            const target = +element.getAttribute('data-count');
+            let current = +element.innerText;
+            if (current >= target) return;
+            const increment = target / 50;
+            const update = () => {
+                current += increment;
+                if (current < target) {
+                    element.innerText = Math.ceil(current);
+                    requestAnimationFrame(update);
+                } else {
+                    element.innerText = target;
+                }
+            };
+            update();
+        };
+
+        // Animate all counters in desktop grid
+        document.querySelectorAll('.desktop-grid .statistic-number').forEach(startCounter);
+
+        // Initialize Glide only on mobile
+        if (window.innerWidth <= 768 && document.querySelector('.statistics-glide')) {
+            const glideStats = new Glide('.statistics-glide', {
                 type: 'carousel',
                 perView: 1,
                 gap: 20,
@@ -223,59 +268,19 @@
                 hoverpause: true,
                 animationDuration: 600
             });
-            
-            glide.mount();
-        }
-        
-        // Counter animation
-        document.addEventListener('DOMContentLoaded', function () {
-            const startCounter = (element) => {
-                const counter = element;
-                const target = +counter.getAttribute('data-count');
-                const count = +counter.innerText;
-                
-                if (count >= target) return;
-                
-                const increment = target / 50;
-                let current = count;
-                
-                const updateCounter = () => {
-                    current += increment;
-                    if (current < target) {
-                        counter.innerText = Math.ceil(current);
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.innerText = target;
-                    }
-                };
-                
-                updateCounter();
-            };
-            
-            // Start counters for desktop grid
-            const gridCounters = document.querySelectorAll('.desktop-grid .statistic-number');
-            gridCounters.forEach(counter => {
-                startCounter(counter);
+
+            glideStats.on('run.after', () => {
+                const active = document.querySelector('.statistics-glide .glide__slide--active .statistic-number');
+                if (active && active.innerText === '0') startCounter(active);
             });
-            
-            // Start counters for mobile carousel (only active slide)
-            if (window.innerWidth <= 768) {
-                const glideInstance = new Glide('.glide');
-                
-                glideInstance.on('run.after', () => {
-                    const activeSlide = document.querySelector('.glide__slide--active .statistic-number');
-                    if (activeSlide && activeSlide.innerText === '0') {
-                        startCounter(activeSlide);
-                    }
-                });
-                
-                // Start the first slide counter
-                const firstSlide = document.querySelector('.glide__slide--active .statistic-number');
-                if (firstSlide) {
-                    startCounter(firstSlide);
-                }
-                
-                glideInstance.mount();
-            }
-        });
-    </script>
+
+            glideStats.mount();
+
+            // Start first counter
+            const firstStat = document.querySelector('.statistics-glide .glide__slide--active .statistic-number');
+            if (firstStat && firstStat.innerText === '0') startCounter(firstStat);
+        }
+    });
+</script>
+
+

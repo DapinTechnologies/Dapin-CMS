@@ -181,6 +181,15 @@ body {
 
 
 </style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        AOS.init({
+            once: true,
+            duration: 800,
+            easing: 'ease-out-quad'
+        });
+    });
+</script>
 
 
 
