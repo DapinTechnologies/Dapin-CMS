@@ -84,5 +84,18 @@
     position: relative;
     z-index: 1;
 }
+@media (max-width: 767.98px) {
+    /* Reduce bottom margin of feature services */
+    .service-details-two {
+        margin-bottom: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    /* Reduce top padding of About Us section */
+    .about-area {
+        padding-top: 30px !important;
+    }
+}
+
 </style>
 <?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/abouthead.blade.php ENDPATH**/ ?>

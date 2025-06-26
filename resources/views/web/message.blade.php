@@ -8,7 +8,7 @@
         @if($director)
         <div class="row align-items-center">
             <!-- Director's Image -->
-            <div class="col-lg-5 col-md-6 mb-4 mb-md-0 text-center text-md-start">
+            <div class="col-lg-4 col-md-6 mb-4 mb-md-0 text-center text-md-start">
                 <figure class="director-image" itemscope itemtype="https://schema.org/Person" data-aos="fade-right">
                     <img src="{{ url($director->image) }}"
                          alt="Photo of {{ $director->name }}, Director of the College"
@@ -20,7 +20,7 @@
             </div>
 
             <!-- Director's Message -->
-            <div class="col-lg-7 col-md-6">
+            <div class="col-lg-8 col-md-6">
                 <article class="director-text ps-lg-4" itemscope itemtype="https://schema.org/Article" data-aos="fade-left">
                     <header>
                         <h1 class="text-uppercase text-muted mb-2 h6">
@@ -61,6 +61,7 @@
     height: 260px;
     object-fit: cover;
     border-radius: 50% / 40%;
+    border: 4px solid #0d6efd; /* Blue border */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     display: inline-block;
 }
@@ -68,9 +69,9 @@
 .director-quote {
     background-color: #fff;
     border-left: 3px solid #0d6efd;
-    padding: 12px 16px;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    padding: 16px 20px;
+    font-size: 1.05rem;
+    line-height: 1.8;
     border-radius: 6px;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
     position: relative;
@@ -84,11 +85,38 @@
 }
 
 @media (max-width: 767.98px) {
-    .director-image {
-        margin-left: 0 !important;
+    .director-message .row {
+        flex-direction: column;
     }
-    .director-photo-oval {
-        margin: auto;
+
+    .director-message .col-md-6,
+    .director-message .col-lg-4,
+    .director-message .col-lg-8 {
+        max-width: 100%;
+        flex: 0 0 100%;
+        text-align: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    .director-image {
+        margin-bottom: 1rem;
+    }
+
+    .director-text {
+        padding-top: 0.5rem;
+    }
+}
+
+/* Additional spacing cleanup for surrounding sections */
+@media (max-width: 767.98px) {
+    .service-details-two {
+        margin-bottom: 10px !important;
+        padding-bottom: 10px !important;
+    }
+
+    .about-area {
+        padding-top: 30px !important;
     }
 }
 </style>

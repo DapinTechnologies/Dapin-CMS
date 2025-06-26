@@ -51,26 +51,20 @@
 
 
 <style>
-/* Reset unwanted styles */
-.animated-title,
-.animated-title * {
+/* Clean everything globally for title and all children */
+.animated-title, .animated-title * {
     text-decoration: none !important;
-    border: none !important;
-    border-bottom: none !important;
+    border: 0 !important;
+    border-bottom: 0 !important;
     background: transparent !important;
-    color: inherit !important;
     box-shadow: none !important;
     text-shadow: none !important;
     outline: none !important;
+    color: inherit !important;
     filter: none !important;
 }
 
-/* Optional: neutralize <u> completely */
-.animated-title u {
-    all: unset !important;
-}
-
-/* Title container */
+/* Animated Title container */
 .animated-title {
     font-size: 3rem;
     font-weight: 700;
@@ -81,15 +75,16 @@
     white-space: pre-wrap;
 }
 
-/* Animate each character */
+/* Animate each letter one by one */
 .animated-title span {
     display: inline-block;
     opacity: 0;
     transform: translateY(20px) scale(0.95);
     animation: letterFadeIn 0.6s ease-out forwards;
+    border-bottom: none !important;   /* <- this kills any underline */
 }
 
-/* Animation keyframes */
+/* Keyframes */
 @keyframes letterFadeIn {
     from {
         opacity: 0;
@@ -100,6 +95,36 @@
         transform: translateY(0) scale(1);
     }
 }
+
+/* Extra cleanup for ::before/::after */
+.animated-title span::before,
+.animated-title span::after {
+    display: none !important;
+    content: '' !important;
+    border: none !important;
+    border-bottom: none !important;
+    background: none !important;
+}
+
+@media (max-width: 767.98px) {
+    /* Reduce bottom space below the slider */
+    .slider-area {
+        margin-bottom: 20px !important; /* adjust as needed */
+        padding-bottom: 10px !important;
+    }
+
+    /* Reduce top space above services section */
+    .service-details-two {
+        margin-top: 10px !important;
+        padding-top: 10px !important;
+    }
+
+    /* Optionally reduce inner padding */
+    .slider-content {
+        margin-top: 60px !important; /* Previously mt-130 might be too big */
+    }
+}
+
 </style>
 
 
