@@ -1,10 +1,9 @@
 @isset($callToAction)
-<!-- CTA Section with Education Icon Background -->
-<section class="cta-area position-relative py-4" style="background-color: #125875;" aria-labelledby="cta-title" itemscope itemtype="https://schema.org/CreativeWork">
+<section class="cta-area position-relative py-5" style="background-color: #444;" aria-labelledby="cta-title" itemscope itemtype="https://schema.org/CreativeWork">
     <meta itemprop="name" content="{{ $callToAction->title }}">
     <meta itemprop="description" content="{{ $callToAction->sub_title }}">
 
-    <!-- Education Icon SVG Background -->
+    <!-- Education Icon Background -->
     <div class="cta-bg-icon" aria-hidden="true">
         <svg viewBox="0 0 64 64" fill="none" class="education-icon-svg">
             <path d="M2 16L32 2L62 16L32 30L2 16Z" stroke="#ffffff20" stroke-width="2"/>
@@ -13,22 +12,27 @@
     </div>
 
     <div class="container position-relative">
-        <div class="row align-items-center justify-content-center">
-            <div class="col-lg-8 text-center text-lg-left">
-                <header class="section-title cta-title" data-aos="fade-right" data-aos-duration="1000">
-                    <h2 id="cta-title" itemprop="headline" class="text-white fw-bold">{{ $callToAction->title }}</h2>
-                    <p itemprop="text" class="text-light mb-0">{{ $callToAction->sub_title }}</p>
+        <div class="row align-items-center justify-content-center text-center text-lg-start">
+            <!-- Title & Subtitle -->
+            <div class="col-lg-8 mb-4 mb-lg-0" data-aos="fade-up">
+                <header class="section-title cta-title">
+                    <h2 id="cta-title" itemprop="headline" class="text-white fw-bold display-6">{{ $callToAction->title }}</h2>
+                    <p itemprop="text" class="text-light fs-5 mb-0" style="color: #fff;">{{ $callToAction->sub_title }}</p>
                 </header>
             </div>
-            <div class="col-lg-4 text-center text-lg-right mt-3 mt-lg-0">
-                <div class="cta-btn s-cta-btn" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
-                    @if(isset($callToAction->button_link))
-                    <a href="{{ $callToAction->button_link }}" target="_blank" rel="noopener noreferrer" class="btn ss-btn smoth-scroll" itemprop="url">
-                        {{ $callToAction->button_text }} <i class="fal fa-long-arrow-right" aria-hidden="true"></i>
-                        <span class="sr-only">Go to {{ $callToAction->button_text }}</span>
-                    </a>
-                    @endif
-                </div>
+
+            <!-- CTA Button -->
+            <div class="col-lg-4 d-flex justify-content-center justify-content-lg-end" data-aos="fade-up" data-aos-delay="150">
+                @if(isset($callToAction->button_link))
+                <a href="{{ $callToAction->button_link }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="btn btn-lg fw-bold shadow-sm px-4 py-2 glow-on-hover"
+                   itemprop="url"
+                   style="background-color: #ff7350; color: #fff; border: none;">
+                    {{ $callToAction->button_text }} <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+                @endif
             </div>
         </div>
     </div>
@@ -38,6 +42,7 @@
 <style>
 .cta-area {
     overflow: hidden;
+    position: relative;
 }
 .cta-bg-icon {
     position: absolute;
@@ -45,19 +50,40 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 0;
-    opacity: 0.15;
+    opacity: 0.1;
 }
 .education-icon-svg {
     width: 160px;
     height: 160px;
 }
 .cta-area .container {
-    z-index: 2;
     position: relative;
+    z-index: 2;
+}
+.glow-on-hover {
+    transition: all 0.3s ease-in-out;
+}
+.glow-on-hover:hover {
+    box-shadow: 0 0 16px 3px #0000001A;
+    transform: translateY(-2px);
+    background-color: #e86240 !important;
+    color: #fff !important;
+}
+@media (max-width: 767.98px) {
+    .cta-title h2 {
+        font-size: 1.75rem;
+    }
+    .cta-title p {
+        font-size: 1rem;
+    }
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
 }
 </style>
 
-<!-- AOS Library -->
+<!-- AOS -->
 <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <script>

@@ -27,21 +27,21 @@ $courses = Course::where('status', 1)->orderBy('faculty')->get();
     box-shadow: 0 12px 25px rgba(0,0,0,0.15);
 }
 
-/* Carousel container */
-.carousel-inner {
+/* Desktop grid carousel (safe with Bootstrap) */
+.course-carousel-inner {
     display: flex;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
 }
-.carousel-inner > div {
+.course-carousel-inner > div {
     flex: 0 0 90%;
     scroll-snap-align: start;
     padding: 0 0.5rem;
 }
 
-/* Mobile arrows */
-.carousel-btn {
+/* Arrows (mobile only) */
+.course-carousel-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -57,14 +57,14 @@ $courses = Course::where('status', 1)->orderBy('faculty')->get();
     z-index: 10;
     border: none;
 }
-.carousel-btn i {
+.course-carousel-btn i {
     font-size: 16px;
     color: #4a5568;
 }
 .prev-btn { left: 0; }
 .next-btn { right: 0; }
 
-/* Dots */
+/* Indicators (optional) */
 .carousel-indicators {
     display: flex;
     justify-content: center;
@@ -108,8 +108,8 @@ $courses = Course::where('status', 1)->orderBy('faculty')->get();
 
     <!-- Mobile Carousel -->
     <div class="relative md:hidden">
-        <button class="carousel-btn prev-btn" onclick="slideCarousel(-1)"><i class="fas fa-chevron-left"></i></button>
-        <div class="carousel-inner hide-scrollbar" id="carousel">
+        <button class="course-carousel-btn prev-btn" onclick="slideCarousel(-1)"><i class="fas fa-chevron-left"></i></button>
+        <div class="course-carousel-inner hide-scrollbar" id="carousel">
             @foreach($courses as $course)
             <div>
                 <div class="course-card">
@@ -128,15 +128,15 @@ $courses = Course::where('status', 1)->orderBy('faculty')->get();
             </div>
             @endforeach
         </div>
-        <button class="carousel-btn next-btn" onclick="slideCarousel(1)"><i class="fas fa-chevron-right"></i></button>
+        <button class="course-carousel-btn next-btn" onclick="slideCarousel(1)"><i class="fas fa-chevron-right"></i></button>
     </div>
 </section>
 
 <script>
-    function slideCarousel(direction) {
-        const carousel = document.getElementById('carousel');
-        const slide = carousel.querySelector('div');
-        const slideWidth = slide.offsetWidth + 16; // padding adjustment
-        carousel.scrollBy({ left: direction * slideWidth, behavior: 'smooth' });
-    }
+function slideCarousel(direction) {
+    const carousel = document.getElementById('carousel');
+    const slide = carousel.querySelector('div');
+    const slideWidth = slide.offsetWidth + 16; // includes margin
+    carousel.scrollBy({ left: direction * slideWidth, behavior: 'smooth' });
+}
 </script>
