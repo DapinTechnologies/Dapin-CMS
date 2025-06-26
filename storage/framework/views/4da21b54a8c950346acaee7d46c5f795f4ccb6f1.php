@@ -64,7 +64,7 @@
     transition: all 0.3s ease-in-out;
 }
 .glow-on-hover:hover {
-    box-shadow: 0 0 16px 3px #0000001A;
+    box-shadow: 0 0 16px 3px #f6f5f51a;
     transform: translateY(-2px);
     background-color: #e86240 !important;
     color: #fff !important;
