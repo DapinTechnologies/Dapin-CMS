@@ -78,54 +78,55 @@
 
         <!--------START OF SMS MANAGEMENT---------->
 
-<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sms-view', 'sms-send','sms-balance'])): ?>
-<li class="nav-item pcoded-hasmenu <?php echo e(Request::is('/sms*') ? 'pcoded-trigger active' : ''); ?>">
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sms-view', 'sms-send'])): ?>
+<li class="nav-item pcoded-hasmenu <?php echo e(Request::is('admin/sms*') ? 'pcoded-trigger active' : ''); ?>">
     <a href="#!" class="nav-link">
         <span class="pcoded-micon"><i class="fas fa-envelope"></i></span>
         <span class="pcoded-mtext">SMS Management</span>
     </a>
     <ul class="pcoded-submenu">
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sms-view')): ?>
-        <li class="<?php echo e(Request::is('/sms') ? 'active' : ''); ?>">
+        <li class="<?php echo e(Request::is('admin/sms') ? 'active' : ''); ?>">
             <a href="<?php echo e(route('sms.index')); ?>"><?php echo e(__('View SMS Logs')); ?></a>
         </li>
         <?php endif; ?>
 
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sms-send')): ?>
-        <li class="<?php echo e(Request::is('/sms/create') ? 'active' : ''); ?>">
-
-            
+        <li class="<?php echo e(Request::is('admin/sms/create') ? 'active' : ''); ?>">
             <a href="<?php echo e(route('sms.create')); ?>"><?php echo e(__('Send New SMS')); ?></a>
         </li>
         <?php endif; ?>
-
-        
     </ul>
 </li>
-
-
 <?php endif; ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 <!--------END OF SMS MANAGEMENT---------->
 
 
+
+<!-- resources/views/partials/sidebar.blade.php -->
+
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sms-view', 'sms-send'])): ?>
+<li class="nav-item pcoded-hasmenu <?php echo e(Request::is('sms*') ? 'pcoded-trigger active' : ''); ?>">
+    <a href="#!" class="nav-link">
+        <span class="pcoded-micon"><i class="fas fa-envelope"></i></span>
+        <span class="pcoded-mtext"><?php echo e(__('SMS Management')); ?></span>
+    </a>
+    <ul class="pcoded-submenu">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sms-view')): ?>
+        <li class="<?php echo e(Request::is('sms') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('sms.index')); ?>" class=""><?php echo e(__('SMS View')); ?></a>
+        </li>
+        <?php endif; ?>
+
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sms-send')): ?>
+        <li class="<?php echo e(Request::is('sms/create') || Request::is('sms/send') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('sms.create')); ?>" class=""><?php echo e(__('Send New SMS')); ?></a>
+        </li>
+        <?php endif; ?>
+    </ul>
+</li>
+<?php endif; ?>
 
 
 
@@ -139,9 +140,7 @@
 
 
 
-        <!--------START OF SMS MANAGEMENT---------->
 
-       
 
 
 
@@ -464,6 +463,81 @@
         </li>
         <?php endif; ?>
 
+<!--- START TVETA---------------->
+
+
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['tveta',   'fees-tveta', 'teveta-view'])): ?>
+<li class="nav-item pcoded-hasmenu <?php echo e(Request::is('admin/fees*') ? 'pcoded-trigger active' : ''); ?>">
+    <a href="#!" class="nav-link">
+        <span class="pcoded-micon"><i class="fas fa-money-bill-wave"></i></span>
+        <span class="pcoded-mtext"><?php echo e(trans_choice('module_fees_collection', 1)); ?></span>
+    </a>
+    <ul class="pcoded-submenu">
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-due', 'fees-student-quick-assign', 'fees-student-quick-received', 'fees-student-report', 'fees-student-print'])): ?>
+        <li class="nav-item pcoded-hasmenu <?php echo e(Request::is('admin/fees-student*') ? 'pcoded-trigger active' : ''); ?>">
+            <a href="#!" class="nav-link">
+                <span class="pcoded-mtext"><?php echo e(trans_choice('module_student_fees', 2)); ?></span>
+            </a>
+
+            <ul class="pcoded-submenu">
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fees-student-due')): ?>
+                <li class="<?php echo e(Request::is('admin/fees-student') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.index')); ?>" class=""><?php echo e(trans_choice('module_fees_due', 1)); ?></a></li>
+                <?php endif; ?>
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fees-student-quick-assign')): ?>
+                <li class="<?php echo e(Request::is('admin/fees-student-quick-assign*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.quick.assign')); ?>" class=""><?php echo e(trans_choice('module_fees_quick_assign', 1)); ?></a></li>
+                <?php endif; ?>
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fees-student-quick-received')): ?>
+                <li class="<?php echo e(Request::is('admin/fees-student-quick-received*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.quick.received')); ?>" class=""><?php echo e(trans_choice('module_fees_quick_received', 1)); ?></a></li>
+                <?php endif; ?>
+
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
+                <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class=""><?php echo e(trans_choice('module_fees_report', 2)); ?></a></li>
+                <?php endif; ?>
+            </ul>
+        </li>
+        <?php endif; ?>
+
+       
+      
+
+
+            <ul class="pcoded-submenu">
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fees-receipt-view')): ?>
+                <li class="<?php echo e(Request::is('admin/fees-receipt*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-receipt.index')); ?>" class=""><?php echo e(trans_choice('module_fees_receipt_setting', 1)); ?></a></li>
+                <?php endif; ?>
+            </ul>
+        </li>
+        <?php endif; ?>
+    </ul>
+</li>
+<?php endif; ?>
+
+
+
+
+
+
+
+
+
+
+
+<!------------- END TEVETA
+
+
+
+
+
+
+
+
+
+
+
+
+
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['user-create', 'user-view', 'user-password-print', 'user-password-change', 'staff-note-create', 'staff-note-view', 'payroll-view', 'payroll-action', 'payroll-print', 'payroll-report', 'work-shift-type-create', 'work-shift-type-view', 'designation-create', 'designation-view', 'department-create', 'department-view', 'tax-setting-create', 'tax-setting-view', 'pay-slip-setting-view'])): ?>
         <li class="nav-item pcoded-hasmenu <?php echo e(Request::is('admin/staff*') ? 'pcoded-trigger active' : ''); ?>">
             <a href="#!" class="nav-link">
@@ -651,8 +725,6 @@
                 <li class="<?php echo e(Request::is('admin/library/issue-return') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.issue-return.index')); ?>" class=""><?php echo e(trans_choice('module_book_issue_return', 1)); ?></a></li>
                 <?php endif; ?>
 
-            
-
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['library-member-create', 'library-member-view', 'library-member-card'])): ?>
                 <li class="nav-item pcoded-hasmenu <?php echo e(Request::is('admin/member/library*') ? 'pcoded-trigger active' : ''); ?>">
                     <a href="#!" class="nav-link">
@@ -694,15 +766,6 @@
                     </ul>
                 </li>
                 <?php endif; ?>
-
-
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['book-issue-action'])): ?>
-                <li class="<?php echo e(Request::is('digital/book/') ? 'active' : ''); ?>">
-                    <a href="<?php echo e(route('alldigitalbooks')); ?>" class=""><?php echo e(__('Digital Books')); ?></a>
-                </li>
-            <?php endif; ?>
-
-
             </ul>
         </li>
         <?php endif; ?>
@@ -1028,15 +1091,6 @@
                 <li class="<?php echo e(Request::is('admin/web/news*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.news.index')); ?>" class=""><?php echo e(trans_choice('module_news', 2)); ?></a></li>
                 <?php endif; ?>
 
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any('director-view')): ?>
-                <li class="<?php echo e(Request::is('admin/directors') ? 'active' : ''); ?>">
-                    <a href="<?php echo e(route('directors.index')); ?>"><?php echo e(__('Add Directors')); ?></a>
-                </li>
-                <?php endif; ?>
-
-
-
-
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['faq-view', 'faq-create'])): ?>
                 <li class="<?php echo e(Request::is('admin/web/faq*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.faq.index')); ?>" class=""><?php echo e(trans_choice('module_faq', 2)); ?></a></li>
                 <?php endif; ?>
@@ -1149,21 +1203,4 @@
 
     </ul>
 </div>
-<!-- End Sidebar -->
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const sidebar = document.querySelector('.pcoded-hasmenu');
-
-        // Check local storage to see if the sidebar should be expanded
-        if (localStorage.getItem('sidebar-expanded') === 'true') {
-            sidebar.classList.add('pcoded-trigger');
-        }
-
-        // Toggle sidebar state on click
-        sidebar.addEventListener('click', function () {
-            const isExpanded = sidebar.classList.toggle('pcoded-trigger');
-            localStorage.setItem('sidebar-expanded', isExpanded);
-        });
-    });
-</script><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/admin/layouts/inc/sidebar.blade.php ENDPATH**/ ?>
+<!-- End Sidebar --><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/admin/layouts/partials/sidebar.blade.php ENDPATH**/ ?>

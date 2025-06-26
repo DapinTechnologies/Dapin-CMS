@@ -1,6 +1,5 @@
-
 <!-- Floating Button -->
-<button class="btn btn-primary rounded-circle floating-form-button d-none" id="floatingInquiryBtn" title="Contact or Subscribe" data-toggle="modal" data-target="#inquiryNewsletterModal">
+<button class="btn floating-form-button d-none" id="floatingInquiryBtn" title="Contact or Subscribe">
     <i class="fas fa-envelope-open-text"></i>
 </button>
 
@@ -8,44 +7,49 @@
 <div class="modal fade" id="inquiryNewsletterModal" tabindex="-1" aria-labelledby="inquiryNewsletterModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content shadow rounded-3">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header text-white" style="background-color: var(--primary-color);">
                 <h5 class="modal-title fw-bold" id="inquiryNewsletterModalLabel">Quick Inquiry & Newsletter</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span>&times;</span>
-                </button>
+               <button type="button" class="btn btn-sm btn-close-modern" data-dismiss="modal" aria-label="Close">
+    <i class="fas fa-times"></i>
+</button>
+
             </div>
             <div class="modal-body p-4">
                 <div class="row">
                     <!-- Inquiry Form -->
                     <div class="col-md-6 border-right">
-                        <h5 class="fw-bold mb-3 text-primary">Send an Inquiry</h5>
+                        <h5 class="fw-bold mb-3" style="color: var(--primary-color);">Send an Inquiry</h5>
                         <form>
                             <div class="form-group mb-2">
-                                <label class="small text-dark">Full Name</label>
+                                <label class="small">Full Name</label>
                                 <input type="text" class="form-control" placeholder="Your Name" required>
                             </div>
                             <div class="form-group mb-2">
-                                <label class="small text-dark">Email Address</label>
+            <label class="small">Phone Number</label>
+            <input type="tel" class="form-control" placeholder="+2547XXXXXXXX" required>
+        </div>
+                            <div class="form-group mb-2">
+                                <label class="small">Email Address</label>
                                 <input type="email" class="form-control" placeholder="you@example.com" required>
                             </div>
                             <div class="form-group mb-2">
-                                <label class="small text-dark">Your Message</label>
+                                <label class="small">Your Message</label>
                                 <textarea rows="3" class="form-control" placeholder="Ask us anything..." required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 mt-2">Submit</button>
+                            <button type="submit" class="btn w-100 mt-2 btn-submit-inquiry">Submit</button>
                         </form>
                     </div>
 
                     <!-- Newsletter Signup -->
                     <div class="col-md-6">
-                        <h5 class="fw-bold mb-3 text-success">Subscribe</h5>
+                        <h5 class="fw-bold mb-3" style="color: var(--secondary-color);">Subscribe</h5>
                         <p class="small text-muted">Get news, course updates & event alerts directly in your inbox.</p>
                         <form>
                             <div class="form-group mb-3">
-                                <label class="small text-dark">Email Address</label>
+                                <label class="small">Email Address</label>
                                 <input type="email" class="form-control" placeholder="Email address" required>
                             </div>
-                            <button type="submit" class="btn btn-success w-100">Subscribe To Newsletter</button>
+                            <button type="submit" class="btn w-100 btn-subscribe-newsletter">Subscribe To Newsletter</button>
                             <div class="alert alert-success mt-2 d-none">Subscribed successfully!</div>
                         </form>
                     </div>
@@ -55,8 +59,16 @@
     </div>
 </div>
 
-<!-- Floating Button CSS -->
+<!-- Theming & Styles -->
 <style>
+    :root {
+        --primary-color: #225691; /* Dark Blue */
+        --secondary-color: #ff6b6b; /* Coral Red */
+        --text-color: #ffffff; /* White */
+        --icon-color: #ffffff; /* White icons */
+    }
+
+    /* Floating Button */
     .floating-form-button {
         position: fixed;
         bottom: 30px;
@@ -64,19 +76,21 @@
         width: 55px;
         height: 55px;
         font-size: 22px;
-        z-index: 1050;
-        color: #fff;
-        background-color: var(--primary, #007bff);
+        color: var(--icon-color);
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 50%;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 1050;
         transition: all 0.3s ease;
     }
 
     .floating-form-button:hover {
+        background-color: var(--secondary-color);
         transform: scale(1.1);
-        background-color: #0056b3;
     }
 
     .modal-content {
@@ -85,21 +99,62 @@
 
     .form-control:focus {
         box-shadow: none;
-        border-color: #28a745;
+        border-color: var(--secondary-color);
+    }
+
+    .modal-body label,
+    .modal-body h5 {
+        font-family: 'Poppins', sans-serif;
+        color: #222;
+    }
+
+    .btn-submit-inquiry {
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+    }
+
+    .btn-submit-inquiry:hover {
+        background-color: var(--secondary-color);
+    }
+
+    .btn-subscribe-newsletter {
+        background-color: var(--secondary-color);
+        color: #fff;
+        border: none;
+    }
+
+    .btn-subscribe-newsletter:hover {
+        background-color: #e45757;
     }
 
     .modal-header h5 {
-        font-family: 'Montserrat', sans-serif;
+        color: var(--text-color);
     }
+    .btn-close-modern {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 1.2rem;
+    margin-left: auto;
+    transition: color 0.3s ease;
+}
 
-    .modal-body h5,
-    .modal-body label {
-        font-family: 'Poppins', sans-serif;
-    }
+.btn-close-modern:hover {
+    color: #ff6b6b; /* Optional: use your secondary color */
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 </style>
 
-<!-- Script: Show Floating Button on Scroll -->
+<!-- Scripts -->
 <script>
+    // Show floating button on scroll
     window.addEventListener("scroll", function () {
         const btn = document.getElementById("floatingInquiryBtn");
         if (window.scrollY > 100) {
@@ -109,7 +164,12 @@
         }
     });
 
-    // Optional: Toast message after form submission (demo only)
+    // Modal logic
+    document.getElementById("floatingInquiryBtn").addEventListener("click", function () {
+        $('#inquiryNewsletterModal').modal('show');
+    });
+
+    // Form submission (demo only)
     document.querySelectorAll('#inquiryNewsletterModal form').forEach(form => {
         form.addEventListener("submit", function (e) {
             e.preventDefault();
@@ -120,8 +180,7 @@
     });
 </script>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- FontAwesome -->
+<!-- Bootstrap & FontAwesome (if not already loaded) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/enquiry.blade.php ENDPATH**/ ?>

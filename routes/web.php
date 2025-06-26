@@ -6,6 +6,37 @@ use App\Models\SmsConfiguration;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PesaController;
 use App\Http\Controllers\DirectorController;
+use App\Http\Controllers\Admin\SubEnquiryController;
+
+
+
+Route::get('admin/sub-enquiries', [SubEnquiryController::class, 'index'])
+    ->name('admin.sub_enquiries.index')
+    ->middleware('permission:view-sub-enquiries');
+
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    
+    Route::get('sub-enquiries', [SubEnquiryController::class, 'index'])
+        ->name('admin.sub_enquiries.index')
+        ->middleware('permission:view-sub-enquiries');
+
+    Route::get('sub-enquiries/{id}', [SubEnquiryController::class, 'show'])
+        ->name('admin.sub_enquiries.show')
+        ->middleware('permission:view-sub-enquiries');
+
+    Route::delete('sub-enquiries/{id}', [SubEnquiryController::class, 'destroy'])
+        ->name('admin.sub_enquiries.destroy')
+        ->middleware('permission:delete-sub-enquiries');
+        Route::get('sub-enquiries', [SubEnquiryController::class, 'index'])
+    ->name('admin.sub_enquiries.index')
+    ->middleware('permission:view-sub-enquiries');
+
+    Route::get('admin/sub-enquiries', [SubEnquiryController::class, 'index'])
+    ->name('admin.sub_enquiries.index')
+    ->middleware('permission:view-sub-enquiries');
+
+});
+
 
 
 
