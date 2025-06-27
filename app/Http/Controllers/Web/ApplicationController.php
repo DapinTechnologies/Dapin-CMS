@@ -38,6 +38,7 @@ class ApplicationController extends Controller
      */
     public function index()
     {
+       // dd('app');
         //
         $data['title'] = $this->title;
         $data['route'] = $this->route;

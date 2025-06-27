@@ -1,612 +1,255 @@
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
 
     <title>{{ $applicationSetting->title ?? $title }}</title>
-    
     @include('admin.layouts.common.header_script')
-
-    <!-- Wizard css -->
     <link rel="stylesheet" href="{{ asset('dashboard/css/pages/wizard.css') }}">
-
-    <style type="text/css" media="screen">
-        .inner {
-            margin: 0 auto;
-            width: 100%;
-            height: auto;
-            overflow: hidden;
-            clear: both;
-        }
-        .inner img {
-            margin: 0 auto;
-            max-width: 100%;
-            width: auto;
-            height: auto;
-            overflow: hidden;
-        }
-    </style>
-
 </head>
-
 <body>
 
+    @php
+    use App\Models\Program;
+    use App\Models\County;
+    use App\Models\SubCounty;
+
+    // Fetch data directly in the view
+    $programs = Program::all();
+    $counties = County::all();
+    $subCounties = SubCounty::all();
+@endphp
+
+
+
+
 @isset($applicationSetting)
-<!-- Start Content-->
 <div class="main-body">
     <div class="page-wrapper">
-        <!-- [ Main Content ] start -->
         <div class="card">
             <div class="card-block">
                 <div class="row mt-5 mb-5">
-                    <div class="col-sm-2">
-                        <div class="inner text-center">
-                            @if(is_file('uploads/application-setting/'.$applicationSetting->logo_left))
-                            <img src="{{ asset('uploads/application-setting/'.$applicationSetting->logo_left) }}" class="img-fluid" alt="Logo">
-                            @endif
-                        </div>
-                    </div>
                     <div class="col-sm-8 text-center">
                         <h2>{{ $applicationSetting->title }}</h2>
                         <p>{!! strip_tags($applicationSetting->body, '<br><b><i><strong><u><a><span><del>') !!}</p>
                     </div>
-                    <div class="col-sm-2">
-                        <div class="inner text-center">
-                            @if(is_file('uploads/application-setting/'.$applicationSetting->logo_right))
-                            <img src="{{ asset('uploads/application-setting/'.$applicationSetting->logo_right) }}" class="img-fluid" alt="Logo">
-                            @endif
-                        </div>
-                    </div>
                 </div>
-
-                {{-- Success Alert --}}
                 @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
-                        <i class="fas fa-check-double"></i> {{ trans_choice('module_application', 1) }} {{session('success')}}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                    <div class="alert alert-success text-center">
+                        <i class="fas fa-check-double"></i> {{ trans_choice('module_application', 1) }} {{ session('success') }}
                     </div>
                 @endif
-
             </div>
         </div>
-        <div class="clearfix"></div>
 
         <div class="row">
-            <!-- [ Card ] start -->
             <div class="col-sm-12">
                 <div class="card">
-                    @php
-                        function field($slug){
-                            return \App\Models\Field::field($slug);
-                        }
-                    @endphp
                     <div class="wizard-sec-bg">
-                    <form id="wizard-advanced-form" class="needs-validation" novalidate action="{{ route($route.'.store') }}" method="post" enctype="multipart/form-data" style="display: none;">
+                    <form id="wizard-advanced-form" class="needs-validation" novalidate action="{{ route($route.'.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
 
+                        <!-- Basic Information -->
                         <h3>{{ __('tab_basic_info') }}</h3>
                         <content class="form-step">
-                            <!-- Form Start -->
-                            <div class="row">
-                            <div class="col-md-12">
                             <fieldset class="row scheduler-border">
-                            <div class="form-group col-md-6">
-                                <label for="first_name">{{ __('field_first_name') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="first_name" id="first_name" value="{{ old('first_name') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_first_name') }}
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-6">
-                                <label for="last_name">{{ __('field_last_name') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="last_name" id="last_name" value="{{ old('last_name') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_last_name') }}
-                                </div>
-                            </div>
-
-                            @if(field('application_father_name')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="father_name">{{ __('field_father_name') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="father_name" id="father_name" value="{{ old('father_name') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_father_name') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_father_occupation')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="father_occupation">{{ __('field_father_occupation') }}</label>
-                                <input type="text" class="form-control" name="father_occupation" id="father_occupation" value="{{ old('father_occupation') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_father_occupation') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_mother_name')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="mother_name">{{ __('field_mother_name') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="mother_name" id="mother_name" value="{{ old('mother_name') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_mother_name') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_mother_occupation')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="mother_occupation">{{ __('field_mother_occupation') }}</label>
-                                <input type="text" class="form-control" name="mother_occupation" id="mother_occupation" value="{{ old('mother_occupation') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_mother_occupation') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            <div class="form-group col-md-6">
-                                <label for="phone">{{ __('field_phone') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="phone" id="phone" value="{{ old('phone') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_phone') }}
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-6">
-                                <label for="email">{{ __('field_email') }} <span>*</span></label>
-                                <input type="email" class="form-control" name="email" id="email" value="{{ old('email') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_email') }}
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-6">
-                                <label for="gender">{{ __('field_gender') }} <span>*</span></label>
-                                <select class="form-control" name="gender" id="gender" required>
-                                    <option value="">{{ __('select') }}</option>
-                                    <option value="1" @if( old('gender') == 1 ) selected @endif>{{ __('gender_male') }}</option>
-                                    <option value="2" @if( old('gender') == 2 ) selected @endif>{{ __('gender_female') }}</option>
-                                    <option value="3" @if( old('gender') == 3 ) selected @endif>{{ __('gender_other') }}</option>
-                                </select>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_gender') }}
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-6">
-                                <label for="dob">{{ __('field_dob') }} <span>*</span></label>
-                                <input type="date" class="form-control date" name="dob" id="dob" value="{{ old('dob') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_dob') }}
-                                </div>
-                            </div>
-
-                            @if(field('application_emergency_phone')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="emergency_phone">{{ __('field_emergency_phone') }}</label>
-                                <input type="text" class="form-control" name="emergency_phone" id="emergency_phone" value="{{ old('emergency_phone') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_emergency_phone') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_religion')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="religion">{{ __('field_religion') }}</label>
-                                <input type="text" class="form-control" name="religion" id="religion" value="{{ old('religion') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_religion') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_caste')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="caste">{{ __('field_caste') }}</label>
-                                <input type="text" class="form-control" name="caste" id="caste" value="{{ old('caste') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_caste') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_mother_tongue')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="mother_tongue">{{ __('field_mother_tongue') }}</label>
-                                <input type="text" class="form-control" name="mother_tongue" id="mother_tongue" value="{{ old('mother_tongue') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_mother_tongue') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_nationality')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="nationality">{{ __('field_nationality') }}</label>
-                                <input type="text" class="form-control" name="nationality" id="nationality" value="{{ old('nationality') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_nationality') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_marital_status')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="marital_status">{{ __('field_marital_status') }}</label>
-                                <select class="form-control" name="marital_status" id="marital_status">
-                                    <option value="">{{ __('select') }}</option>
-                                    <option value="1" @if( old('marital_status') == 1 ) selected @endif>{{ __('marital_status_single') }}</option>
-                                    <option value="2" @if( old('marital_status') == 2 ) selected @endif>{{ __('marital_status_married') }}</option>
-                                    <option value="3" @if( old('marital_status') == 3 ) selected @endif>{{ __('marital_status_widowed') }}</option>
-                                    <option value="4" @if( old('marital_status') == 4 ) selected @endif>{{ __('marital_status_divorced') }}</option>
-                                    <option value="5" @if( old('marital_status') == 5 ) selected @endif>{{ __('marital_status_other') }}</option>
-                                </select>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_marital_status') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_blood_group')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="blood_group">{{ __('field_blood_group') }}</label>
-                                <select class="form-control" name="blood_group" id="blood_group">
-                                    <option value="">{{ __('select') }}</option>
-                                    <option value="1" @if( old('blood_group') == 1 ) selected @endif>{{ __('A+') }}</option>
-                                    <option value="2" @if( old('blood_group') == 2 ) selected @endif>{{ __('A-') }}</option>
-                                    <option value="3" @if( old('blood_group') == 3 ) selected @endif>{{ __('B+') }}</option>
-                                    <option value="4" @if( old('blood_group') == 4 ) selected @endif>{{ __('B-') }}</option>
-                                    <option value="5" @if( old('blood_group') == 5 ) selected @endif>{{ __('AB+') }}</option>
-                                    <option value="6" @if( old('blood_group') == 6 ) selected @endif>{{ __('AB-') }}</option>
-                                    <option value="7" @if( old('blood_group') == 7 ) selected @endif>{{ __('O+') }}</option>
-                                    <option value="8" @if( old('blood_group') == 8 ) selected @endif>{{ __('O-') }}</option>
-                                </select>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_blood_group') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_national_id')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="national_id">{{ __('field_national_id') }}</label>
-                                <input type="text" class="form-control" name="national_id" id="national_id" value="{{ old('national_id') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_national_id') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_passport_no')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="passport_no">{{ __('field_passport_no') }}</label>
-                                <input type="text" class="form-control" name="passport_no" id="passport_no" value="{{ old('passport_no') }}">
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_passport_no') }}
-                                </div>
-                            </div>
-                            @endif
-                            </fieldset>
-                            </div>
-                            </div>
-
-                            @if(field('application_address')->status == 1)
-                            <div class="row">
-                              <div class="col-md-6">
-                                <fieldset class="row scheduler-border">
-                                <legend>{{ __('field_present') }} {{ __('field_address') }}</legend>
+                                <legend>Personal Information</legend>
                                 
-                                @include('common.inc.present_province')
-
-                                <div class="form-group col-md-12">
-                                    <label for="present_address">{{ __('field_address') }}</label>
-                                    <input type="text" class="form-control" name="present_address" id="present_address" value="{{ old('present_address') }}">
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_address') }}
-                                    </div>
+                                <div class="col-md-6">
+                                    <label for="first_name">{{ __('First Name') }} <span>*</span></label>
+                                    <input type="text" class="form-control" name="first_name" id="first_name" required>
                                 </div>
-                                </fieldset>
-                              </div>
-
-                              <div class="col-md-6">
-                                <fieldset class="row scheduler-border">
-                                <legend>{{ __('field_permanent') }} {{ __('field_address') }}</legend>
                                 
-                                @include('common.inc.permanent_province')
-
-                                <div class="form-group col-md-12">
-                                    <label for="permanent_address">{{ __('field_address') }}</label>
-                                    <input type="text" class="form-control" name="permanent_address" id="permanent_address" value="{{ old('permanent_address') }}">
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_address') }}
-                                    </div>
+                                <div class="col-md-6">
+                                    <label for="last_name">{{ __('Last Name') }} <span>*</span></label>
+                                    <input type="text" class="form-control" name="last_name" id="last_name" required>
                                 </div>
-                                </fieldset>
-                              </div>
-                            </div>
-                            @endif
 
-                            <fieldset class="row scheduler-border">
-                            <legend>{{ __('field_academic_information') }}</legend>
-                            <div class="form-group col-md-6">
-                            <label for="program">{{ __('field_program') }} <span>*</span></label>
-                                <select class="form-control program" name="program" id="program" required>
-                                  <option value="">{{ __('select') }}</option>
-                                  @foreach( $programs as $program )
-                                    <option value="{{ $program->id }}" @if(old('program') == $program->id) selected @endif>{{ $program->title }}</option>
-                                  @endforeach
-                                </select>
+                                <div class="col-md-6">
+                                    <label for="dob">{{ __('Date of Birth') }} <span>*</span></label>
+                                    <input type="date" class="form-control" name="dob" id="dob" required>
+                                </div>
 
-                              <div class="invalid-feedback">
-                                {{ __('required_field') }} {{ __('field_program') }}
-                              </div>
-                            </div>
+                                <div class="col-md-6">
+                                    <label for="phone">{{ __('Phone Number') }} <span>*</span></label>
+                                    <input type="text" class="form-control" name="phone" id="phone" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="email">{{ __('Email Address') }} <span>*</span></label>
+                                    <input type="email" class="form-control" name="email" id="email" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="national_id">{{ __('National ID/Parent ID') }} <span>*</span></label>
+                                    <input type="text" class="form-control" name="national_id" id="national_id" required>
+                                </div>
+
+                                <!-- Gender Field -->
+                                <div class="col-md-6">
+                                    <label for="gender">{{ __('Gender') }} <span>*</span></label>
+                                    <select class="form-control" name="gender" id="gender" required>
+                                        <option value="">{{ __('Select Gender') }}</option>
+                                        <option value="1">{{ __('Male') }}</option>
+                                        <option value="2">{{ __('Female') }}</option>
+                                        <option value="3">{{ __('Other') }}</option>
+                                    </select>
+                                </div>
+
+                                <!-- Program Field (Populated from Model) -->
+                                <div class="col-md-6">
+                                    <label for="program">{{ __('Program') }} <span>*</span></label>
+                                    <select class="form-control" name="program" id="program" required>
+                                        <option value="">{{ __('Select Program') }}</option>
+                                        @foreach($programs as $program)
+                                            <option value="{{ $program->id }}">{{ $program->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </fieldset>
-                            <!-- Form End -->
                         </content>
 
-                        @if(field('application_school_info')->status == 1 || field('application_collage_info')->status == 1)
-                        <h3>{{ __('tab_educational_info') }}</h3>
+                        <!-- KCSE Results -->
+                       <!-- KCSE Results -->
+<h3>{{ __('KCSE Results') }}</h3>
+<content class="form-step">
+    <fieldset class="row scheduler-border">
+        <legend>KCSE Results</legend>
+
+        <div class="col-md-6">
+            <label for="kcse_index_no">{{ __('KCSE Index Number') }} <span>*</span></label>
+            <input type="text" class="form-control" name="kcse_index_no" id="kcse_index_no" required>
+        </div>
+
+        <div class="col-md-6">
+            <label for="kcse_year">{{ __('KCSE Year') }} <span>*</span></label>
+            <input type="text" class="form-control" name="kcse_year" id="kcse_year" required>
+        </div>
+
+        <div class="col-md-6">
+            <label for="kcse_overall_grade">{{ __('Overall KCSE Grade') }} <span>*</span></label>
+            <input type="text" class="form-control" name="kcse_grade" id="kcse_overall_grade" required>
+        </div>
+
+        <!-- KCSE Certificate Upload -->
+        <div class="col-md-6">
+            <label for="kcse_certificate">{{ __('KCSE Certificate') }} <span>*</span></label>
+            <input type="file" class="form-control" name="kcse_certificate" id="kcse_certificate" required>
+        </div>
+
+        <!-- KCSE Result Slip Upload -->
+        <div class="col-md-6">
+            <label for="kcse_result_slip">{{ __('KCSE Result Slip') }} <span>*</span></label>
+            <input type="file" class="form-control" name="kcse_result_slip" id="kcse_result_slip" required>
+        </div>
+    </fieldset>
+</content>
+
+                        <!-- Location Information -->
+                        <h3>Location</h3>
                         <content class="form-step">
-                            <!-- Form Start--->
-                            @if(field('application_school_info')->status == 1)
                             <fieldset class="row scheduler-border">
-                            <legend>{{ __('field_school_information') }}</legend>
-                            <div class="form-group col-md-3">
-                                <label for="school_name">{{ __('field_school_name') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="school_name" id="school_name" value="{{ old('school_name') }}" required>
+                                <legend>Location Details</legend>
 
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_school_name') }}
+                                <!-- County Dropdown -->
+                                <div class="col-md-6">
+                                    <label for="county">{{ __('County') }} <span>*</span></label>
+                                    <select class="form-control" name="county" id="county" required>
+                                        <option value="">{{ __('Select County') }}</option>
+                                        @foreach($counties as $county)
+                                            <option value="{{ $county->CountyID }}">{{ $county->CountyName }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            </div>
 
-                            <div class="form-group col-md-3">
-                                <label for="school_exam_id">{{ __('field_exam_id') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="school_exam_id" id="school_exam_id" value="{{ old('school_exam_id') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_exam_id') }}
+                                <!-- Sub-County Dropdown -->
+                                <div class="col-md-6">
+                                    <label for="sub_county">{{ __('Sub-County') }} <span>*</span></label>
+                                    <select class="form-control" name="sub_county" id="sub_county" required>
+                                        <option value="">{{ __('Select Sub-County') }}</option>
+                                        @foreach($subCounties as $subCounty)
+                                            <option value="{{ $subCounty->SubCountyID }}" data-county-id="{{ $subCounty->CountyID }}">{{ $subCounty->SubCountyName }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            </div>
 
-                            <div class="form-group col-md-3">
-                                <label for="school_graduation_year">{{ __('field_graduation_year') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="school_graduation_year" id="school_graduation_year" value="{{ old('school_graduation_year') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_graduation_year') }}
+                                <div class="col-md-6">
+                                    <label for="physical_address">{{ __('Physical Address') }}</label>
+                                    <input type="text" class="form-control" name="physical_address" id="physical_address">
                                 </div>
-                            </div>
-
-                            <div class="form-group col-md-3">
-                                <label for="school_graduation_point">{{ __('field_graduation_point') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="school_graduation_point" id="school_graduation_point" value="{{ old('school_graduation_point') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_graduation_point') }}
-                                </div>
-                            </div>
                             </fieldset>
-                            @endif
-
-                            @if(field('application_collage_info')->status == 1)
-                            <fieldset class="row scheduler-border">
-                            <legend>{{ __('field_college_information') }}</legend>
-                            <div class="form-group col-md-3">
-                                <label for="collage_name">{{ __('field_collage_name') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="collage_name" id="collage_name" value="{{ old('collage_name') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_collage_name') }}
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-3">
-                                <label for="collage_exam_id">{{ __('field_exam_id') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="collage_exam_id" id="collage_exam_id" value="{{ old('collage_exam_id') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_exam_id') }}
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-3">
-                                <label for="collage_graduation_year">{{ __('field_graduation_year') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="collage_graduation_year" id="collage_graduation_year" value="{{ old('collage_graduation_year') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_graduation_year') }}
-                                </div>
-                            </div>
-
-                            <div class="form-group col-md-3">
-                                <label for="collage_graduation_point">{{ __('field_graduation_point') }} <span>*</span></label>
-                                <input type="text" class="form-control" name="collage_graduation_point" id="collage_graduation_point" value="{{ old('collage_graduation_point') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_graduation_point') }}
-                                </div>
-                            </div>
-                            </fieldset>
-                            @endif
-                            <!-- Form End--->
                         </content>
-                        @endif
 
-                        @if(field('application_school_transcript')->status == 1 || field('application_school_certificate')->status == 1 || field('application_collage_transcript')->status == 1 || field('application_collage_certificate')->status == 1 || field('application_photo')->status == 1 || field('application_signature')->status == 1)
-                        <h3>{{ __('tab_documents') }}</h3>
+                        <!-- Mode of Study -->
+                        <h3>Mode of Study</h3>
                         <content class="form-step">
-                            <!-- Form Start--->
                             <fieldset class="row scheduler-border">
-                            @if(field('application_school_transcript')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="school_transcript">{{ __('field_school_transcript') }} <span>*</span></label>
-                                <input type="file" class="form-control" name="school_transcript" id="school_transcript" value="{{ old('school_transcript') }}" required>
+                                <legend>Preferred Mode of Study</legend>
 
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_school_transcript') }}
+                                <div class="col-md-6">
+                                    <label for="mode_of_study">{{ __('Mode of Study') }} <span>*</span></label>
+                                    <select class="form-control" name="mode_of_education" id="mode_of_study" required>
+                                        <option value="">{{ __('Select Mode of Study') }}</option>
+                                        <option value="Physical">Physical</option>
+                                        <option value="Online">Online</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                        
+                                    </select>
                                 </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_school_certificate')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="school_certificate">{{ __('field_school_certificate') }} <span>*</span></label>
-                                <input type="file" class="form-control" name="school_certificate" id="school_certificate" value="{{ old('school_certificate') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_school_certificate') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_collage_transcript')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="collage_transcript">{{ __('field_collage_transcript') }} <span>*</span></label>
-                                <input type="file" class="form-control" name="collage_transcript" id="collage_transcript" value="{{ old('collage_transcript') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_collage_transcript') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_collage_certificate')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="collage_certificate">{{ __('field_collage_certificate') }} <span>*</span></label>
-                                <input type="file" class="form-control" name="collage_certificate" id="collage_certificate" value="{{ old('collage_certificate') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_collage_certificate') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_photo')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="photo">{{ __('field_photo') }}: <span>{{ __('image_size', ['height' => 300, 'width' => 300]) }}</span> <span>*</span></label>
-                                <input type="file" class="form-control" name="photo" id="photo" value="{{ old('photo') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_photo') }}
-                                </div>
-                            </div>
-                            @endif
-
-                            @if(field('application_signature')->status == 1)
-                            <div class="form-group col-md-6">
-                                <label for="signature">{{ __('field_signature') }}: <span>{{ __('image_size', ['height' => 100, 'width' => 300]) }}</span> <span>*</span></label>
-                                <input type="file" class="form-control" name="signature" id="signature" value="{{ old('signature') }}" required>
-
-                                <div class="invalid-feedback">
-                                  {{ __('required_field') }} {{ __('field_signature') }}
-                                </div>
-                            </div>
-                            @endif
                             </fieldset>
-                            <!-- Form End--->
                         </content>
-                        @endif
+
                     </form>
                     </div>
-
                 </div>
             </div>
-            <!-- [ Card ] end -->
         </div>
-        <!-- [ Main Content ] end -->
     </div>
 </div>
-<!-- End Content-->
 @endisset
+@include('admin.layouts.common.footer_script')
+<script src="{{ asset('dashboard/plugins/jquery-validation/js/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('dashboard/js/pages/jquery.steps.js') }}"></script>
 
-    
-    @include('admin.layouts.common.footer_script')
+<script>
+    "use strict";
+    var form = $("#wizard-advanced-form").show();
+    form.steps({
+        headerTag: "h3",
+        bodyTag: "content",
+        transitionEffect: "slideLeft",
+        labels: {
+            finish: "{{ __('btn_finish') }}",
+            next: "{{ __('btn_next') }}",
+            previous: "{{ __('btn_previous') }}",
+        },
+        onFinished: function () {
+            $("#wizard-advanced-form").submit();
+        }
+    });
 
+    // Dynamic Sub-County Filtering Based on Selected County
+    $(document).ready(function () {
+        // Store all sub-county options in a variable
+        var allSubCounties = $('#sub_county').html();
 
-    <!-- validate Js -->
-    <script src="{{ asset('dashboard/plugins/jquery-validation/js/jquery.validate.min.js') }}"></script>
+        $('#county').change(function () {
+            var countyId = $(this).val();
+            $('#sub_county').html('<option value="">{{ __('Select Sub-County') }}</option>');
 
-    <!-- Wizard Js -->
-    <script src="{{ asset('dashboard/js/pages/jquery.steps.js') }}"></script>
-
-    <script type="text/javascript">
-        "use strict";
-        var form = $("#wizard-advanced-form").show();
-
-        form.steps({
-            headerTag: "h3",
-            bodyTag: "content",
-            transitionEffect: "slideLeft",
-            labels: 
-            {
-                finish: "{{ __('btn_finish') }}",
-                next: "{{ __('btn_next') }}",
-                previous: "{{ __('btn_previous') }}",
-            },
-            onStepChanging: function (event, currentIndex, newIndex)
-            {
-                // Allways allow previous action even if the current form is not valid!
-                if (currentIndex > newIndex)
-                {
-                    return true;
+            // Filter sub-counties based on the selected county
+            $(allSubCounties).filter('option').each(function () {
+                if ($(this).data('county-id') == countyId) {
+                    $('#sub_county').append($(this).clone());
                 }
-                // Needed in some cases if the user went back (clean up)
-                if (currentIndex < newIndex)
-                {
-                    // To remove error styles
-                    form.find(".body:eq(" + newIndex + ") label.error").remove();
-                    form.find(".body:eq(" + newIndex + ") .error").removeClass("error");
-                }
-                form.validate().settings.ignore = ":disabled,:hidden";
-                return form.valid();
-            },
-            onStepChanged: function (event, currentIndex, priorIndex)
-            {
-                
-            },
-            onFinishing: function (event, currentIndex)
-            {
-                form.validate().settings.ignore = ":disabled";
-                return form.valid();
-            },
-            onFinished: function (event, currentIndex)
-            {
-                $("#wizard-advanced-form").submit();
-            }
-        }).validate({
-            errorPlacement: function errorPlacement(error, element) { element.before(error); },
-            rules: {
+            });
 
-            }
+            // Debugging: Log the selected county ID and filtered sub-counties
+            console.log('Selected County ID:', countyId);
+            console.log('Filtered Sub-Counties:', $('#sub_county').html());
         });
-    </script>
+    });
+</script>
 
 </body>
 </html>
