@@ -92,6 +92,7 @@ $courses = Course::where('status', 1)->orderBy('faculty')->get();
         <?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="course-card">
             <a href="<?php echo e(route('course.single', ['slug' => $course->slug])); ?>" class="text-decoration-none text-dark d-block">
+
                 <h3 class="text-xl font-bold mb-3 text-blue-700"><?php echo e($course->title); ?></h3>
                 <p class="mb-2 text-gray-600"><i class="fas fa-building mr-2 text-blue-500"></i><strong>Department:</strong> <?php echo e($course->faculty); ?></p>
                 <p class="mb-2 text-gray-600"><i class="fas fa-clock mr-2 text-blue-500"></i><strong>Duration:</strong> <?php echo e($course->duration); ?></p>

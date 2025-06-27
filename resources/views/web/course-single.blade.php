@@ -25,7 +25,7 @@
 
     <!-- main-area -->
     <main>
-        
+       
         <!-- breadcrumb-area -->
         <section class="breadcrumb-area d-flex  p-relative align-items-center">
             <div class="container">
@@ -68,53 +68,27 @@
                                 <p>{!! $course->description !!}</p>
                             </div>
                         </div>
+                        
 
-                        <div class="col-lg-3">
-                            <aside class="sidebar-widget info-column">
-                                <div class="inner-column3">
-                                    <h3>{{ __('sidebar_course') }}</h3>
-                                    
-                                    <ul class="project-info clearfix">
-                                        @if(!empty($course->faculty))
-                                        <li>
-                                            <strong>{{ __('field_faculty') }}: </strong> 
-                                            <span>{{ $course->faculty }}</span>
-                                        </li>
-                                        @endif
-                                        @if(!empty($course->semesters))
-                                        <li>
-                                            <strong>{{ __('field_total') }} {{ __('field_semester') }}: </strong> 
-                                            <span>{{ $course->semesters }}</span>
-                                        </li>
-                                        @endif
-                                        @if(!empty($course->credits))
-                                        <li>
-                                            <strong>{{ __('field_total_credit_hour') }}: </strong> 
-                                            <span>{{ $course->credits }}</span>
-                                        </li>
-                                        @endif
-                                        @if(!empty($course->courses))
-                                        <li>
-                                            <strong>{{ __('field_total') }} {{ __('field_subject') }}: </strong> 
-                                            <span>{{ $course->courses }}</span>
-                                        </li>
-                                        @endif
-                                        @if(!empty($course->duration))
-                                        <li>
-                                            <strong>{{ __('field_duration') }}: </strong> 
-                                            <span>{{ $course->duration }}</span>
-                                        </li>
-                                        @endif
-                                        @if(!empty($course->fee))
-                                        <li>
-                                            <strong>{{ __('field_total') }} {{ __('field_fee') }}: </strong> 
-                                            <span>{{ round($course->fee, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</span>
-                                        </li>
-                                        @endif
-                                    </ul>
-                                </div>
-                            </aside>
-                        </div>
+                        
+<div class="col-lg-3">
+    <aside class="sidebar-widget info-column">
+        <div class="inner-column3">
+            <h3>Course Info</h3>
+            <ul class="project-info clearfix">
+                <li><strong>Faculty:</strong> {{ $course->faculty }}</li>
+                <li><strong>Semesters:</strong> {{ $course->semesters }}</li>
+                <li><strong>Credits:</strong> {{ $course->credits }}</li>
+                <li><strong>Subjects:</strong> {{ $course->courses }}</li>
+                <li><strong>Duration:</strong> {{ $course->duration }}</li>
+                <li><strong>Fee:</strong> KSH {{ number_format($course->fee, 2) }}</li>
+            </ul>
+        </div>
+    </aside>
+</div>
+
+
+
                     </div>
                 </div>
             </div>

@@ -1,9 +1,9 @@
 <footer class="footer-modern text-white pt-5" style="background-color: #141b22; font-family: 'Jost', sans-serif;">
     <div class="container pb-4">
-        <div class="row gy-4 justify-content-between">
+        <div class="row gy-4">
 
             <!-- Social Media -->
-            <div class="col-md-4">
+            <div class="col-12 col-md-6 col-lg-3">
                 <h5 class="fw-bold mb-3" style="color: #ff7350;"><?php echo e(__('footer_socials')); ?></h5>
                 <div class="d-flex gap-3 flex-wrap">
                     <?php if(isset($socialSetting->facebook)): ?>
@@ -28,7 +28,7 @@
             </div>
 
             <!-- Quick Links -->
-            <div class="col-md-4">
+            <div class="col-12 col-md-6 col-lg-3">
                 <h5 class="fw-bold mb-3" style="color: #ff7350;"><?php echo e(__('footer_links')); ?></h5>
                 <ul class="list-unstyled footer-links">
                     <?php if(Route::has('student.login')): ?>
@@ -47,8 +47,21 @@
                 </ul>
             </div>
 
+            <!-- Campus Area -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <h5 class="fw-bold mb-3" style="color: #ff7350;">Quick Links</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#">Main Campus</a></li>
+                    <li><a href="#">Nairobi Campus</a></li>
+                    <li><a href="#">Library Resources</a></li>
+                    <li><a href="#">eLearning Portal</a></li>
+                    <li><a href="#">Latest News</a></li>
+                    <li><a href="#">Research Updates</a></li>
+                </ul>
+            </div>
+
             <!-- Contact Info -->
-            <div class="col-md-4">
+            <div class="col-12 col-md-6 col-lg-3">
                 <h5 class="fw-bold mb-3" style="color: #ff7350;"><?php echo e(__('footer_contact')); ?></h5>
                 <ul class="list-unstyled footer-contact">
                     <?php if(isset($topbarSetting->phone)): ?>
@@ -73,12 +86,10 @@
                     <small class="text-white-50">&copy; <?php echo strip_tags($setting->copyright_text, '<a><b><i><u><strong>'); ?></small>
                 <?php endif; ?>
             </div>
-            <div>
-                
-            </div>
         </div>
     </div>
 </footer>
+
 <style>
     body {
         font-family: 'Jost', sans-serif;
@@ -102,15 +113,15 @@
     }
 
     .social-icon {
-        background-color: #ff7350;
+        background-color: #1a5086;
         color: #fff;
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         border-radius: 50%;
-        font-size: 1.1rem;
+        font-size: 0.85rem;
         transition: background 0.3s ease;
     }
 
@@ -120,21 +131,7 @@
     }
 
     .footer-bottom {
-        background-color: #13191f;
+        background-color: #204162;
     }
-.social-icon {
-    background-color: #1a5086;
-    color: #fff;
-    width: 32px;           /* reduced from 40px */
-    height: 32px;          /* reduced from 40px */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 0.85rem;    /* reduced from 1.1rem */
-    transition: background 0.3s ease;
-}
-
-
 </style>
 <?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/layouts/footer.blade.php ENDPATH**/ ?>

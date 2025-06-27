@@ -92,6 +92,7 @@ $courses = Course::where('status', 1)->orderBy('faculty')->get();
         @foreach($courses as $course)
         <div class="course-card">
             <a href="{{ route('course.single', ['slug' => $course->slug]) }}" class="text-decoration-none text-dark d-block">
+
                 <h3 class="text-xl font-bold mb-3 text-blue-700">{{ $course->title }}</h3>
                 <p class="mb-2 text-gray-600"><i class="fas fa-building mr-2 text-blue-500"></i><strong>Department:</strong> {{ $course->faculty }}</p>
                 <p class="mb-2 text-gray-600"><i class="fas fa-clock mr-2 text-blue-500"></i><strong>Duration:</strong> {{ $course->duration }}</p>

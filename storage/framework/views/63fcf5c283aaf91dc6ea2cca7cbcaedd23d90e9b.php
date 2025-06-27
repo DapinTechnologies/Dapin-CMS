@@ -29,7 +29,7 @@
                                     <li class="<?php echo e(Request::is('faq*') ? 'current' : ''); ?>"><a href="<?php echo e(route('faq')); ?>"><?php echo e(__('navbar_faqs')); ?></a></li>
                                     <li class="<?php echo e(Request::is('gallery*') ? 'current' : ''); ?>"><a href="<?php echo e(route('gallery')); ?>"><?php echo e(__('navbar_gallery')); ?></a></li>
                                     <li class="<?php echo e(Request::is('news*') ? 'current' : ''); ?>"><a href="<?php echo e(route('news')); ?>"><?php echo e(__('navbar_news')); ?></a></li>
-                                    <li class="<?php echo e(Request::is('about*') ? 'current' : ''); ?>"><a href="#"><?php echo e(__('About Us')); ?></a></li>
+                                    <li class="<?php echo e(Request::is('about*') ? 'current' : ''); ?>"><a href="<?php echo e(route('aboutus')); ?>"><?php echo e(__('About Us')); ?></a></li>
                                 </ul>
                             </nav>
                         </div>

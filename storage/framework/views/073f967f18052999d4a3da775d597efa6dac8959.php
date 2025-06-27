@@ -1,19 +1,19 @@
-@extends('web.layouts.master')
-@section('title', __('About Us'))
 
-@section('social_meta_tags')
+<?php $__env->startSection('title', __('About Us')); ?>
+
+<?php $__env->startSection('social_meta_tags'); ?>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-    @if(isset($setting))
+    <?php if(isset($setting)): ?>
         <meta property="og:type" content="website">
-        <meta property='og:site_name' content="{{ $setting->title }}"/>
+        <meta property='og:site_name' content="<?php echo e($setting->title); ?>"/>
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="{!! '@'.str_replace(' ', '', $setting->title) !!}" />
+        <meta name="twitter:site" content="<?php echo '@'.str_replace(' ', '', $setting->title); ?>" />
         <meta name="twitter:creator" content="@HiTechParks" />
-    @endif
-@endsection
+    <?php endif; ?>
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <main>
     <!-- Hero Section with Dark Blue Breadcrumb -->
@@ -21,11 +21,11 @@
         <div class="container">
             <div class="row align-items-center text-center">
                 <div class="col-12">
-                    <h1 class="display-4 fw-bold mb-4">{{ __('About Us') }}</h1>
+                    <h1 class="display-4 fw-bold mb-4"><?php echo e(__('About Us')); ?></h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-center">
-                            <li class="breadcrumb-item"><a href="{{ route('home') }}" class="text-white-70">{{ __('navbar_home') }}</a></li>
-                            <li class="breadcrumb-item active text-white" aria-current="page">{{ __('About') }}</li>
+                            <li class="breadcrumb-item"><a href="<?php echo e(route('home')); ?>" class="text-white-70"><?php echo e(__('navbar_home')); ?></a></li>
+                            <li class="breadcrumb-item active text-white" aria-current="page"><?php echo e(__('About')); ?></li>
                         </ol>
                     </nav>
                 </div>
@@ -36,63 +36,64 @@
     <!-- About Content Section -->
     <section class="py-5 bg-white">
         <div class="container">
-            @if($about)
+            <?php if($about): ?>
             <div class="row g-5 align-items-center">
                 <!-- Left: Text -->
                 <div class="col-lg-6 order-lg-1 order-2">
-                    <h2 class="fw-bold mb-4 text-dark-blue">{{ $about->title }}</h2>
-                    <p class="lead text-muted mb-4">{{ $about->short_desc }}</p>
-                    <div class="mb-4 text-gray-700">{!! $about->description !!}</div>
-                    @if($about->attach)
+                    <h2 class="fw-bold mb-4 text-dark-blue"><?php echo e($about->title); ?></h2>
+                    <p class="lead text-muted mb-4"><?php echo e($about->short_desc); ?></p>
+                    <div class="mb-4 text-gray-700"><?php echo $about->description; ?></div>
+                    <?php if($about->attach): ?>
                         <div class="mt-4">
                             <h6 class="fw-bold text-dark-blue mb-3">Attached Image:</h6>
-                            <img src="{{ asset('uploads/about/' . $about->attach) }}" class="img-fluid rounded-lg shadow" alt="Attachment">
+                            <img src="<?php echo e(asset('uploads/about/' . $about->attach)); ?>" class="img-fluid rounded-lg shadow" alt="Attachment">
                         </div>
-                        <a href="{{ asset('uploads/about/' . $about->attach) }}" class="btn btn-primary mt-3" download>
-                            <i class="bi bi-download me-2"></i> {{ $about->button_text ?? 'Download Attachment' }}
+                        <a href="<?php echo e(asset('uploads/about/' . $about->attach)); ?>" class="btn btn-primary mt-3" download>
+                            <i class="bi bi-download me-2"></i> <?php echo e($about->button_text ?? 'Download Attachment'); ?>
+
                         </a>
-                    @endif
+                    <?php endif; ?>
                 </div>
 
                 <!-- Right: YouTube video -->
                 <div class="col-lg-6 order-lg-2 order-1 text-center">
-                    @if($about->video_id)
+                    <?php if($about->video_id): ?>
                         <div class="ratio ratio-16x9 shadow-lg rounded-lg overflow-hidden">
-                            <iframe src="https://www.youtube.com/embed/{{ $about->video_id }}" frameborder="0" allowfullscreen class="rounded-lg"></iframe>
+                            <iframe src="https://www.youtube.com/embed/<?php echo e($about->video_id); ?>" frameborder="0" allowfullscreen class="rounded-lg"></iframe>
                         </div>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </div>
 
             <!-- Features -->
-            @if($about->features)
+            <?php if($about->features): ?>
             <div class="mt-5 pt-4">
                 <h3 class="fw-semibold mb-4 text-dark-blue">Our Key Features</h3>
                 <div class="row g-4">
-                    @foreach(json_decode($about->features, true) ?? [] as $feature)
+                    <?php $__currentLoopData = json_decode($about->features, true) ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $feature): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="col-md-6">
                             <div class="feature-card p-4 rounded-lg bg-light border-start border-4 border-dark-blue">
                                 <i class="bi bi-check-circle-fill text-dark-blue me-2"></i> 
-                                <span class="text-dark">{{ $feature }}</span>
+                                <span class="text-dark"><?php echo e($feature); ?></span>
                             </div>
                         </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
 
             <!-- Mission Section -->
             <div class="row mt-5 pt-5 align-items-center">
                 <div class="col-md-6">
                     <div class="pe-lg-4">
-                        <h4 class="fw-bold text-dark-blue mb-4">{{ $about->mission_title }}</h4>
-                        <p class="text-muted">{{ $about->mission_desc }}</p>
+                        <h4 class="fw-bold text-dark-blue mb-4"><?php echo e($about->mission_title); ?></h4>
+                        <p class="text-muted"><?php echo e($about->mission_desc); ?></p>
                     </div>
                 </div>
                 <div class="col-md-6 text-center">
-                    @if($about->mission_image)
-                        <img src="{{ asset('uploads/about/' . $about->mission_image) }}" class="img-fluid rounded-lg shadow" alt="Mission">
-                    @endif
+                    <?php if($about->mission_image): ?>
+                        <img src="<?php echo e(asset('uploads/about/' . $about->mission_image)); ?>" class="img-fluid rounded-lg shadow" alt="Mission">
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -100,27 +101,28 @@
             <div class="row mt-5 pt-5 align-items-center">
                 <div class="col-md-6 order-md-2">
                     <div class="ps-lg-4">
-                        <h4 class="fw-bold text-dark-blue mb-4">{{ $about->vision_title }}</h4>
-                        <p class="text-muted">{{ $about->vision_desc }}</p>
+                        <h4 class="fw-bold text-dark-blue mb-4"><?php echo e($about->vision_title); ?></h4>
+                        <p class="text-muted"><?php echo e($about->vision_desc); ?></p>
                     </div>
                 </div>
                 <div class="col-md-6 text-center order-md-1">
-                    @if($about->vision_image)
-                        <img src="{{ asset('uploads/about/' . $about->vision_image) }}" class="img-fluid rounded-lg shadow" alt="Vision">
-                    @endif
+                    <?php if($about->vision_image): ?>
+                        <img src="<?php echo e(asset('uploads/about/' . $about->vision_image)); ?>" class="img-fluid rounded-lg shadow" alt="Vision">
+                    <?php endif; ?>
                 </div>
             </div>
 
-            @else
+            <?php else: ?>
                 <div class="alert alert-warning mt-5">
-                    {{ __('No about us content available.') }}
+                    <?php echo e(__('No about us content available.')); ?>
+
                 </div>
-            @endif
+            <?php endif; ?>
         </div>
     </section>
 </main>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
 <style>
 /* Modern Color Theme with Dark Blue */
@@ -310,3 +312,4 @@ p {
     }
 }
 </style>
+<?php echo $__env->make('web.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/about.blade.php ENDPATH**/ ?>

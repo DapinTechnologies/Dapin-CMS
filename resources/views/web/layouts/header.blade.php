@@ -29,7 +29,7 @@
                                     <li class="{{ Request::is('faq*') ? 'current' : '' }}"><a href="{{ route('faq') }}">{{ __('navbar_faqs') }}</a></li>
                                     <li class="{{ Request::is('gallery*') ? 'current' : '' }}"><a href="{{ route('gallery') }}">{{ __('navbar_gallery') }}</a></li>
                                     <li class="{{ Request::is('news*') ? 'current' : '' }}"><a href="{{ route('news') }}">{{ __('navbar_news') }}</a></li>
-                                    <li class="{{ Request::is('about*') ? 'current' : '' }}"><a href="#">{{ __('About Us') }}</a></li>
+                                    <li class="{{ Request::is('about*') ? 'current' : '' }}"><a href="{{ route('aboutus') }}">{{ __('About Us') }}</a></li>
                                 </ul>
                             </nav>
                         </div>

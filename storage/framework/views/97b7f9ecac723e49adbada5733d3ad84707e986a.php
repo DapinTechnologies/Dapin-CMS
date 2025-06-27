@@ -25,7 +25,7 @@
 
     <!-- main-area -->
     <main>
-        
+       
         <!-- breadcrumb-area -->
         <section class="breadcrumb-area d-flex  p-relative align-items-center">
             <div class="container">
@@ -68,53 +68,27 @@
                                 <p><?php echo $course->description; ?></p>
                             </div>
                         </div>
+                        
 
-                        <div class="col-lg-3">
-                            <aside class="sidebar-widget info-column">
-                                <div class="inner-column3">
-                                    <h3><?php echo e(__('sidebar_course')); ?></h3>
-                                    
-                                    <ul class="project-info clearfix">
-                                        <?php if(!empty($course->faculty)): ?>
-                                        <li>
-                                            <strong><?php echo e(__('field_faculty')); ?>: </strong> 
-                                            <span><?php echo e($course->faculty); ?></span>
-                                        </li>
-                                        <?php endif; ?>
-                                        <?php if(!empty($course->semesters)): ?>
-                                        <li>
-                                            <strong><?php echo e(__('field_total')); ?> <?php echo e(__('field_semester')); ?>: </strong> 
-                                            <span><?php echo e($course->semesters); ?></span>
-                                        </li>
-                                        <?php endif; ?>
-                                        <?php if(!empty($course->credits)): ?>
-                                        <li>
-                                            <strong><?php echo e(__('field_total_credit_hour')); ?>: </strong> 
-                                            <span><?php echo e($course->credits); ?></span>
-                                        </li>
-                                        <?php endif; ?>
-                                        <?php if(!empty($course->courses)): ?>
-                                        <li>
-                                            <strong><?php echo e(__('field_total')); ?> <?php echo e(__('field_subject')); ?>: </strong> 
-                                            <span><?php echo e($course->courses); ?></span>
-                                        </li>
-                                        <?php endif; ?>
-                                        <?php if(!empty($course->duration)): ?>
-                                        <li>
-                                            <strong><?php echo e(__('field_duration')); ?>: </strong> 
-                                            <span><?php echo e($course->duration); ?></span>
-                                        </li>
-                                        <?php endif; ?>
-                                        <?php if(!empty($course->fee)): ?>
-                                        <li>
-                                            <strong><?php echo e(__('field_total')); ?> <?php echo e(__('field_fee')); ?>: </strong> 
-                                            <span><?php echo e(round($course->fee, $setting->decimal_place ?? 2)); ?> <?php echo $setting->currency_symbol; ?></span>
-                                        </li>
-                                        <?php endif; ?>
-                                    </ul>
-                                </div>
-                            </aside>
-                        </div>
+                        
+<div class="col-lg-3">
+    <aside class="sidebar-widget info-column">
+        <div class="inner-column3">
+            <h3>Course Info</h3>
+            <ul class="project-info clearfix">
+                <li><strong>Faculty:</strong> <?php echo e($course->faculty); ?></li>
+                <li><strong>Semesters:</strong> <?php echo e($course->semesters); ?></li>
+                <li><strong>Credits:</strong> <?php echo e($course->credits); ?></li>
+                <li><strong>Subjects:</strong> <?php echo e($course->courses); ?></li>
+                <li><strong>Duration:</strong> <?php echo e($course->duration); ?></li>
+                <li><strong>Fee:</strong> KSH <?php echo e(number_format($course->fee, 2)); ?></li>
+            </ul>
+        </div>
+    </aside>
+</div>
+
+
+
                     </div>
                 </div>
             </div>
