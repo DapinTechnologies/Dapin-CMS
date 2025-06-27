@@ -168,6 +168,7 @@
     }
 </style>
 
+
 <!-- News & Media Section -->
 <section class="news-section pt-3 pb-5" aria-labelledby="news-heading">
     <div class="container">
@@ -177,7 +178,7 @@
         </header>
 
         <?php
-            use App\Models\News;
+            use App\Models\Web\News;
             $newsItems = News::where('status', 1)->orderBy('date', 'desc')->get();
         ?>
 
@@ -190,10 +191,17 @@
                                 <article class="news-card" itemscope itemtype="https://schema.org/NewsArticle">
                                     <!-- News Image with Badge -->
                                     <div class="news-image position-relative">
-                                        <img src="<?php echo e($news->image ?? asset('images/placeholder-news.jpg')); ?>"
-                                             alt="<?php echo e($news->title); ?>"
-                                             class="img-fluid rounded-top"
-                                             itemprop="image">
+                                        <?php if($news->attach): ?>
+                                            <img src="<?php echo e(asset('uploads/news/' . $news->attach)); ?>"
+                                                 alt="<?php echo e($news->title); ?>"
+                                                 class="img-fluid rounded-top"
+                                                 itemprop="image">
+                                        <?php else: ?>
+                                            <img src="<?php echo e(asset('images/placeholder-news.jpg')); ?>"
+                                                 alt="<?php echo e($news->title); ?>"
+                                                 class="img-fluid rounded-top"
+                                                 itemprop="image">
+                                        <?php endif; ?>
 
                                         <?php if($news->badge): ?>
                                             <span class="news-badge badge bg-danger position-absolute top-0 start-0 m-2">
@@ -244,7 +252,6 @@
         <?php endif; ?>
     </div>
 </section>
-
 <!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
 <script>

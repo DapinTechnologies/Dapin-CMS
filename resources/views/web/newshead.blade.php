@@ -168,6 +168,7 @@
     }
 </style>
 
+
 <!-- News & Media Section -->
 <section class="news-section pt-3 pb-5" aria-labelledby="news-heading">
     <div class="container">
@@ -177,7 +178,7 @@
         </header>
 
         @php
-            use App\Models\News;
+            use App\Models\Web\News;
             $newsItems = News::where('status', 1)->orderBy('date', 'desc')->get();
         @endphp
 
@@ -190,10 +191,17 @@
                                 <article class="news-card" itemscope itemtype="https://schema.org/NewsArticle">
                                     <!-- News Image with Badge -->
                                     <div class="news-image position-relative">
-                                        <img src="{{ $news->image ?? asset('images/placeholder-news.jpg') }}"
-                                             alt="{{ $news->title }}"
-                                             class="img-fluid rounded-top"
-                                             itemprop="image">
+                                        @if($news->attach)
+                                            <img src="{{ asset('uploads/news/' . $news->attach) }}"
+                                                 alt="{{ $news->title }}"
+                                                 class="img-fluid rounded-top"
+                                                 itemprop="image">
+                                        @else
+                                            <img src="{{ asset('images/placeholder-news.jpg') }}"
+                                                 alt="{{ $news->title }}"
+                                                 class="img-fluid rounded-top"
+                                                 itemprop="image">
+                                        @endif
 
                                         @if($news->badge)
                                             <span class="news-badge badge bg-danger position-absolute top-0 start-0 m-2">
@@ -241,7 +249,6 @@
         @endif
     </div>
 </section>
-
 <!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
 <script>
