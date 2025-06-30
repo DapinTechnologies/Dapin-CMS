@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Auth;
 use Toastr;
 use App\Models\StudentEnroll;
+use App\Models\FeeStructureItem;
 use App\Models\PrintSetting;
 use App\Models\FeesCategory;
 use App\Models\Transaction;
@@ -34,6 +35,10 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Spatie\Browsershot\Browsershot;
 use App\Services\SmsService;
+use App\Models\BankAccount;
+use App\Models\Bursary;
+use App\Models\User;
+
 class FeesStudentController extends Controller
 {
     /**
@@ -72,149 +77,157 @@ $this->middleware('permission:'.$this->access.'-multi-assign', ['only' => ['assi
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
-        //
-        $data['title'] = $this->title;
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = $this->path;
-        $data['access'] = $this->access;
+  public function index(Request $request)
+{
+    $data['title'] = $this->title;
+    $data['route'] = $this->route;
+    $data['view'] = $this->view;
+    $data['path'] = $this->path;
+    $data['access'] = $this->access;
 
+    // Initialize filter values
+    $data['selected_faculty'] = $faculty = $request->faculty ?? '0';
+    $data['selected_program'] = $program = $request->program ?? '0';
+    $data['selected_session'] = $session = $request->session ?? '0';
+    $data['selected_semester'] = $semester = $request->semester ?? '0';
+    $data['selected_section'] = $section = $request->section ?? '0';
+    $data['selected_category'] = $category = $request->category ?? '0';
+    $data['selected_student_id'] = $student_id = $request->student_id ?? null;
 
-        if(!empty($request->faculty) || $request->faculty != null){
-            $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
-            $data['selected_faculty'] = $faculty = '0';
-        }
+    // Get filter options
+    $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
+    $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
+    $data['print'] = PrintSetting::where('slug', 'fees-receipt')->first();
 
-        if(!empty($request->program) || $request->program != null){
-            $data['selected_program'] = $program = $request->program;
-        }
-        else{
-            $data['selected_program'] = $program = '0';
-        }
+    // Get dependent filter options
+    if(!empty($faculty) && $faculty != '0'){
+        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+    }
 
-        if(!empty($request->session) || $request->session != null){
-            $data['selected_session'] = $session = $request->session;
-        }
-        else{
-            $data['selected_session'] = $session = '0';
-        }
-
-        if(!empty($request->semester) || $request->semester != null){
-            $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
-            $data['selected_semester'] = $semester = '0';
-        }
-
-        if(!empty($request->section) || $request->section != null){
-            $data['selected_section'] = $section = $request->section;
-        }
-        else{
-            $data['selected_section'] = $section = '0';
-        }
-
-        if(!empty($request->category) || $request->category != null){
-            $data['selected_category'] = $category = $request->category;
-        }
-        else{
-            $data['selected_category'] = $category = '0';
-        }
-
-        if(!empty($request->student_id) || $request->student_id != null){
-            $data['selected_student_id'] = $student_id = $request->student_id;
-        }
-        else{
-            $data['selected_student_id'] = $student_id = null;
-        }
-
-
-        
-        $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
-        $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
-        $data['print'] = PrintSetting::where('slug', 'fees-receipt')->first();
-
-
-        // Filter Search
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
-
-        if(!empty($request->program) && $request->program != '0'){
+    if(!empty($program) && $program != '0'){
         $sessions = Session::where('status', 1);
         $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
             $query->where('program_id', $program);
         });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+    }
 
-        if(!empty($request->program) && $request->program != '0'){
+    if(!empty($program) && $program != '0'){
         $semesters = Semester::where('status', 1);
         $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
             $query->where('program_id', $program);
         });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+    }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
+    if(!empty($program) && $program != '0' && !empty($semester) && $semester != '0'){
         $sections = Section::where('status', 1);
         $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
             $query->where('program_id', $program);
             $query->where('semester_id', $semester);
         });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
-        
-
-
-        if(isset($request->faculty) || isset($request->program) || isset($request->session) || isset($request->semester) || isset($request->section) || isset($request->category) || isset($request->student_id)){
-            // Filter Fees
-            $fees = Fee::where('status', '0');
-
-            if(!empty($request->faculty) || !empty($request->program) || !empty($request->session) || !empty($request->semester) || !empty($request->section)){
-                $fees->whereHas('studentEnroll.program', function ($query) use ($faculty){
-                    if($faculty != 0){
-                    $query->where('faculty_id', $faculty);
-                    }
-                });
-
-                $fees->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section){
-                    if($program != 0){
-                    $query->where('program_id', $program);
-                    }
-                    if($session != 0){
-                    $query->where('session_id', $session);
-                    }
-                    if($semester != 0){
-                    $query->where('semester_id', $semester);
-                    }
-                    if($section != 0){
-                    $query->where('section_id', $section);
-                    }
-                });
-            }
-            if($category != 0){
-                $fees->where('category_id', $category);
-            }
-            if(!empty($request->student_id)){
-                $fees->whereHas('studentEnroll.student', function ($query) use ($student_id){
-                    if($student_id != 0){
-                    $query->where('student_id', 'LIKE', '%'.$student_id.'%');
-                    }
-                });
-            }
-
-            $fees->whereHas('studentEnroll.student', function ($query){
-                $query->orderBy('student_id', 'asc');
-            });
-            
-            $data['rows'] = $fees->orderBy('id', 'desc')->get();
-        }
-
-
-        return view($this->view.'.index', $data);
+        $data['sections'] = $sections->orderBy('title', 'asc')->get();
     }
 
+    // Get invoices with proper eager loading - similar to quickAssign
+    $query = Invoice::with([
+        'studentEnroll.student',
+        'studentEnroll.program.faculty',
+        'studentEnroll.session',
+        'studentEnroll.semester',
+        'studentEnroll.section',
+        'fees' => function($query) {
+            $query->with(['category', 'payments']);
+        }
+    ]);
 
+    // Apply filters
+    if($faculty != '0'){
+        $query->whereHas('studentEnroll.program', function($q) use ($faculty) {
+            $q->where('faculty_id', $faculty);
+        });
+    }
+
+    if($program != '0'){
+        $query->whereHas('studentEnroll', function($q) use ($program) {
+            $q->where('program_id', $program);
+        });
+    }
+
+    if($session != '0'){
+        $query->whereHas('studentEnroll', function($q) use ($session) {
+            $q->where('session_id', $session);
+        });
+    }
+
+    if($semester != '0'){
+        $query->whereHas('studentEnroll', function($q) use ($semester) {
+            $q->where('semester_id', $semester);
+        });
+    }
+
+    if($section != '0'){
+        $query->whereHas('studentEnroll', function($q) use ($section) {
+            $q->where('section_id', $section);
+        });
+    }
+
+    if($category != '0'){
+        $query->whereHas('fees', function($q) use ($category) {
+            $q->where('category_id', $category);
+        });
+    }
+
+    if(!empty($student_id)){
+        $query->whereHas('studentEnroll.student', function($q) use ($student_id) {
+            $q->where('student_id', 'LIKE', '%'.$student_id.'%');
+        });
+    }
+
+    // Get and process the invoices - similar to quickAssign
+    $data['invoices'] = $query->orderBy('id', 'desc')->get()->map(function($invoice) {
+        // Calculate totals directly from the loaded relationships
+        $totalFee = $invoice->fees->sum('amount');
+        $totalPaid = $invoice->fees->flatMap(function($fee) {
+            return $fee->payments;
+        })->sum('amount');
+        $amountDue = $totalFee - $totalPaid;
+
+        // Set payment status
+        $paymentStatus = 'unpaid';
+        if ($totalPaid >= $totalFee) {
+            $paymentStatus = 'paid';
+        } elseif ($totalPaid > 0) {
+            $paymentStatus = 'partial';
+        }
+
+        // Add calculated fields to invoice object
+        $invoice->total_fee = $totalFee;
+        $invoice->amount_due = $amountDue;
+        $invoice->payment_status = $paymentStatus;
+
+        // Prepare fee details for view
+        $invoice->feeDetails = $invoice->fees->map(function($fee) {
+            $paidAmount = $fee->payments->sum('amount');
+            return [
+                'category_id' => $fee->category_id,
+                'amount' => $fee->amount,
+                'paid_amount' => $paidAmount,
+                'due_amount' => $fee->amount - $paidAmount
+            ];
+        });
+
+        return $invoice;
+    });
+
+    // Get all active students for edit dropdown
+    $data['students'] = StudentEnroll::with('student')
+        ->where('status', '1')
+        ->orderBy('id', 'desc')
+        ->get();
+
+    return view($this->view.'.index', $data);
+}
 public function assignMultiple()
 {
     $data['title'] = 'Assign Multiple Fee Categories';
@@ -712,32 +725,40 @@ public function quickAssign(Request $request)
     $data['path'] = $this->path;
     $data['access'] = $this->access;
 
-    // Fetching active fee categories
-    $data['categories'] = FeesCategory::where('status', '1')
-        ->orderBy('title', 'asc')
-        ->get();
-    $data['feeCategories'] = $data['categories'];
-   
-    // Fetching students who are active
-    $students = StudentEnroll::where('status', '1')
+    // Get fee categories from fee structures instead of directly from FeesCategory
+    $data['categories'] = FeeStructureItem::with('category')
+        ->whereHas('category', function($query) {
+            $query->where('status', '1');
+        })
+        ->get()
+        ->map(function($item) {
+            return (object)[
+                'id' => $item->category->id,
+                'title' => $item->category->title,
+                'amount' => $item->amount, // Use the amount from fee structure
+                'original_amount' => $item->category->amount, // Original amount from category
+                'is_one_time' => $item->is_one_time
+            ];
+        })
+        ->unique('id'); // Ensure we don't get duplicate categories
+
+    // Active students
+    $data['students'] = StudentEnroll::where('status', '1')
         ->with('student')
         ->whereHas('student', function ($query) {
-            $query->where('status', '1')
-                ->orderBy('student_id', 'asc');
-        });
+            $query->where('status', '1');
+        })
+        ->orderBy('student_id', 'asc')
+        ->get();
 
-    $data['students'] = $students->orderBy('student_id', 'asc')->get();
+    // Recent invoices with detailed fee information
+    $invoices = Invoice::with([
+        'studentEnroll.student',
+        'fees' => function($query) {
+            $query->with(['category', 'payments']);
+        }
+    ])->orderBy('created_at', 'desc')->limit(10);
 
-    // Fetching invoices with all necessary relationships
-    $invoices = Invoice::whereIn('payment_status', ['partial', 'pending'])
-        ->with([
-            'studentEnroll.student',
-            'fees.category',  // Load fees with their categories
-            'fees.payments'  // Load payments for each fee
-        ])
-        ->orderBy('due_date', 'asc');
-
-    // Apply search functionality
     if ($request->has('search')) {
         $search = $request->input('search');
         $invoices->where(function($query) use ($search) {
@@ -750,39 +771,22 @@ public function quickAssign(Request $request)
         });
     }
 
-    // Get invoices and process category data for each
-    $data['invoices'] = $invoices->take(10)->get()->map(function($invoice) {
-        // Calculate category-wise dues for this invoice
-        $invoice->categoryDues = [];
-        
-        foreach ($invoice->fees as $fee) {
-            if ($fee->category) {
-                $categoryId = $fee->category->id;
-                $paidAmount = $fee->payments->sum('amount');
-                $dueAmount = $fee->amount - $paidAmount;
-                
-                if (!isset($invoice->categoryDues[$categoryId])) {
-                    $invoice->categoryDues[$categoryId] = [
-                        'id' => $categoryId,
-                        'title' => $fee->category->title,
-                        'due_amount' => 0
-                    ];
-                }
-                $invoice->categoryDues[$categoryId]['due_amount'] += $dueAmount;
-            }
-        }
-        
-        // Convert to simple array for easier use in view
-        $invoice->categoryDues = array_values($invoice->categoryDues);
+    $data['invoices'] = $invoices->get()->map(function($invoice) {
+        // Prepare detailed fee information including amounts
+        $invoice->feeDetails = $invoice->fees->map(function($fee) {
+            return [
+                'category_id' => $fee->category_id,
+                'amount' => $fee->amount,
+                'paid_amount' => $fee->payments->sum('amount'),
+                'due_amount' => $fee->amount - $fee->payments->sum('amount')
+            ];
+        });
         
         return $invoice;
     });
 
-    $data['search'] = $request->input('search', '');
-
     return view($this->view . '.quick-assign', $data);
 }
-
 
 public function quickAssignStore(Request $request)
 {
@@ -797,64 +801,76 @@ public function quickAssignStore(Request $request)
     $categories = $request->input('categories');
     $assignDate = $request->input('assign_date');
     $dueDate = $request->input('due_date');
+    $invoiceId = $request->input('invoice_id');
 
-    $assignedFeeIds = [];
-    $studentTotals = [];
-
-    DB::transaction(function () use ($students, $categories, $assignDate, $dueDate, &$studentTotals) {
+    DB::transaction(function () use ($students, $categories, $assignDate, $dueDate, $invoiceId) {
         foreach ($students as $studentId) {
             $studentTotal = 0;
+            $feeIds = [];
+
+            // First delete old fees if editing an existing invoice
+            if ($invoiceId) {
+                Fee::where('student_enroll_id', $studentId)
+                   ->whereHas('invoice', function($q) use ($invoiceId) {
+                       $q->where('id', $invoiceId);
+                   })
+                   ->delete();
+            }
 
             foreach ($categories as $categoryId) {
-                $category = \App\Models\FeesCategory::find($categoryId);
-                if (!$category) continue;
-
+                $category = FeesCategory::findOrFail($categoryId);
                 $feeAmount = $category->amount;
 
-                // Create or update fee
-                $fee = \App\Models\Fee::updateOrCreate(
-                    [
-                        'student_enroll_id' => $studentId,
-                        'category_id' => $categoryId,
-                    ],
-                    [
-                        'fee_amount' => $feeAmount,
-                        'assign_date' => $assignDate,
-                        'due_date' => $dueDate,
-                        'amount_type' => 1,
-                        'created_by' => auth()->id(),
-                        'updated_at' => now(),
-                    ]
-                );
+                $fee = Fee::create([
+                    'student_enroll_id' => $studentId,
+                    'category_id' => $categoryId,
+                    'amount' => $feeAmount,
+                    'assign_date' => $assignDate,
+                    'due_date' => $dueDate,
+                    'created_by' => auth()->id(),
+                ]);
 
                 $studentTotal += $feeAmount;
+                $feeIds[] = $fee->id;
             }
 
-            $studentTotals[$studentId] = $studentTotal;
+            // Handle invoice creation/update
+            if ($invoiceId) {
+                // Update existing invoice
+                $invoice = Invoice::findOrFail($invoiceId);
+                $invoice->update([
+                    'total_fee' => $studentTotal,
+                    'amount_due' => $studentTotal - $invoice->amount_paid,
+                    'assign_date' => $assignDate,
+                    'due_date' => $dueDate,
+                ]);
+            } else {
+                // Create new invoice
+                $lastInvoice = Invoice::orderBy('id', 'desc')->first();
+                $invoiceNo = $lastInvoice ? 'INV-' . str_pad((int)str_replace('INV-', '', $lastInvoice->invoice_no) + 1, 3, '0', STR_PAD_LEFT) 
+                                          : 'INV-001';
 
-            // Safe Invoice Generation with table lock
-            $invoiceNo = DB::table('invoices')->lockForUpdate()->max('invoice_no');
-            $lastNumber = 0;
-
-            if ($invoiceNo && preg_match('/INV-(\d+)/', $invoiceNo, $matches)) {
-                $lastNumber = intval($matches[1]);
-            }
-
-            $newInvoiceNo = 'INV-' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
-
-            // Create or update the invoice
-            \App\Models\Invoice::updateOrCreate(
-                ['student_enroll_id' => $studentId, 'assign_date' => $assignDate, 'due_date' => $dueDate],
-                [
-                    'invoice_no' => $newInvoiceNo,
+                $invoice = Invoice::create([
+                    'student_enroll_id' => $studentId,
+                    'invoice_no' => $invoiceNo,
                     'total_fee' => $studentTotal,
                     'amount_due' => $studentTotal,
                     'amount_paid' => 0,
-                    'payment_status' => 'Pending',
-                ]
-            );
+                    'payment_status' => 'pending',
+                    'assign_date' => $assignDate,
+                    'due_date' => $dueDate,
+                ]);
+            }
+
+            // Attach fees to invoice (if your relationship supports this)
+            if (method_exists($invoice, 'fees')) {
+                $invoice->fees()->saveMany(Fee::findMany($feeIds));
+            }
         }
     });
+
+    
+
 
     // ✅ Send SMS Notifications
     $apiUrl = 'https://smsportal.dapintechnologies.com/sms/v3/sendsms';
@@ -909,23 +925,204 @@ public function quickAssignStore(Request $request)
     ]);
 }
 
+public function getInvoiceDate(Request $request)
+{
+    $request->validate([
+        'invoice_id' => 'required|exists:invoices,id',
+        'student_enroll_id' => 'required|exists:student_enrolls,id'
+    ]);
+
+    // Since your fees table doesn't have invoice_id, we'll query based on student_enroll_id
+    // and other relevant fields that might connect to the invoice
+    $fees = Fee::where('student_enroll_id', $request->student_enroll_id)
+                ->where('status', 0) // Assuming you want unpaid fees
+                ->with('category')
+                ->get();
+
+    $formattedFees = $fees->map(function($fee) {
+        return [
+            'id' => $fee->id,
+            'category_title' => $fee->category ? $fee->category->title : 'Uncategorized',
+            'original_amount' => number_format($fee->fee_amount, 2),
+            'original_amount_raw' => $fee->fee_amount,
+            'paid_amount' => number_format($fee->paid_amount, 2),
+            'paid_amount_raw' => $fee->paid_amount,
+            'balance' => number_format($fee->fee_amount - $fee->paid_amount, 2)
+        ];
+    });
+
+    return response()->json([
+        'success' => true,
+        'fees' => $formattedFees
+    ]);
+}
+
+// In your FeeController
+
+public function getFees(Request $request)
+{
+    $studentEnrollId = $request->input('student_enroll_id');
+    $invoiceId = $request->input('invoice_id');
+    
+    // Get all available categories
+    $categories = FeeStructureItem::with('category')
+        ->whereHas('category', function($query) {
+            $query->where('status', '1');
+        })
+        ->get()
+        ->map(function($item) {
+            return [
+                'id' => $item->category->id,
+                'title' => $item->category->title,
+                'amount' => $item->amount,
+                'is_one_time' => $item->is_one_time
+            ];
+        })
+        ->unique('id')
+        ->values();
+    
+    // Get current fees for this invoice
+    $currentFees = Fee::with(['category'])
+        ->where('student_enroll_id', $studentEnrollId)
+        ->when($invoiceId, function($query) use ($invoiceId) {
+            $query->whereHas('invoice', function($q) use ($invoiceId) {
+                $q->where('id', $invoiceId);
+            });
+        })
+        ->get()
+        ->map(function($fee) {
+            $balance = $fee->amount - $fee->paid_amount;
+            
+            return [
+                'id' => $fee->id,
+                'category_id' => $fee->category_id,
+                'category_title' => $fee->category->title ?? 'Uncategorized',
+                'original_amount' => number_format($fee->amount, 2),
+                'original_amount_raw' => $fee->amount,
+                'paid_amount' => number_format($fee->paid_amount, 2),
+                'paid_amount_raw' => $fee->paid_amount,
+                'balance' => number_format($balance, 2),
+                'balance_raw' => $balance,
+                'assign_date' => $fee->assign_date,
+                'due_date' => $fee->due_date,
+                'is_selected' => true // Mark as selected since it's already assigned
+            ];
+        });
+    
+    return response()->json([
+        'success' => true,
+        'categories' => $categories,
+        'current_fees' => $currentFees,
+        'invoice' => $invoiceId ? Invoice::find($invoiceId) : null
+    ]);
+}
+public function updateFees(Request $request)
+{
+    $request->validate([
+        'student_enroll_id' => 'required|exists:student_enrolls,id',
+        'fee_ids' => 'required|array',
+        'new_amounts' => 'required|array',
+        'assign_dates' => 'sometimes|array',
+        'due_dates' => 'sometimes|array'
+    ]);
+    
+    DB::beginTransaction();
+    
+    try {
+        foreach ($request->fee_ids as $index => $feeId) {
+            $fee = Fee::findOrFail($feeId);
+            
+            // Validate that new amount isn't less than paid amount
+            $newAmount = $request->new_amounts[$index];
+            if ($newAmount < $fee->paid_amount) {
+                throw new \Exception("New amount cannot be less than paid amount (".number_format($fee->paid_amount, 2).") for ".($fee->category->title ?? 'Uncategorized'));
+            }
+            
+            $fee->fee_amount = $newAmount;
+            
+            // Update dates if provided
+            if (isset($request->assign_dates[$index])) {
+                $fee->assign_date = $request->assign_dates[$index];
+            }
+            if (isset($request->due_dates[$index])) {
+                $fee->due_date = $request->due_dates[$index];
+            }
+            
+            $fee->save();
+        }
+        
+        DB::commit();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Fees updated successfully'
+        ]);
+        
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
+public function edit($id)
+{
+    $invoice = Invoice::with(['studentEnroll.student', 'fees.category'])->findOrFail($id);
+    return view('admin.invoices.edit', compact('invoice'));
+}
+
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'invoice_no' => 'required|string|max:50',
+        'assign_date' => 'required|date',
+        'due_date' => 'required|date|after_or_equal:assign_date',
+        'total_fee' => 'required|numeric|min:0',
+    ]);
+
+    $invoice = Invoice::findOrFail($id);
+    $invoice->update([
+        'invoice_no' => $request->invoice_no,
+        'assign_date' => $request->assign_date,
+        'due_date' => $request->due_date,
+        'total_fee' => $request->total_fee,
+        'updated_at' => now(),
+    ]);
+
+    return redirect()->route('invoice.show', $invoice->id)
+        ->with('success', 'Invoice updated successfully');
+}
 
 
 
 
 public function showinvoice($id)
 {
-$invoice = Invoice::with(['feeCategories', 'studentEnroll.student', 'studentEnroll.program'])->findOrFail($id);
-
-    // Debugging: Uncomment to verify relationships
-    // dd($invoice->fees->first()->category);
+    // Enable error reporting for debugging
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
     
+    // Load invoice with relationships
+    $invoice = Invoice::with([
+            'feeCategories',
+            'studentEnroll.student', 
+            'studentEnroll.program',
+            'fees' // Make sure this relationship exists
+        ])->findOrFail($id);
+    
+    // Additional data
     $bankDetails = BankMpesaDetails::first();
     $mpesaSettings = MpesaSetting::first();
-
-    return view('admin.fees-student.invoice-details', compact('invoice', 'bankDetails', 'mpesaSettings'));
+    
+    return view('admin.fees-student.invoice-details', compact(
+        'invoice',
+        'bankDetails',
+        'mpesaSettings'
+    ));
 }
-
 
 public function getInvoiceData(Invoice $invoice)
 {
@@ -1434,7 +1631,7 @@ public function showReceipt($payment_id)
     protected function loadPaymentWithRelations($paymentId)
     {
         return Payment::with([
-            'studentEnroll.student.user',
+            'studentEnroll.student',
             'feePayments.fee.category',
             'invoice.studentEnroll.student',
             'invoice.studentEnroll.program',
@@ -1445,30 +1642,30 @@ public function showReceipt($payment_id)
     /**
      * Prepare standardized receipt data
      */
-    protected function prepareReceiptData(Payment $payment)
-    {
-        return [
-            'receipt_no' => $payment->receipt_no,
-            'transaction_id' => $payment->transaction_id,
-            'date' => $payment->date->format('Y-m-d H:i:s'),
-            'student_name' => optional(optional(optional($payment->studentEnroll)->student)->student)->name ?? 'N/A',
-            'student_id' => optional(optional($payment->studentEnroll)->student)->id ?? 'N/A',
-            'program_name' => optional(optional($payment->studentEnroll)->program)->name ?? 'N/A',
-            'session_name' => optional(optional($payment->studentEnroll)->session)->name ?? 'N/A',
-            'amount_paid' => number_format($payment->amount, 2),
-            'payment_method' => ucfirst($payment->payment_method),
-            'reference_number' => $payment->reference_number,
-            'remaining_balance' => $payment->invoice ? number_format($payment->invoice->total_amount - $payment->invoice->paid_amount, 2) : 'N/A',
-            'installment_number' => $payment->installment_number,
-            'is_installment' => $payment->is_installment,
-            'items' => $payment->feePayments->map(function($item) {
-                return [
-                    'category' => optional($item->fee)->category->name ?? 'N/A',
-                    'amount' => number_format($item->amount, 2)
-                ];
-            })->toArray()
-        ];
-    }
+   protected function prepareReceiptData(Payment $payment)
+{
+    return [
+        'receipt_no' => $payment->receipt_no,
+        'transaction_id' => $payment->transaction_id,
+        'date' => optional($payment->date)->format('Y-m-d H:i:s') ?? 'N/A',
+        'student_name' => optional(optional($payment->studentEnroll)->student)->getFullNameAttribute() ?? 'N/A',
+        'student_id' => optional(optional($payment->studentEnroll)->student)->student_id ?? 'N/A',
+        'program_name' => optional(optional($payment->studentEnroll)->program)->name ?? 'N/A',
+        'session_name' => optional(optional($payment->studentEnroll)->session)->name ?? 'N/A',
+        'amount_paid' => number_format($payment->amount, 2),
+        'payment_method' => ucfirst($payment->payment_method),
+        'reference_number' => $payment->reference_number,
+        'remaining_balance' => $payment->invoice ? number_format($payment->invoice->total_amount - $payment->invoice->paid_amount, 2) : 'N/A',
+        'installment_number' => $payment->installment_number,
+        'is_installment' => $payment->is_installment,
+        'items' => $payment->feePayments->map(function($item) {
+            return [
+                'category' => optional($item->fee)->category->name ?? 'N/A',
+                'amount' => number_format($item->amount, 2)
+            ];
+        })->toArray()
+    ];
+}
 
     /**
      * Generate QR code for payment verification
@@ -1723,97 +1920,376 @@ public function invoice()
      *
      * @return \Illuminate\Http\Response
      */
-    public function quickReceived()
-    {
-        //
-        $data['title'] = trans_choice('module_fees_quick_received', 1);
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = $this->path;
-        $data['access'] = $this->access;
+   public function quickReceived()
+{
+    $data['title'] = trans_choice('module_fees_quick_received', 1);
+    $data['route'] = $this->route;
+    $data['view'] = $this->view;
+    $data['path'] = $this->path;
+    $data['access'] = $this->access;
 
+    // Get active fee categories
+    $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
 
-        $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
+    // Filter active students with their outstanding balances
+    $students = StudentEnroll::where('status', '1')
+        ->with(['student', 'fees' => function($query) {
+            $query->select('student_enroll_id', DB::raw('SUM(fee_amount - discount_amount + fine_amount - paid_amount) as outstanding_balance'))
+                  ->groupBy('student_enroll_id');
+        }])
+        ->whereHas('student', function ($query) {
+            $query->where('status', '1')->orderBy('student_id', 'asc');
+        })
+        ->orderBy('student_id', 'asc')
+        ->get();
 
-        // Filter Student
-        $students = StudentEnroll::where('status', '1');
-        $students->with('student')->whereHas('student', function ($query){
+    $data['students'] = $students;
+
+    // Get unpaid invoices for students
+    $data['invoices'] = Fee::where('status', '0')
+        ->whereHas('studentEnroll', function($query) {
             $query->where('status', '1');
-            $query->orderBy('student_id', 'asc');
+        })
+        ->get()
+        ->map(function($invoice) {
+            $invoice->balance = $invoice->fee_amount - $invoice->discount_amount - $invoice->paid_amount;
+            return $invoice;
         });
 
-        $data['students'] = $students->orderBy('student_id', 'asc')->get();
+    // Get available banks
+    $data['banks'] = BankAccount::where('status', '1')->get();
 
-//SMS LOGIC HERE YOU HAVE BEEN INVOICED THESE CATEGORIES(Hi {Name-StudentID} kindly settle your outsatanding fee balance of{Total Amount} )
-        return view($this->view.'.quick-received', $data);
+    // Get active bursaries with remaining amounts
+    $data['bursaries'] = Bursary::with('fund')
+        ->where('status', '1')
+        ->where('start_date', '<=', now())
+        ->where('end_date', '>=', now())
+        ->get()
+        ->map(function($bursary) {
+            $bursary->remaining_amount = $bursary->initial_amount - $bursary->allocated_amount;
+            return $bursary;
+        });
+
+    
+
+    // Get authorized staff who can approve waivers
+    $data['authorizers'] = [
+        'Jane Mwangi (Bursar)',
+        'Peter Otieno (Dean)',
+        'Grace Kamau (Registrar)',
+    ];
+
+    return view($this->view.'.quick-received', $data);
+}
+
+public function quickReceivedStore(Request $request)
+{
+    // Field Validation with additional rules
+    $request->validate([
+        'student' => 'required|exists:student_enrolls,id',
+        'category' => 'required|exists:fees_categories,id',
+        'fee_amount' => 'required|numeric|min:0',
+        'discount_amount' => 'required|numeric|min:0|lte:fee_amount',
+        'fine_amount' => 'required|numeric|min:0',
+        'paid_amount' => 'required|numeric|min:0',
+        'payment_method' => 'required|in:2,4,5,6,7,8', // cash,bank,e-wallet,bursary,m-pesa,donation
+        'due_date' => 'required|date',
+        'pay_date' => 'required|date|before_or_equal:today',
+        'bank_id' => 'required_if:payment_method,4|exists:bank_accounts,id',
+        'reference' => 'nullable|string|max:100',
+        'bursary_id' => 'required_if:payment_method,6|exists:bursaries,id',
+        'donor_id' => 'required_if:payment_method,8|exists:donors,id',
+        'waiver_reason' => 'required_if:discount_amount,gt:0',
+        'authorized_by' => 'required_if:discount_amount,gt:0',
+        'send_sms' => 'nullable|boolean',
+        'send_email' => 'nullable|boolean',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        // Get student enroll
+        $enroll = StudentEnroll::findOrFail($request->student);
+        $student = $enroll->student;
+
+        // Create the fee record
+        $fee = new Fee;
+        $fee->student_enroll_id = $request->student;
+        $fee->category_id = $request->category;
+        $fee->fee_amount = $request->fee_amount;
+        $fee->discount_amount = $request->discount_amount;
+        $fee->fine_amount = $request->fine_amount;
+        $fee->paid_amount = $request->paid_amount;
+        $fee->assign_date = Carbon::today();
+        $fee->due_date = $request->due_date;
+        $fee->pay_date = $request->pay_date;
+        $fee->payment_method = $request->payment_method;
+        $fee->note = $request->note;
+        $fee->status = '1'; // Paid
+        $fee->updated_by = Auth::guard('web')->user()->id;
+
+        // Additional payment method details
+        if ($request->payment_method == 4) { // Bank
+            $fee->bank_id = $request->bank_id;
+            $fee->reference = $request->reference;
+        } elseif (in_array($request->payment_method, [5, 7])) { // E-Wallet or M-Pesa
+            $fee->reference = $request->reference;
+        } elseif ($request->payment_method == 6) { // Bursary
+            $fee->bursary_id = $request->bursary_id;
+            
+            // Update bursary allocated amount
+            $bursary = Bursary::find($request->bursary_id);
+            $bursary->allocated_amount += $request->paid_amount;
+            $bursary->save();
+        } elseif ($request->payment_method == 8) { // Donation
+            $fee->donor_id = $request->donor_id;
+        }
+
+        $fee->save();
+
+        // If waiver was applied, record it
+        if ($request->discount_amount > 0) {
+            $waiver = new FeeWaiver;
+            $waiver->fee_id = $fee->id;
+            $waiver->amount = $request->discount_amount;
+            $waiver->reason = $request->waiver_reason;
+            $waiver->notes = $request->waiver_notes ?? null;
+            $waiver->authorized_by = $request->authorized_by;
+            $waiver->save();
+        }
+
+        // Create transaction record
+        $transaction = new Transaction;
+        $transaction->transaction_id = 'TXN' . strtoupper(Str::random(15));
+        $transaction->amount = $request->paid_amount;
+        $transaction->type = '1'; // Income
+        $transaction->payment_method = $request->payment_method;
+        $transaction->reference = $request->reference;
+        $transaction->created_by = Auth::guard('web')->user()->id;
+        $student->transactions()->save($transaction);
+
+        // Generate and store receipt
+        $receipt = new Receipt;
+        $receipt->receipt_no = 'RCPT' . strtoupper(Str::random(15));
+        $receipt->fee_id = $fee->id;
+        $receipt->student_id = $student->id;
+        $receipt->amount = $request->paid_amount;
+        $receipt->generated_by = Auth::guard('web')->user()->id;
+        $receipt->save();
+
+        // Send SMS notification if enabled
+        if ($request->send_sms && config('sms.notifications.fee_payment')) {
+            $message = "Hi {$student->first_name} (ID: {$student->student_id}), payment of {$request->paid_amount} received. Receipt #{$receipt->receipt_no}. Balance: " . ($student->outstanding_balance - $request->paid_amount);
+            
+            // Call SMS service
+            sendSMS($student->mobile, $message);
+        }
+
+        // Send email notification if enabled
+        if ($request->send_email) {
+            $data = [
+                'student' => $student,
+                'fee' => $fee,
+                'receipt' => $receipt,
+            ];
+            
+            Mail::to($student->email)->send(new FeePaymentReceipt($data));
+        }
+
+        DB::commit();
+
+        // Return with receipt ID for printing
+        Toastr::success(__('msg_created_successfully'), __('msg_success'));
+        return redirect()->back()->with('receipt_id', $receipt->id);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Fee Payment Error: ' . $e->getMessage());
+        
+        Toastr::error(__('msg_created_error'), __('msg_error'));
+        return redirect()->back()->withInput();
     }
+}
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function quickReceivedStore(Request $request)
-    {
-        // Field Validation
-        $request->validate([
-            'student' => 'required',
-            'category' => 'required',
-            'fee_amount' => 'required|numeric',
-            'discount_amount' => 'required|numeric',
-            'fine_amount' => 'required|numeric',
-            'paid_amount' => 'required|numeric',
-            'payment_method' => 'required',
-            'due_date' => 'required|date',
-            'pay_date' => 'required|date|before_or_equal:today',
-        ]);
+public function getStudentInvoices(Request $request)
+{
+    $request->validate([
+        'student_id' => 'required|exists:student_enrolls,id'
+    ]);
 
+    $invoices = Fee::where('student_enroll_id', $request->student_id)
+        ->where('status', '0') // Unpaid invoices
+        ->select([
+            'id',
+            'invoice_number',
+            'fee_amount',
+            'discount_amount',
+            'paid_amount',
+            'due_date',
+            'status',
+            'created_at'
+        ])
+        ->orderBy('created_at', 'desc')
+        ->get()
+        ->map(function($invoice) {
+            $totalAmount = $invoice->fee_amount - $invoice->discount_amount;
+            $dueAmount = $totalAmount - $invoice->paid_amount;
+            
+            return [
+                'id' => $invoice->id,
+                'invoice_number' => $invoice->invoice_number,
+                'total_amount' => $totalAmount,
+                'paid_amount' => $invoice->paid_amount,
+                'due_amount' => $dueAmount,
+                'due_date' => $invoice->due_date->format('Y-m-d'),
+                'status' => $invoice->status,
+                'created_at' => $invoice->created_at->format('Y-m-d H:i:s')
+            ];
+        });
 
-        try{
-            DB::beginTransaction();
-            // Insert Data
+    return response()->json([
+        'success' => true,
+        'invoices' => $invoices
+    ]);
+}
+
+public function batchBursaryAllocate(Request $request)
+{
+    $request->validate([
+        'bursary_id' => 'required|exists:bursaries,id',
+        'amount' => 'required|numeric|min:1',
+        'students' => 'required|array|min:1',
+        'students.*' => 'exists:student_enrolls,id',
+        'notes' => 'nullable|string'
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $bursary = Bursary::findOrFail($request->bursary_id);
+        $totalAmount = $request->amount * count($request->students);
+
+        // Check if bursary has sufficient balance
+        if ($bursary->remaining_amount < $totalAmount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bursary fund has insufficient balance for this allocation'
+            ], 422);
+        }
+
+        $allocations = [];
+        foreach ($request->students as $studentId) {
+            // Create fee record for each student
             $fee = new Fee;
-            $fee->student_enroll_id = $request->student;
-            $fee->category_id = $request->category;
-            $fee->fee_amount = $request->fee_amount;
-            $fee->discount_amount = $request->discount_amount;
-            $fee->fine_amount = $request->fine_amount;
-            $fee->paid_amount = $request->paid_amount;
+            $fee->student_enroll_id = $studentId;
+            $fee->category_id = 1; // Default bursary category
+            $fee->fee_amount = $request->amount;
+            $fee->discount_amount = 0;
+            $fee->fine_amount = 0;
+            $fee->paid_amount = $request->amount;
             $fee->assign_date = Carbon::today();
-            $fee->due_date = $request->due_date;
-            $fee->pay_date = $request->pay_date;
-            $fee->payment_method = $request->payment_method;
-            $fee->note = $request->note;
-            $fee->status = '1';
+            $fee->due_date = Carbon::today();
+            $fee->pay_date = Carbon::today();
+            $fee->payment_method = 6; // Bursary
+            $fee->bursary_id = $bursary->id;
+            $fee->status = '1'; // Paid
             $fee->updated_by = Auth::guard('web')->user()->id;
             $fee->save();
 
-
-            // Transaction
+            // Create transaction record
+            $enroll = StudentEnroll::find($studentId);
             $transaction = new Transaction;
-            $transaction->transaction_id = Str::random(16);
-            $transaction->amount = $request->paid_amount;
-            $transaction->type = '1';
+            $transaction->transaction_id = 'TXN' . strtoupper(Str::random(15));
+            $transaction->amount = $request->amount;
+            $transaction->type = '1'; // Income
+            $transaction->payment_method = 6; // Bursary
             $transaction->created_by = Auth::guard('web')->user()->id;
-            $fee->studentEnroll->student->transactions()->save($transaction);
-            DB::commit();
+            $enroll->student->transactions()->save($transaction);
 
-
-            Toastr::success(__('msg_created_successfully'), __('msg_success'));
-
-            return redirect()->back();
+            $allocations[] = $fee->id;
         }
-        catch(\Exception $e){
 
-            Toastr::error(__('msg_created_error'), __('msg_error'));
+        // Update bursary allocated amount
+        $bursary->allocated_amount += $totalAmount;
+        $bursary->save();
 
-            return redirect()->back();
-        }
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Bursary allocated successfully to ' . count($request->students) . ' students',
+            'total_amount' => $totalAmount
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Batch Bursary Allocation Error: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to allocate bursary'
+        ], 500);
     }
+}
 
+public function getReconciliationData(Request $request)
+{
+    $request->validate([
+        'start_date' => 'required|date',
+        'end_date' => 'required|date|after_or_equal:start_date'
+    ]);
 
+    $transactions = Transaction::with(['student', 'fee'])
+        ->where('type', '1') // Income
+        ->whereBetween('created_at', [
+            Carbon::parse($request->start_date)->startOfDay(),
+            Carbon::parse($request->end_date)->endOfDay()
+        ])
+        ->where('status', '0') // Unreconciled
+        ->orderBy('created_at', 'desc')
+        ->get();
 
+    $totalAmount = $transactions->sum('amount');
 
+    return response()->json([
+        'success' => true,
+        'transactions' => $transactions,
+        'total_amount' => $totalAmount
+    ]);
+}
 
+public function reconcilePayments(Request $request)
+{
+    $request->validate([
+        'transaction_ids' => 'required|array|min:1',
+        'transaction_ids.*' => 'exists:transactions,id'
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $count = Transaction::whereIn('id', $request->transaction_ids)
+            ->update([
+                'status' => '1', // Reconciled
+                'reconciled_at' => Carbon::now(),
+                'reconciled_by' => Auth::guard('web')->user()->id
+            ]);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => $count . ' transactions reconciled successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Reconciliation Error: ' . $e->getMessage());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to reconcile transactions'
+        ], 500);
+    }
+}
 }

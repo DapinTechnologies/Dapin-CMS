@@ -5,7 +5,12 @@ use Illuminate\Support\Facades\Http;
 use App\Models\SmsConfiguration;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\PesaController;
-
+use App\Http\Controllers\Admin\FeesStudentController;
+use App\Http\Controllers\Admin\FeesCategoryController;
+use App\Http\Controllers\Admin\FeeStructureController;
+use App\Http\Controllers\Admin\FeesMasterController;
+use App\Http\Controllers\Admin\FeeClearanceController;
+use App\Http\Controllers\Admin\FeeDashboardController;
 
 
 //
@@ -42,10 +47,86 @@ Route::get('/payment/receipt/{payment}/download', [FeesStudentController::class,
         Route::post('fees-student/quick-assign-store', [FeesStudentController::class, 'quickAssignStore'])
             ->name('admin.fees-student.quick.assign.store')
             ->middleware('permission:fees-student-quick-assign');
+            Route::post('fees/estimate-students', [FeeStructureController::class, 'estimateStudents'])
+    ->name('admin.fees.estimate-students');
+
+    
     
 
+            Route::middleware(['auth'])->group(function() {
+    // Fee editing routes
+    Route::get('/admin/fees/get-invoice-data', [FeesStudentController::class, 'getInvoiceData'])
+            ->name('fees.get-invoice-data')
+        ->middleware('permission:fees-edit-view');
+
+    Route::post('/admin/fees/update', [FeesStudentController::class, 'updateFees'])
+        ->name('fees.update')
+        ->middleware('permission:fees-edit');
+});
+// Add these to your existing FeesStudentController routes
+Route::get('fees/get-fees', [FeesStudentController::class, 'getFees'])->name('fees.get')
+    ->middleware('permission:fees-edit-view');
+
+Route::post('fees/update', [FeesStudentController::class, 'updateFees'])->name('fees.update')
+    ->middleware('permission:fees-edit');
+
+    Route::get('invoices/{invoice}/edit-data', [InvoiceController::class, 'getInvoiceData'])
+    ->name('invoices.edit.data');
+    // Add these routes
+Route::put('invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'getInvoiceData'])->name('invoices.edit.data');
+
+Route::get('fees/get-student-invoices', [FeesStudentController::class, 'getStudentInvoices'])->name('admin.fees.get-student-invoices');
 Route::get('fees/invoice/{invoice}', [InvoiceController::class, 'show'])->name('fees.invoice.show');
 
+
+
+// Fee Clearance Module Routes
+    Route::prefix('admin/fee-clearance')->group(function () {
+        Route::get('/', [FeeClearanceController::class, 'index'])->name('admin.fee-clearance.index');
+        Route::get('/search', [FeeClearanceController::class, 'search'])->name('admin.fee-clearance.search');
+        Route::get('/student/{id}', [FeeClearanceController::class, 'show'])->name('admin.fee-clearance.show');
+        Route::post('/clear/{id}', [FeeClearanceController::class, 'clear'])->name('admin.fee-clearance.clear');
+        Route::post('/notify/{id}', [FeeClearanceController::class, 'sendNotification'])->name('admin.fee-clearance.notify');
+        Route::get('/history/{id}', [FeeClearanceController::class, 'paymentHistory'])->name('admin.fee-clearance.history');
+        Route::get('/report', [FeeClearanceController::class, 'generateReport'])->name('admin.fee-clearance.report');
+        Route::get('students/fetch', [FeeClearanceController::class, 'fetchStudents'])->name('students.fetch');
+    });
+
+// Fee Structure Routes
+Route::prefix('admin/fee-structures')->group(function () {
+    Route::get('/', [FeeStructureController::class, 'index'])->name('admin.fee-structures.index');
+    Route::get('/create', [FeeStructureController::class, 'create'])->name('admin.fee-structures.create');
+    Route::post('/', [FeeStructureController::class, 'store'])->name('admin.fee-structures.store');
+    Route::get('/{feeStructure}', [FeeStructureController::class, 'show'])->name('admin.fee-structures.show');
+    Route::get('/{feeStructure}/edit', [FeeStructureController::class, 'edit'])->name('admin.fee-structures.edit');
+    Route::put('/{feeStructure}', [FeeStructureController::class, 'update'])->name('admin.fee-structures.update');
+    Route::delete('/{feeStructure}', [FeeStructureController::class, 'destroy'])->name('admin.fee-structures.destroy');
+    Route::post('/{feeStructure}/send-invoice', [FeeStructureController::class, 'sendInvoice'])
+        ->name('admin.fee-structures.sendInvoice')
+        ->middleware('permission:create fee structures');
+    Route::post('/remove-item', [FeeStructureController::class, 'removeItem'])
+        ->name('admin.fee-structures.remove-item');
+        Route::get('/import-template', [FeeStructureController::class, 'downloadImportTemplate'])
+    ->name('admin.fee-structures.import-template')
+    ->middleware('permission:import fee structures');
+     
+   // Batch assignment routes
+    Route::get('/batch-assign', [FeeStructureController::class, 'previewBatchAssign'])
+        ->name('admin.fee-structures.batch-assign');
+    
+    Route::post('/batch-assign', [FeeStructureController::class, 'batchAssign'])
+        ->name('admin.fee-structures.batch-assign');
+
+    // Additional routes for items
+    Route::post('/{feeStructure}/items', [FeeStructureController::class, 'addItem'])->name('admin.fee-structures.items.store');
+    Route::delete('/items/{item}', [FeeStructureController::class, 'removeItem'])->name('admin.fee-structures.items.destroy');
+
+    // Export routes
+    Route::get('/export', [FeeStructureController::class, 'export'])->name('admin.fee-structures.export');
+    Route::post('/import', [FeeStructureController::class, 'import'])->name('admin.fee-structures.import');
+    
+});
 
 // Web Routes
 Route::middleware(['XSS'])->namespace('Web')->group(function () {
@@ -326,6 +407,14 @@ Route::middleware(['XSS'])->name('payment.')->namespace('Payment')->prefix('paym
 
 });
 
+Route::get('admin/fee-dashboard', [FeeDashboardController::class, 'index'])->name('admin.fee-dashboard.index');
+Route::get('admin/fee-dashboard/data', [FeeDashboardController::class, 'getDashboardData'])->name('admin.fee-dashboard.data');
+Route::post('admin/fee-dashboard/send-notifications', [FeeDashboardController::class, 'sendNotifications'])
+        ->name('admin.fee-dashboard.send-notifications');
+
+    Route::post('admin/fee-dashboard/send-single-notification', [FeeDashboardController::class, 'sendSingleNotification'])
+        ->name('admin.fee-dashboard.send-single-notification');
+
 
 // Admin Routes
 Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Admin')->prefix('admin')->group(function () {
@@ -335,6 +424,7 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::get('dashboard', 'DashboardController@index')->name('dashboard.index');
 
 
+    
 
     // Student Routes
     Route::resource('admission/application', 'ApplicationController');
@@ -399,7 +489,6 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::post('academic/subject-import-store', 'SubjectController@importStore')->name('subject.import.store');
     Route::resource('academic/enroll-subject', 'EnrollSubjectController');
 
-
     
     // Routine Routes
     Route::resource('routine/class-routine', 'ClassRoutineController');
@@ -453,6 +542,7 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::resource('download/content-type', 'ContentTypeController');
 
 
+    
 
     // Fees Collection Student
     Route::get('fees-student', 'FeesStudentController@index')->name('fees-student.index');
@@ -469,12 +559,22 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::get('fees-student-quick-assign', 'FeesStudentController@quickAssign')->name('fees-student.quick.assign');
     Route::post('fees-student-quick-assign', 'FeesStudentController@quickAssignStore')->name('fees-student.quick.assign.store');
 
-    // Fees Routes
+    // Fees Master Routes
     Route::resource('fees-master', 'FeesMasterController');
+     Route::get('/', [FeesMasterController::class, 'index'])->name('index');
+    Route::get('/create', [FeesMasterController::class, 'create'])->name('create');
+    Route::post('/', [FeesMasterController::class, 'store'])->name('store');
+    Route::get('fees-master/get-fee-structure', [FeesMasterController::class, 'getFeeStructure'])
+        ->name('fees-master.getFeeStructure');
+
+
+    // Fees Routes
     Route::resource('fees-discount', 'FeesDiscountController');
     Route::resource('fees-fine', 'FeesFineController');
     Route::resource('fees-category', 'FeesCategoryController');
     Route::resource('fees-receipt', 'ReceiptSettingController');
+   
+    
 
 
 

@@ -175,6 +175,7 @@ return [
         Clickatell\ClickatellServiceProvider::class,
         Obydul\LaraSkrill\LaraSkrillServiceProvider::class,
         Unicodeveloper\Paystack\PaystackServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -249,6 +250,7 @@ return [
         'Clickatell' => Clickatell\ClickatellFacade::class,
         //Paystack
         'Paystack' => Unicodeveloper\Paystack\Facades\Paystack::class,
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
     ],
 
 ];

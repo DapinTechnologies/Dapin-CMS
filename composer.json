@@ -28,6 +28,7 @@
         "php-flasher/flasher-toastr-laravel": "*",
         "rahulreghunath/textlocal": "^1.0",
         "razorpay/razorpay": "^2.9",
+        "simplesoftwareio/simple-qrcode": "*",
         "spatie/laravel-permission": "^5.5.5",
         "spatie/laravel-translatable": "^6.0.0",
         "spatie/pdf-to-image": "^1.2",

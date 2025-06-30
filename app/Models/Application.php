@@ -45,4 +45,24 @@ class Application extends Model
     {
         return $this->belongsTo(District::class, 'permanent_district');
     }
+
+
+
+    public function county()
+    {
+        return $this->belongsTo(County::class, 'county_id'); // Assuming 'county_id' is the foreign key
+    }
+
+    public function subCounty()
+{
+    return $this->belongsTo(SubCounty::class, 'sub_county_id'); // Assuming 'sub_county_id' is the foreign key
+}
+
+
+
+// Relationship to SubCounty
+public function sub_county()
+{
+    return $this->belongsTo(SubCounty::class, 'sub_county_id', 'SubCountyID');
+}
 }

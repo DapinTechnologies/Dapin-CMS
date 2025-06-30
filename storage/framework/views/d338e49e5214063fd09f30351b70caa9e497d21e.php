@@ -16,6 +16,16 @@
     color: #dc3545;
 }
 </style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<style>
+    .toast {
+        font-size: 14px;
+    }
+    .toast-success {
+        background-color: #51A351;
+    }
+</style>
 
 <div class="main-body">
     <div class="page-wrapper">
@@ -142,29 +152,103 @@
                             <span class="badge bg-danger">Unpaid</span>
                         <?php endif; ?>
                     </td>
-                    <td class="d-flex gap-1">
-                        <a href="<?php echo e(route('invoice.show', $invoice->id)); ?>" class="btn btn-sm btn-info" title="View Invoice">
-                            <i class="fas fa-eye"></i>
-                        </a>
+                   <td class="d-flex gap-1">
+    <a href="<?php echo e(route('invoice.show', $invoice->id)); ?>" 
+   class="btn btn-sm btn-info" 
+   title="View Invoice">
+    <i class="fas fa-eye"></i>
+</a>
+    
+    <button class="btn btn-sm btn-primary payment-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#paymentModal"
+        data-invoice-id="<?php echo e($invoice->id); ?>"
+        data-student-enroll-id="<?php echo e($invoice->student_enroll_id); ?>"
+        data-amount-due="<?php echo e($invoice->amount_due); ?>"
+        data-category-dues='<?php echo json_encode($categoryDues, 15, 512) ?>'>
+        <i class="fas fa-money-bill-wave"></i> Pay
+    </button>
+
+    
                         
-                        <button class="btn btn-sm btn-primary payment-btn"
-                            data-bs-toggle="modal"
-                            data-bs-target="#paymentModal"
-                            data-invoice-id="<?php echo e($invoice->id); ?>"
-                            data-student-enroll-id="<?php echo e($invoice->student_enroll_id); ?>"
-                            data-amount-due="<?php echo e($invoice->amount_due); ?>"
-                            data-category-dues='<?php echo json_encode($categoryDues, 15, 512) ?>'>
-                            <i class="fas fa-money-bill-wave"></i> Pay
-                        </button>
-                        
-                        <button type="button" class="btn btn-sm btn-secondary print-btn" title="Print" data-id="<?php echo e($invoice->id); ?>">
-                            <i class="fas fa-print"></i>
-                        </button>
-                    </td>
+
+<!-- Edit button with all necessary data -->
+<button class="btn btn-sm btn-warning edit-invoice-btn"
+    data-invoice-id="<?php echo e($invoice->id); ?>"
+    data-student-id="<?php echo e($invoice->student_enroll_id); ?>"
+    data-fee-details='<?php echo json_encode($invoice->feeDetails, 15, 512) ?>'
+    data-assign-date="<?php echo e($invoice->assign_date); ?>"
+    data-due-date="<?php echo e($invoice->due_date); ?>"
+    data-total-amount="<?php echo e($invoice->total_fee); ?>"
+    title="Edit Invoice">
+    <i class="fas fa-edit"></i> Edit Invoice
+</button>
+
+    <!-- Print button -->
+    <button type="button" class="btn btn-sm btn-secondary print-btn" title="Print" data-id="<?php echo e($invoice->id); ?>">
+        <i class="fas fa-print"></i>
+    </button>
+    
+    
+</td>
                 </tr>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </tbody>
         </table>
+    </div>
+</div>
+
+<!-- EDIT INVOICE MODAL -->
+<div class="modal fade" id="editInvoiceModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editInvoiceForm" action="<?php echo e(route('invoices.update', ':id')); ?>" method="POST">
+                <?php echo csrf_field(); ?>
+                <?php echo method_field('PUT'); ?>
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Invoice</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" id="edit_invoice_id" name="id">
+                    <input type="hidden" id="edit_student_enroll_id" name="student_enroll_id">
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Assign Date</label>
+                        <input type="date" class="form-control" id="edit_assign_date" name="assign_date" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" class="form-control" id="edit_due_date" name="due_date" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Total Amount</label>
+                        <input type="number" class="form-control" id="edit_total_amount" name="total_fee" step="0.01" min="0" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Associated Fee Categories</label>
+                        <ul class="list-group" id="invoice-categories-list">
+                            <!-- Categories will be inserted here -->
+                        </ul>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="update_related_fees" name="update_related_fees">
+                        <label class="form-check-label" for="update_related_fees">Update dates for all associated fees</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -649,5 +733,283 @@ $(document).ready(function() {
 });
 </script>
 
+<script>
+$('.edit-fee-btn').click(function() {
+    const invoiceId = $(this).data('invoice-id');
+    const studentEnrollId = $(this).data('student-enroll-id');
+    
+    // Show loading state
+    $('#feeEditBody').html('<tr><td colspan="5" class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading fee details...</td></tr>');
+    
+    // Set the IDs in the form
+    $('#edit_invoice_id').val(invoiceId);
+    $('#edit_student_enroll_id').val(studentEnrollId);
+    
+    // Make AJAX call to get fee details
+    $.ajax({
+        url: "<?php echo e(route('fees.get')); ?>",
+        method: "GET",
+        data: {
+            invoice_id: invoiceId,
+            student_enroll_id: studentEnrollId
+        },
+        success: function(response) {
+            if (response.success && response.fees.length) {
+                let html = '';
+                
+                response.fees.forEach(fee => {
+                    html += `
+                        <tr>
+                            <td>
+                                ${fee.category_title}
+                                <input type="hidden" name="fee_ids[]" value="${fee.id}">
+                            </td>
+                            <td>${fee.original_amount}</td>
+                            <td>${fee.paid_amount}</td>
+                            <td>${fee.balance}</td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm" 
+                                       name="new_amounts[]" value="${fee.original_amount_raw}" 
+                                       min="${fee.paid_amount_raw}" step="0.01" required>
+                                <small class="text-muted">Min: ${fee.paid_amount} (paid)</small>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                $('#feeEditBody').html(html);
+                $('#editFeeModal').modal('show');
+            } else {
+                $('#feeEditBody').html('<tr><td colspan="5" class="text-center text-danger">No fee details found</td></tr>');
+            }
+        },
+        error: function(xhr) {
+            let errorMsg = 'Error loading fee details';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            $('#feeEditBody').html(`<tr><td colspan="5" class="text-center text-danger">${errorMsg}</td></tr>`);
+        }
+    });
+});
+
+
+$('#editFeeForm').submit(function(e) {
+    e.preventDefault();
+    
+    // Show loading state on submit button
+    const submitBtn = $(this).find('button[type="submit"]');
+    submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+    
+    $.ajax({
+        url: $(this).attr('action'),
+        method: "POST",
+        data: $(this).serialize(),
+        success: function(response) {
+            if (response.success) {
+                // Show success message
+                toastr.success('Fees updated successfully');
+                // Close the modal
+                $('#editFeeModal').modal('hide');
+                // Refresh the page to see changes
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                toastr.error('Error: ' + response.message);
+                submitBtn.prop('disabled', false).html('Save Changes');
+            }
+        },
+        error: function(xhr) {
+            let errorMsg = 'Error updating fees';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            toastr.error(errorMsg);
+            submitBtn.prop('disabled', false).html('Save Changes');
+        }
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Print button functionality
+    document.querySelectorAll('.print-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const invoiceId = this.getAttribute('data-id');
+            
+            // Open print dialog for the invoice
+            printInvoice(invoiceId);
+        });
+    });
+
+    function printInvoice(invoiceId) {
+        // Option 1: Print the current page (simple approach)
+        window.print();
+        
+        // Option 2: Open a print-optimized version (better approach)
+        // window.open(`/invoices/${invoiceId}/print`, '_blank');
+    }
+});
+</script>
+
+
+<script>
+$(document).ready(function() {
+    // Store student names for lookup
+    const studentNames = {};
+    <?php $__currentLoopData = $students; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $student): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        studentNames[<?php echo e($student->id); ?>] = '<?php echo e($student->student->first_name); ?> <?php echo e($student->student->last_name); ?>';
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+    // Edit button click handler
+    $(document).on('click', '.edit-btn', function() {
+        const invoiceId = $(this).data('invoice-id');
+        const studentId = $(this).data('student-id');
+        const feeDetails = $(this).data('fee-details');
+        const assignDate = $(this).data('assign-date');
+        const dueDate = $(this).data('due-date');
+        const totalAmount = $(this).data('total-amount');
+        
+        // Get student name
+        const studentName = studentNames[studentId] || 'Selected Student';
+        
+        // Show toast with student name
+        toastr.success(`Loading invoice data for: <strong>${studentName}</strong>`, 'Editing Invoice', {
+            timeOut: 3000,
+            extendedTimeOut: 1000,
+            progressBar: true,
+            closeButton: true,
+            positionClass: 'toast-top-center',
+            onHidden: function() {
+                // After toast disappears, scroll to form
+                $('html, body').animate({
+                    scrollTop: $('#quick-assign-form').offset().top - 20
+                }, 500);
+            }
+        });
+        
+        // Set form values
+        $('#invoice_id').val(invoiceId);
+        $('#student').val([studentId]).trigger('change');
+        $('#assign_date').val(assignDate);
+        $('#due_date').val(dueDate);
+        
+        // Clear and repopulate categories with amounts
+        $('#categories').val(null).trigger('change');
+        
+        // Prepare categories with amounts for selection
+        $('#categories option').each(function() {
+            const categoryId = $(this).val();
+            const feeDetail = feeDetails.find(f => f.category_id == categoryId);
+            
+            if (feeDetail) {
+                $(this).prop('selected', true);
+                // Update the amount display
+                $(this).text(
+                    $(this).data('original-text') + 
+                    ' (Original: ' + feeDetail.amount.toFixed(2) + 
+                    ', Paid: ' + feeDetail.paid_amount.toFixed(2) + 
+                    ', Due: ' + feeDetail.due_amount.toFixed(2) + ')'
+                );
+            }
+        });
+        
+        $('#categories').trigger('change');
+        
+        // Update total amount display
+        $('#total-amount').text(totalAmount.toFixed(2));
+        $('#total-amount-input').val(totalAmount);
+        
+        // Change form to edit mode
+        $('.card-header h5').text('Edit Fee Assignment - ' + studentName);
+        $('.btn-success').html('<i class="fas fa-save"></i> Update');
+        $('#cancel-edit').show();
+    });
+    
+    // Cancel edit button
+    $('#cancel-edit').click(function() {
+        resetForm();
+        toastr.info('Edit mode canceled', '', {
+            timeOut: 2000,
+            positionClass: 'toast-top-center'
+        });
+    });
+    
+    function resetForm() {
+        $('#invoice_id').val('');
+        $('#student').val(null).trigger('change');
+        
+        // Reset categories display
+        $('#categories option').each(function() {
+            if ($(this).data('original-text')) {
+                $(this).text($(this).data('original-text'));
+            }
+        });
+        
+        $('#categories').val(null).trigger('change');
+        $('#assign_date').val('<?php echo e(date('Y-m-d')); ?>');
+        $('#due_date').val('<?php echo e(date('Y-m-d', strtotime('+30 days'))); ?>');
+        $('#total-amount').text('0.00');
+        $('#total-amount-input').val('0');
+        $('.card-header h5').text('<?php echo e($title); ?>');
+        $('.btn-success').html('<i class="fas fa-check"></i> <?php echo e(__("btn_save")); ?>');
+        $('#cancel-edit').hide();
+    }
+    
+    // Initialize original text for category options
+    $('#categories option').each(function() {
+        $(this).data('original-text', $(this).text());
+    });
+});
+</script>
+<script>
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "positionClass": "toast-top-center",
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "3000",
+        "extendedTimeOut": "1000"
+    };
+</script>
+<script>
+$(document).ready(function() {
+    $('.edit-invoice-btn').click(function() {
+        // Get all data attributes
+        const invoiceId = $(this).data('invoice-id');
+        const studentId = $(this).data('student-id');
+        const assignDate = $(this).data('assign-date');
+        const dueDate = $(this).data('due-date');
+        const totalAmount = $(this).data('total-amount');
+        const feeDetails = $(this).data('fee-details');
+
+        // Set form values
+        $('#edit_invoice_id').val(invoiceId);
+        $('#edit_student_enroll_id').val(studentId);
+        $('#edit_assign_date').val(assignDate);
+        $('#edit_due_date').val(dueDate);
+        $('#edit_total_amount').val(totalAmount);
+
+        // Populate fee categories list
+        let categoriesHtml = '';
+        if (feeDetails && feeDetails.length > 0) {
+            feeDetails.forEach(fee => {
+                categoriesHtml += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${fee.category_title}
+                        <span class="badge bg-primary rounded-pill">${fee.amount}</span>
+                    </li>
+                `;
+            });
+        } else {
+            categoriesHtml = '<li class="list-group-item text-muted">No fee categories assigned</li>';
+        }
+        $('#invoice-categories-list').html(categoriesHtml);
+
+        // Show the modal
+        $('#editInvoiceModal').modal('show');
+    });
+});
+</script>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\Dapin-CMS-main\resources\views/admin/fees-student/quick-assign.blade.php ENDPATH**/ ?>
