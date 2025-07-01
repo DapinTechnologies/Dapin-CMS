@@ -45,13 +45,10 @@
                     <div class="mb-4 text-gray-700"><?php echo $about->description; ?></div>
                     <?php if($about->attach): ?>
                         <div class="mt-4">
-                            <h6 class="fw-bold text-dark-blue mb-3">Attached Image:</h6>
-                            <img src="<?php echo e(asset('uploads/about/' . $about->attach)); ?>" class="img-fluid rounded-lg shadow" alt="Attachment">
+                            <h6 class="fw-bold text-dark-blue mb-3">About Us</h6>
+                            <img src="<?php echo e(asset('uploads/about-us/'.$about->attach)); ?>" alt="<?php echo e($about->title); ?>" class="img-fluid rounded w-100 shadow">
                         </div>
-                        <a href="<?php echo e(asset('uploads/about/' . $about->attach)); ?>" class="btn btn-primary mt-3" download>
-                            <i class="bi bi-download me-2"></i> <?php echo e($about->button_text ?? 'Download Attachment'); ?>
-
-                        </a>
+                       
                     <?php endif; ?>
                 </div>
 
@@ -92,7 +89,7 @@
                 </div>
                 <div class="col-md-6 text-center">
                     <?php if($about->mission_image): ?>
-                        <img src="<?php echo e(asset('uploads/about/' . $about->mission_image)); ?>" class="img-fluid rounded-lg shadow" alt="Mission">
+                        <img src="<?php echo e(asset('uploads/about-us/'.$about->mission_image)); ?>" alt="<?php echo e($about->mission_title); ?>" class="img-fluid rounded w-100 shadow">
                     <?php endif; ?>
                 </div>
             </div>
@@ -107,7 +104,7 @@
                 </div>
                 <div class="col-md-6 text-center order-md-1">
                     <?php if($about->vision_image): ?>
-                        <img src="<?php echo e(asset('uploads/about/' . $about->vision_image)); ?>" class="img-fluid rounded-lg shadow" alt="Vision">
+                        <img src="<?php echo e(asset('uploads/about-us/'.$about->vision_image)); ?>" alt="<?php echo e($about->vision_title); ?>" class="img-fluid rounded w-100 shadow">
                     <?php endif; ?>
                 </div>
             </div>

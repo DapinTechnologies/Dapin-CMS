@@ -45,12 +45,10 @@
                     <div class="mb-4 text-gray-700">{!! $about->description !!}</div>
                     @if($about->attach)
                         <div class="mt-4">
-                            <h6 class="fw-bold text-dark-blue mb-3">Attached Image:</h6>
-                            <img src="{{ asset('uploads/about/' . $about->attach) }}" class="img-fluid rounded-lg shadow" alt="Attachment">
+                            <h6 class="fw-bold text-dark-blue mb-3">About Us</h6>
+                            <img src="{{ asset('uploads/about-us/'.$about->attach) }}" alt="{{ $about->title }}" class="img-fluid rounded w-100 shadow">
                         </div>
-                        <a href="{{ asset('uploads/about/' . $about->attach) }}" class="btn btn-primary mt-3" download>
-                            <i class="bi bi-download me-2"></i> {{ $about->button_text ?? 'Download Attachment' }}
-                        </a>
+                       
                     @endif
                 </div>
 
@@ -91,7 +89,7 @@
                 </div>
                 <div class="col-md-6 text-center">
                     @if($about->mission_image)
-                        <img src="{{ asset('uploads/about/' . $about->mission_image) }}" class="img-fluid rounded-lg shadow" alt="Mission">
+                        <img src="{{ asset('uploads/about-us/'.$about->mission_image) }}" alt="{{ $about->mission_title }}" class="img-fluid rounded w-100 shadow">
                     @endif
                 </div>
             </div>
@@ -106,7 +104,7 @@
                 </div>
                 <div class="col-md-6 text-center order-md-1">
                     @if($about->vision_image)
-                        <img src="{{ asset('uploads/about/' . $about->vision_image) }}" class="img-fluid rounded-lg shadow" alt="Vision">
+                        <img src="{{ asset('uploads/about-us/'.$about->vision_image) }}" alt="{{ $about->vision_title }}" class="img-fluid rounded w-100 shadow">
                     @endif
                 </div>
             </div>

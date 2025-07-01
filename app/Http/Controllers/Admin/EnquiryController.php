@@ -10,6 +10,8 @@ use App\Models\Program;
 use App\Models\Enquiry;
 use Carbon\Carbon;
 use App\User;
+use App\Models\Inquiry;
+use App\Models\Subscription;
 use Toastr;
 use Auth;
 
@@ -41,9 +43,57 @@ class EnquiryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+
+
+
+
+public function store(Request $request)
+{
+    try {
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|email|max:100',
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $enquiry = new Inquiry();
+        $enquiry->name = $request->name;
+        $enquiry->phone = $request->phone;
+        $enquiry->email = $request->email;
+        $enquiry->message = $request->message;
+        $enquiry->save();
+
+        return response()->json(['success' => true]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        \Log::error('Validation Failed', $e->errors());
+        return response()->json(['errors' => $e->errors()], 422);
+    }
+}
+
+
+
+public function storeNewsletter(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email|unique:subscriptions,email',
+    ]);
+
+    \DB::table('subscriptions')->insert([
+        'email' => $request->email,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return response()->json(['success' => true]);
+}
+
+     public function index(Request $request)
     {
-        //
+        
+  dd('logs');
+
         $data['title'] = $this->title;
         $data['route'] = $this->route;
         $data['view'] = $this->view;
@@ -141,42 +191,42 @@ class EnquiryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        // Field Validation
-        $request->validate([
-            'program' => 'required',
-            'name' => 'required',
-            'email' => 'nullable|email',
-            'date' => 'required|date|before_or_equal:today',
-            'follow_up_date' => 'nullable|date|after_or_equal:today',
-        ]);
+    // public function store(Request $request)
+    // {
+    //     // Field Validation
+    //     $request->validate([
+    //         'program' => 'required',
+    //         'name' => 'required',
+    //         'email' => 'nullable|email',
+    //         'date' => 'required|date|before_or_equal:today',
+    //         'follow_up_date' => 'nullable|date|after_or_equal:today',
+    //     ]);
 
 
-        //Insert Data
-        $enquiry = new Enquiry;
-        $enquiry->reference_id = $request->reference;
-        $enquiry->source_id = $request->source;
-        $enquiry->program_id = $request->program;
-        $enquiry->name = $request->name;
-        $enquiry->father_name = $request->father_name;
-        $enquiry->phone = $request->phone;
-        $enquiry->email = $request->email;
-        $enquiry->address = $request->address;
-        $enquiry->purpose = $request->purpose;
-        $enquiry->note = $request->note;
-        $enquiry->date = $request->date;
-        $enquiry->follow_up_date = $request->follow_up_date;
-        $enquiry->assigned = $request->assigned;
-        $enquiry->number_of_students = 1;
-        $enquiry->created_by = Auth::guard('web')->user()->id;
-        $enquiry->save();
+    //     //Insert Data
+    //     $enquiry = new Enquiry;
+    //     $enquiry->reference_id = $request->reference;
+    //     $enquiry->source_id = $request->source;
+    //     $enquiry->program_id = $request->program;
+    //     $enquiry->name = $request->name;
+    //     $enquiry->father_name = $request->father_name;
+    //     $enquiry->phone = $request->phone;
+    //     $enquiry->email = $request->email;
+    //     $enquiry->address = $request->address;
+    //     $enquiry->purpose = $request->purpose;
+    //     $enquiry->note = $request->note;
+    //     $enquiry->date = $request->date;
+    //     $enquiry->follow_up_date = $request->follow_up_date;
+    //     $enquiry->assigned = $request->assigned;
+    //     $enquiry->number_of_students = 1;
+    //     $enquiry->created_by = Auth::guard('web')->user()->id;
+    //     $enquiry->save();
 
 
-        Toastr::success(__('msg_created_successfully'), __('msg_success'));
+    //     Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-        return redirect()->route($this->route.'.index');
-    }
+    //     return redirect()->route($this->route.'.index');
+    // }
 
     /**
      * Display the specified resource.

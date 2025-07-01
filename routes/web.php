@@ -9,6 +9,9 @@ use App\Http\Controllers\DirectorController;
 use App\Http\Controllers\Admin\SubEnquiryController;
 
 
+// Frontend Form Actions
+Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
+Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
 
 Route::get('admin/sub-enquiries', [SubEnquiryController::class, 'index'])
     ->name('admin.sub_enquiries.index')
