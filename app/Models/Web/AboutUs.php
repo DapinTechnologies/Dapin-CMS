@@ -15,6 +15,25 @@ class AboutUs extends Model
 
     public function language()
     {
-        return $this->belongsTo(Language::class, 'language_id');
+        return $this->belongsTo(\App\Models\Language::class, 'language_id');
+    }
+
+     public function histories()
+    {
+        return $this->hasMany(\App\Models\AboutUsHistory::class, 'about_us_id')->orderBy('order');
+    }
+     public function accreditations()
+    {
+        return $this->hasMany(\App\Models\AboutUsAccreditation::class)->orderBy('order');
+    }
+
+     public function partners()
+    {
+        return $this->hasMany(\App\Models\AboutUsPartner::class)->orderBy('order');
+    }
+
+      public function director()
+    {
+        return $this->hasOne(\App\Models\Director::class);
     }
 }
