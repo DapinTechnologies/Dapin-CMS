@@ -78,43 +78,27 @@
 
         <!--------START OF SMS MANAGEMENT---------->
 
-<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sms-view', 'sms-send','sms-balance'])): ?>
-<li class="nav-item pcoded-hasmenu <?php echo e(Request::is('/sms*') ? 'pcoded-trigger active' : ''); ?>">
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['sms-view', 'sms-send', 'sms-balance'])): ?>
+<li class="nav-item pcoded-hasmenu <?php echo e(Request::is('admin/sms*') ? 'pcoded-trigger active' : ''); ?>">
     <a href="#!" class="nav-link">
         <span class="pcoded-micon"><i class="fas fa-envelope"></i></span>
         <span class="pcoded-mtext">SMS Management</span>
     </a>
     <ul class="pcoded-submenu">
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sms-view')): ?>
-        <li class="<?php echo e(Request::is('/sms') ? 'active' : ''); ?>">
-            <a href="<?php echo e(route('sms.index')); ?>"><?php echo e(__('View SMS Logs')); ?></a>
+        <li class="<?php echo e(Request::is('admin/sms*') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('admin.sms.index')); ?>"><?php echo e(__('View SMS Logs')); ?></a>
         </li>
         <?php endif; ?>
 
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('sms-send')): ?>
-        <li class="<?php echo e(Request::is('/sms/create') ? 'active' : ''); ?>">
-
-            
-            <a href="<?php echo e(route('sms.create')); ?>"><?php echo e(__('Send New SMS')); ?></a>
+        <li class="<?php echo e(Request::is('admin/sms/create') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('admin.sms.create')); ?>"><?php echo e(__('Send New SMS')); ?></a>
         </li>
         <?php endif; ?>
-
-        
     </ul>
 </li>
-
-
 <?php endif; ?>
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -698,7 +682,7 @@
 
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['book-issue-action'])): ?>
                 <li class="<?php echo e(Request::is('digital/book/') ? 'active' : ''); ?>">
-                    <a href="<?php echo e(route('alldigitalbooks')); ?>" class=""><?php echo e(__('Digital Books')); ?></a>
+                    <a href="<?php echo e(route('admin.alldigitalbooks')); ?>" class=""><?php echo e(__('Digital Books')); ?></a>
                 </li>
             <?php endif; ?>
 
@@ -1030,7 +1014,7 @@
 
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any('director-view')): ?>
                 <li class="<?php echo e(Request::is('admin/directors') ? 'active' : ''); ?>">
-                    <a href="<?php echo e(route('directors.index')); ?>"><?php echo e(__('Add Directors')); ?></a>
+                    <a href="<?php echo e(route('admin.directors.index')); ?>"><?php echo e(__('Add Directors')); ?></a>
                 </li>
                 <?php endif; ?>
 

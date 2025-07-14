@@ -10,11 +10,14 @@ class Visit extends Model
     use HasFactory;
      protected $table = 'visits';
 
+  
     protected $fillable = [
         'device_type',
         'ip_address',
         'latitude',
         'longitude',
+        'country',
+        'city',
         'page_visited',
     ];
 }

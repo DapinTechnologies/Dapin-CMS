@@ -1,15 +1,17 @@
 <?php
-use App\Http\Controllers\SmsController;
+use App\Http\Controllers\Admin\SmsController;
 use App\Services\SMSService;
 use Illuminate\Support\Facades\Http;
 use App\Models\SmsConfiguration;
-use App\Http\Controllers\FileController;
+use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\PesaController;
-use App\Http\Controllers\DirectorController;
+use App\Http\Controllers\Admin\DirectorController;
 use App\Http\Controllers\Admin\SubEnquiryController;
+use App\Http\Controllers\VisitController;
 
+Route::get('/visits/map', [VisitController::class, 'showMap'])->name('visits.map');
+Route::get('/visit-stats', [VisitController::class, 'showStats'])->name('visits.stats');
 
-// Frontend Form Actions
 Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
 Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
 
@@ -41,13 +43,60 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 });
 
 
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function() {
+    Route::get('/directors', [DirectorController::class, 'index'])->name('directors.index');
+    Route::post('/store/director', [DirectorController::class, 'store'])->name('directors.store');
+    Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
 
 
 
-Route::get('/index/director',[DirectorController::class,'index'])->name('directors.index');
-Route::get('/create/director',[DirectorController::class,'create'])->name('directors.create');
-Route::post('/store/director',[DirectorController::class,'store'])->name('directors.store');
-Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
+    Route::get('/sms/view', [SmsController::class, 'index'])->name('sms.index');
+Route::get('/sms/create', [SmsController::class, 'create'])->name('sms.create'); // Send New SMS
+Route::post('/sms/send', [SmsController::class, 'send'])->name('sms.send');
+Route::post('/sms/send-individual', [SmsController::class, 'sendIndividual'])->name('sms.sendIndividual');
+Route::get('sms/send/sms', [SMSController::class, 'sendTest']);
+Route::post('/sms-config/store', [SmsController::class, 'store'])->name('sms.store');
+Route::get('/sms/search', [SmsController::class, 'search'])->name('sms.search');
+Route::get('/sms/{id}', [SmsController::class, 'show'])->name('sms.show');
+Route::get('/sms/balance', [SmsController::class, 'showBalance'])->name('sms.balance');
+Route::get('/balance/credit', [SmsController::class, 'showCredits'])->name('dashboardbalance');
+
+
+
+
+Route::get('/digital/files', [FileController::class, 'index'])->name('alldigitalbooks');
+Route::post('/digita/file', [FileController::class, 'store'])->name('filepost');
+Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
+
+Route::post('category/store/file', [FileController::class, 'Catestore'])->name('categoriesstore');
+Route::get('/create/cate/item', [FileController::class, 'Catecreate'])->name('categoriescreate');
+Route::get('/edit/cate/item/{id}', [FileController::class, 'CateEdit'])->name('catedit');
+Route::post('category/update/{id}', [FileController::class, 'CateUpdate'])->name('categoriesupdate');
+Route::delete('/categories/{id}', [FileController::class, 'destroyCate'])->name('categdestroy');
+Route::get('/edit/file/{id}', [FileController::class, 'EditFile'])->name('editfile');
+Route::post('material/update/{id}', [FileController::class, 'MaterialUpdate'])->name('materialsupdate');
+Route::get('/material/show/file/{id}', [FileController::class, 'ShowMaterial'])->name('fileshow');
+
+Route::delete('/materials/{id}', [FileController::class, 'destroy'])->name('deletefile');
+
+
+
+
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
 Route::get('/home/about',[DirectorController::class,'About'])->name('aboutus');
 
 
@@ -110,54 +159,12 @@ Route::middleware(['XSS'])->namespace('Web')->group(function () {
     Route::get('/set-cookie', 'HomeController@setCookie')->name('setCookie');
 
 
-// SMS Management Route
-
-// Route::get('/sms', [SmsController::class, 'index'])->name('sms.index');
-
-
-// Route::get('/create', [SmsController::class, 'create'])->name('sms.create'); // Send New SMS
-// Route::post('/send', [SmsController::class, 'send'])->name('sms.send');
-// Route::post('/sms/send-individual', [SmsController::class, 'sendIndividual'])->name('sms.sendIndividual');
-
-
-// Route::get('send/sms', [SMSController::class, 'sendTest']);
-
-Route::get('/sms/view', [SmsController::class, 'index'])->name('sms.index');
-
-
-Route::get('/sms/create', [SmsController::class, 'create'])->name('sms.create'); // Send New SMS
-Route::post('/sms/send', [SmsController::class, 'send'])->name('sms.send');
-Route::post('/sms/send-individual', [SmsController::class, 'sendIndividual'])->name('sms.sendIndividual');
-
-
-Route::get('sms/send/sms', [SMSController::class, 'sendTest']);
-
-Route::post('/sms-config/store', [SmsController::class, 'store'])->name('sms.store');
-Route::get('/sms/search', [SmsController::class, 'search'])->name('sms.search');
-Route::get('/sms/{id}', [SmsController::class, 'show'])->name('sms.show');
-Route::get('/sms/balance', [SmsController::class, 'showBalance'])->name('sms.balance');
-
-Route::get('/balance/credit', [SmsController::class, 'showCredits'])->name('dashboardbalance');
-
-
-Route::get('/all/digital/files', [FileController::class, 'index'])->name('alldigitalbooks');
-Route::post('/digita/file', [FileController::class, 'store'])->name('filepost');
-Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
-
-Route::post('category/store/file', [FileController::class, 'Catestore'])->name('categoriesstore');
-Route::get('/create/cate/item', [FileController::class, 'Catecreate'])->name('categoriescreate');
-Route::get('/edit/cate/item/{id}', [FileController::class, 'CateEdit'])->name('catedit');
-Route::post('category/update/{id}', [FileController::class, 'CateUpdate'])->name('categoriesupdate');
-Route::delete('/categories/{id}', [FileController::class, 'destroyCate'])->name('categdestroy');
-Route::get('/edit/file/{id}', [FileController::class, 'EditFile'])->name('editfile');
-Route::post('material/update/{id}', [FileController::class, 'MaterialUpdate'])->name('materialsupdate');
-Route::get('/material/show/file/{id}', [FileController::class, 'ShowMaterial'])->name('fileshow');
-
-Route::delete('/materials/{id}', [FileController::class, 'destroy'])->name('deletefile');
 
 
 
-//  
+
+
+
 
 });
 
@@ -179,27 +186,16 @@ Route::get('/material/{id}', [FileController::class, 'DigitalFilestudent'])->nam
 
 
 Route::get('/digita/book/home', [FileController::class, 'Home'])->name('studentlibrary');
-// 
-
 Route::get('/all/digital/file/student',[FileController::class, 'AllDigitalBook'])->name('studentlibrarydigital');
 Route::get('/view/student/single/student/{id}',[FileController::class, 'viewdigitalSingle'])->name('viewshow');
 Route::get('/library', [FileController::class, 'searchdigitalbook'])->name('library.index');
 
 Route::get('/materials/{id}/download', [FileController::class, 'download'])->name('material.download');
-
-//
-
-
-
-
 Route::get('/materials/create', [FileController::class, 'create'])->name('materials.create');
 Route::post('/materials/store', [FileController::class, 'storefile'])->name('materials.store');
 
-
 Route::get('/materials', [FileController::class, 'allpdfs'])->name('materials.index');
 Route::get('/materials/{id}', [FileController::class, 'allpdfshow'])->name('materials.show');
-
-
 
 Route::get('/view/file/home/{id}', [FileController::class, 'ViewOnlyFile'])->name('viewOnlyFile');
 

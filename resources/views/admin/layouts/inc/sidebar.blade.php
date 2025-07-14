@@ -78,43 +78,27 @@
 
         <!--------START OF SMS MANAGEMENT---------->
 
-@canany(['sms-view', 'sms-send','sms-balance'])
-<li class="nav-item pcoded-hasmenu {{ Request::is('/sms*') ? 'pcoded-trigger active' : '' }}">
+@canany(['sms-view', 'sms-send', 'sms-balance'])
+<li class="nav-item pcoded-hasmenu {{ Request::is('admin/sms*') ? 'pcoded-trigger active' : '' }}">
     <a href="#!" class="nav-link">
         <span class="pcoded-micon"><i class="fas fa-envelope"></i></span>
         <span class="pcoded-mtext">SMS Management</span>
     </a>
     <ul class="pcoded-submenu">
         @can('sms-view')
-        <li class="{{ Request::is('/sms') ? 'active' : '' }}">
-            <a href="{{ route('sms.index') }}">{{ __('View SMS Logs') }}</a>
+        <li class="{{ Request::is('admin/sms*') ? 'active' : '' }}">
+            <a href="{{ route('admin.sms.index') }}">{{ __('View SMS Logs') }}</a>
         </li>
         @endcan
 
         @can('sms-send')
-        <li class="{{ Request::is('/sms/create') ? 'active' : '' }}">
-
-            
-            <a href="{{ route('sms.create') }}">{{ __('Send New SMS') }}</a>
+        <li class="{{ Request::is('admin/sms/create') ? 'active' : '' }}">
+            <a href="{{ route('admin.sms.create') }}">{{ __('Send New SMS') }}</a>
         </li>
         @endcan
-
-        
     </ul>
 </li>
-
-
 @endcanany
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -698,7 +682,7 @@
 
                 @canany(['book-issue-action'])
                 <li class="{{ Request::is('digital/book/') ? 'active' : '' }}">
-                    <a href="{{ route('alldigitalbooks') }}" class="">{{ __('Digital Books') }}</a>
+                    <a href="{{ route('admin.alldigitalbooks') }}" class="">{{ __('Digital Books') }}</a>
                 </li>
             @endcanany
 
@@ -1030,7 +1014,7 @@
 
                 @canany('director-view')
                 <li class="{{ Request::is('admin/directors') ? 'active' : '' }}">
-                    <a href="{{ route('directors.index') }}">{{ __('Add Directors') }}</a>
+                    <a href="{{ route('admin.directors.index') }}">{{ __('Add Directors') }}</a>
                 </li>
                 @endcanany
 

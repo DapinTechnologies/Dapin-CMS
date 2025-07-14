@@ -17,36 +17,34 @@ class HomeController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+     public function __construct()
+    {
+        // Apply middleware to the 'index' method
+        $this->middleware('track.visits')->only('index');
+    }
     public function index()
     {
-        // Sliders
+        
         $data['sliders'] = Slider::where('language_id', Language::version()->id)
                             ->where('status', '1')
                             ->orderBy('id', 'asc')
                             ->get();
-
-        // Features
         $data['features'] = Feature::where('language_id', Language::version()->id)
                             ->where('status', '1')
                             ->orderBy('id', 'asc')
                             ->get();
 
-        // About Us
         $data['about'] = AboutUs::where('language_id', Language::version()->id)
                             ->where('status', '1')
                             ->first();
-
-        // Call To Action
         $data['callToAction'] = CallToAction::where('language_id', Language::version()->id)
                             ->where('status', '1')
-                            ->first();
-
-        // Testimonials                                
+                            ->first();                            
         $data['testimonials'] = Testimonial::where('language_id', Language::version()->id)
                             ->where('status', '1')
                             ->orderBy('id', 'desc')
                             ->get();
-
 
         return view('web.index', $data);
     }

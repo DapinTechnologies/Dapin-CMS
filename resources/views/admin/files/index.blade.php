@@ -16,7 +16,7 @@
         <div class="row">
             @can($access.'-create')
             <div class="col-md-4">
-                <form class="needs-validation" novalidate action="{{route('filepost')}}" method="post" enctype="multipart/form-data">
+                <form class="needs-validation" novalidate action="{{route('admin.filepost')}}" method="post" enctype="multipart/form-data">
                 @csrf
                     <div class="card">
                         <div class="card-header">
@@ -42,7 +42,7 @@
                              <div class="input-group">
                                  <select class="form-control" name="category_id" id="category_id" required>
                                     @foreach($categories as $category) <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                     @endforeach </select> <a href="{{ route('categoriescreate') }}"
+                                     @endforeach </select> <a href="{{ route('admin.categoriescreate') }}"
                              class="btn btn-primary"> + </a> </div> <div class="invalid-feedback"> {{ __('This field is required') }} </div> </div>
 
 
@@ -160,18 +160,18 @@
                                             <td>
                                                 <div style="display: flex; gap: 5px;">
                                                     @can($access.'-show')
-                                                        <a href="{{ route('fileshow', $file->id) }}" class="btn btn-icon btn-primary btn-sm">
+                                                        <a href="{{ route('admin.fileshow', $file->id) }}" class="btn btn-icon btn-primary btn-sm">
                                                             <i class="far fa-eye"></i>
                                                         </a>
                                                     @endcan
                                             
                                                     @can($access.'-edit')
-                                                        <a href="{{ route('editfile', $file->id) }}" class="btn btn-icon btn-primary btn-sm">
+                                                        <a href="{{ route('admin.editfile', $file->id) }}" class="btn btn-icon btn-primary btn-sm">
                                                             <i class="far fa-edit"></i>
                                                         </a>
                                                     @endcan
                                             
-                                                    <form action="{{ route('deletefile', $file->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this material? This action cannot be undone.');">
+                                                    <form action="{{ route('admin.deletefile', $file->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this material? This action cannot be undone.');">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-icon btn-danger btn-sm">
@@ -208,7 +208,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
-                <form action="{{ route('deletefile', $file->id) }}" method="POST">
+                <form action="{{ route('admin.deletefile', $file->id) }}" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>

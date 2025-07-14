@@ -10,7 +10,7 @@
             <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('director-create')): ?>
             <div class="col-md-4">
                 <form class="needs-validation" novalidate 
-                    action="<?php echo e(isset($director) ? route('directors.update', $director->id) : route('directors.store')); ?>" 
+                    action="<?php echo e(isset($director) ? route('admin.directors.update', $director->id) : route('directors.store')); ?>" 
                     method="post" enctype="multipart/form-data">
                 <?php echo csrf_field(); ?>
                 <?php if(isset($director)): ?>
