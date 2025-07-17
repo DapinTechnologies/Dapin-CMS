@@ -77,4 +77,14 @@
     <!-- main-area-end -->
 
 <?php $__env->stopSection(); ?>
+
+<!-- Add this style to the bottom of your content -->
+
+<style>
+    /* Ensure course description text is black */
+    .courses-content p {
+        color: black;  /* Set text color to black */
+    }
+</style>
+
 <?php echo $__env->make('web.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/course.blade.php ENDPATH**/ ?>

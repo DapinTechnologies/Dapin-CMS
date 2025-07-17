@@ -11,13 +11,13 @@
                                     <div class="slider-content s-slider-content mt-130 text-white">
                                         <h2 class="animated-title">
                                             @foreach(str_split($slider->title) as $i => $char)
-                                                <span style="animation-delay: {{ $i * 0.12 }}s">{{ $char }}</span>
+                                                <span style="animation-delay: {{ $i * 0.18 }}s">{{ $char }}</span>
                                             @endforeach
                                         </h2>
 
-                                        {{-- <p data-animation="fadeInUp" data-delay=".6s">
+                                        <p data-animation="fadeInUp" data-delay=".6s">
                                             {!! strip_tags($slider->sub_title, '<b><u><i><br>') !!}
-                                        </p> --}}
+                                        </p>
 
                                         @if(!empty($slider->button_link))
                                             <div class="slider-btn mt-30">
@@ -47,7 +47,6 @@
     </div>
 </section>
 
-
 <style>
 /* Clean everything globally for title and all children */
 .animated-title, .animated-title * {
@@ -64,8 +63,8 @@
 
 /* Animated Title container */
 .animated-title {
-    font-size: 5.8rem; /* Increased from 3rem to make the title bigger */
-    font-weight: 700;
+    font-size: 20rem; /* Increased from 15.8rem to make the title even bigger */
+    font-weight: 800;
     display: flex;
     flex-wrap: wrap;
     gap: 2px;
@@ -105,13 +104,12 @@
     background: none !important;
 }
 
-/* --- Adjustments for "move down little" --- */
-/* Target the slider-content to push it down */
+/* Adjustments for "move down little" */
 .slider-content {
-    margin-top: 170px; /* Increased from 150px to push it down further */
-    /* Adjust this value (e.g., 180px, 200px) to move it down more or less */
+    margin-top: 200px; /* Increased to move the title further down */
 }
 
+/* Responsive design adjustments */
 @media (max-width: 767.98px) {
     /* Reduce bottom space below the slider */
     .slider-area {
@@ -127,12 +125,12 @@
 
     /* Optionally reduce inner padding for smaller screens */
     .slider-content {
-        margin-top: 90px !important; /* Slightly increased for mobile view, ensuring it's not too high */
+        margin-top: 100px !important; /* Increased for mobile view */
     }
 
     /* Make title smaller on mobile to fit */
     .animated-title {
-        font-size: 2.5rem; /* Adjusted for smaller screens */
+        font-size: 3.5rem; /* Adjusted for mobile screens */
     }
 }
 </style>

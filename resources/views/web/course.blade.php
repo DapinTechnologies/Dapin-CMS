@@ -76,3 +76,12 @@
     <!-- main-area-end -->
 
 @endsection
+
+<!-- Add this style to the bottom of your content -->
+
+<style>
+    /* Ensure course description text is black */
+    .courses-content p {
+        color: black;  /* Set text color to black */
+    }
+</style>
