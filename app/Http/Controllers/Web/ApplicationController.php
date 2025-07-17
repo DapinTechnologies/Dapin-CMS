@@ -59,94 +59,81 @@ class ApplicationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        // Field Validation
-        $request->validate([
-            'program' => 'required',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'required|email|unique:applications,email',
-            'phone' => 'required',
-            'gender' => 'required',
-            'dob' => 'required|date',
-            'photo' => 'nullable|image',
-            'signature' => 'nullable|image',
-        ]);
+  public function store(Request $request)
+{
+    // Field Validation (add more rules as needed)
+    $request->validate([
+        'program'           => 'required|integer',
+        'first_name'        => 'required|string|max:255',
+        'last_name'         => 'required|string|max:255',
+        'email'             => 'required|email|unique:applications,email',
+        'phone'             => 'required|string|max:30',
+        'gender'            => 'required|in:1,2,3',
+        'dob'               => 'required|date',
+        'kcse_index_no'     => 'required|string|max:50',
+        'kcse_year'         => 'required|string|max:10',
+        'kcse_grade'        => 'required|string|max:10',
+        'kcse_certificate'  => 'required|file|mimes:pdf,jpg,jpeg,png',
+        'kcse_result_slip'  => 'required|file|mimes:pdf,jpg,jpeg,png',
+        'county'            => 'required|integer',
+        'sub_county'        => 'required|integer',
+        'physical_address'  => 'nullable|string|max:255',
+        'mode_of_education' => 'required|string|in:Physical,Online,Hybrid',
+    ]);
 
+    try {
+        DB::beginTransaction();
 
-        // Insert Data
-        try{
-            DB::beginTransaction();
-            
-            $student = new Application;
-            $student->program_id = $request->program;
-            $student->apply_date = Carbon::today();
+        $student = new Application;
 
-            $student->first_name = $request->first_name;
-            $student->last_name = $request->last_name;
-            $student->father_name = $request->father_name;
-            $student->mother_name = $request->mother_name;
-            $student->father_occupation = $request->father_occupation;
-            $student->mother_occupation = $request->mother_occupation;
+        // Directly map form fields to DB columns
+        $student->program_id        = $request->program;
+        $student->apply_date        = now();
+        $student->first_name        = $request->first_name;
+        $student->last_name         = $request->last_name;
+        $student->dob               = $request->dob;
+        $student->phone             = $request->phone;
+        $student->email             = $request->email;
+        $student->national_id       = $request->national_id;
+        $student->gender            = $request->gender;
 
-            $student->country = $request->country;
-            $student->present_province = $request->present_province;
-            $student->present_district = $request->present_district;
-            $student->present_village = $request->present_village;
-            $student->present_address = $request->present_address;
-            $student->permanent_province = $request->permanent_province;
-            $student->permanent_district = $request->permanent_district;
-            $student->permanent_village = $request->permanent_village;
-            $student->permanent_address = $request->permanent_address;
+        // KCSE fields
+        $student->kcse_index_no     = $request->kcse_index_no;
+        $student->kcse_year         = $request->kcse_year;
+        $student->kcse_grade        = $request->kcse_grade;
 
-            $student->gender = $request->gender;
-            $student->dob = $request->dob;
-            $student->email = $request->email;
-            $student->phone = $request->phone;
-            $student->emergency_phone = $request->emergency_phone;
+        // County/Sub-County/Address/Mode
+        $student->county_id         = $request->county;
+        $student->sub_county_id     = $request->sub_county;
+        $student->present_address   = $request->physical_address;
+        $student->mode_of_study     = $request->mode_of_education;
 
-            $student->religion = $request->religion;
-            $student->caste = $request->caste;
-            $student->mother_tongue = $request->mother_tongue;
-            $student->marital_status = $request->marital_status;
-            $student->blood_group = $request->blood_group;
-            $student->nationality = $request->nationality;
-            $student->national_id = $request->national_id;
-            $student->passport_no = $request->passport_no;
-
-            $student->school_name = $request->school_name;
-            $student->school_exam_id = $request->school_exam_id;
-            $student->school_graduation_year = $request->school_graduation_year;
-            $student->school_graduation_point = $request->school_graduation_point;
-            $student->collage_name = $request->collage_name;
-            $student->collage_exam_id = $request->collage_exam_id;
-            $student->collage_graduation_year = $request->collage_graduation_year;
-            $student->collage_graduation_point = $request->collage_graduation_point;
-            $student->school_transcript = $this->uploadMedia($request, 'school_transcript', $this->path);
-            $student->school_certificate = $this->uploadMedia($request, 'school_certificate', $this->path);
-            $student->collage_transcript = $this->uploadMedia($request, 'collage_transcript', $this->path);
-            $student->collage_certificate = $this->uploadMedia($request, 'collage_certificate', $this->path);
-            $student->photo = $this->uploadImage($request, 'photo', $this->path, 300, 300);
-            $student->signature = $this->uploadImage($request, 'signature', $this->path, 300, 100);
-            $student->status = '1';
-            $student->save();
-
-            $student->registration_no = intval(10000000) + $student->id;
-            $student->save();
-
-            DB::commit();
-
-
-            Toastr::success(__('msg_sent_successfully'), __('msg_success'));
-
-            return redirect()->route($this->route.'.index')->with('success', __('msg_sent_successfully'));
+        // File uploads
+        if ($request->hasFile('kcse_certificate')) {
+            $student->kcse_certificate = $request->file('kcse_certificate')->store('certificates', 'public');
         }
-        catch(\Exception $e){
-
-            Toastr::error(__('msg_created_error'), __('msg_error'));
-
-            return redirect()->back();
+        if ($request->hasFile('kcse_result_slip')) {
+            $student->kcse_result_slip = $request->file('kcse_result_slip')->store('result_slips', 'public');
         }
+
+        $student->status = '1'; // Pending or default status
+        $student->save();
+
+        // Set registration number (custom logic)
+        $student->registration_no = intval(10000000) + $student->id;
+        $student->save();
+
+        DB::commit();
+
+        Toastr::success(__('msg_sent_successfully'), __('msg_success'));
+
+        return redirect()->route($this->route . '.index')->with('success', __('msg_sent_successfully'));
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Toastr::error(__('msg_created_error'), __('msg_error'));
+        return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
     }
+}
+
+
 }

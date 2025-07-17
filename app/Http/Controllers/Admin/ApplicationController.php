@@ -24,6 +24,8 @@ use Hash;
 use DB;
 use App\Services\SmsService;
 use App\Models\SmsConfiguration;
+use App\Models\County;
+use App\Models\SubCounty;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use App\Services\ApplicationSmsService;
@@ -61,6 +63,7 @@ class ApplicationController extends Controller
      */
     public function index(Request $request) 
 { 
+   
     $data['title'] = $this->title; 
     $data['route'] = $this->route;
     $data['view'] = $this->view; 
@@ -113,223 +116,63 @@ class ApplicationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        // Field Validation
-        $request->validate([
-            'student_id' => 'required|unique:students,student_id',
-            'batch' => 'required',
-            'program' => 'required',
-            'session' => 'required',
-            'semester' => 'required',
-            'section' => 'required',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email' => 'required|email|unique:students,email',
-            'phone' => 'required',
-            'gender' => 'required',
-            'dob' => 'required|date',
-            'admission_date' => 'required|date',
-            'photo' => 'nullable|image',
-            'signature' => 'nullable|image',
-        ]);
+public function store(Request $request)
+{
+   
+    dd($request->all());
 
-        // Random Password
-        $password = str_random(8);
-        $data = Application::where('registration_no', $request->registration_no)->firstOrFail();
+    $request->validate([
+        'first_name'         => 'required|string|max:255',
+        'last_name'          => 'required|string|max:255',
+        'dob'                => 'required|date',
+        'phone'              => 'required|string|max:30',
+        'email'              => 'required|email|max:255|unique:applications,email',
+        'national_id'        => 'required|string|max:50',
+        'gender'             => 'required|in:1,2,3',
+        'program'            => 'required|integer|exists:programs,id',
+        'kcse_index_no'      => 'required|string|max:50',
+        'kcse_year'          => 'required|string|max:10',
+        'kcse_grade'         => 'required|string|max:10',
+        'kcse_certificate'   => 'required|file|mimes:pdf,jpg,jpeg,png',
+        'kcse_result_slip'   => 'required|file|mimes:pdf,jpg,jpeg,png',
+        'county'             => 'required|integer|exists:counties,CountyID',
+        'sub_county'         => 'required|integer|exists:sub_counties,SubCountyID',
+        'physical_address'   => 'nullable|string|max:255',
+        'mode_of_education'  => 'required|string|in:Physical,Online,Hybrid',
+    ]);
 
-        // Insert Data
-        try{
-            DB::beginTransaction();
-            
-            $application = new Student;
-            $application->student_id = $request->student_id;
-            $application->registration_no = $request->registration_no;
-            $application->batch_id = $request->batch;
-            $application->program_id = $request->program;
-            $application->admission_date = $request->admission_date;
+    $application = new Application();
+    $application->registration_no    = uniqid('REG-'); // Or any unique logic you want
+    $application->first_name         = $request->first_name;
+    $application->last_name          = $request->last_name;
+    $application->dob                = $request->dob;
+    $application->phone              = $request->phone;
+    $application->email              = $request->email;
+    $application->national_id        = $request->national_id;
+    $application->gender             = $request->gender;
+    $application->program_id         = $request->program;
+    $application->kcse_index_no      = $request->kcse_index_no;
+    $application->kcse_year          = $request->kcse_year;
+    $application->kcse_grade         = $request->kcse_grade;
+    $application->county_id          = $request->county;
+    $application->sub_county_id      = $request->sub_county;
+    $application->present_address    = $request->physical_address;
+    $application->mode_of_study      = $request->mode_of_education;
+    $application->status             = 1; // or whatever you want
 
-            $application->first_name = $request->first_name;
-            $application->last_name = $request->last_name;
-            $application->father_name = $request->father_name;
-            $application->mother_name = $request->mother_name;
-            $application->father_occupation = $request->father_occupation;
-            $application->mother_occupation = $request->mother_occupation;
-            $application->email = $request->email;
-            $application->password = Hash::make($password);
-            $application->password_text = Crypt::encryptString($password);
-
-            $application->country = $request->country;
-            $application->present_province = $request->present_province;
-            $application->present_district = $request->present_district;
-            $application->present_village = $request->present_village;
-            $application->present_address = $request->present_address;
-            $application->permanent_province = $request->permanent_province;
-            $application->permanent_district = $request->permanent_district;
-            $application->permanent_village = $request->permanent_village;
-            $application->permanent_address = $request->permanent_address;
-
-            $application->gender = $request->gender;
-            $application->dob = $request->dob;
-            $application->phone = $request->phone;
-            $application->emergency_phone = $request->emergency_phone;
-
-            $application->religion = $request->religion;
-            $application->caste = $request->caste;
-            $application->mother_tongue = $request->mother_tongue;
-            $application->marital_status = $request->marital_status;
-            $application->blood_group = $request->blood_group;
-            $application->nationality = $request->nationality;
-            $application->national_id = $request->national_id;
-            $application->passport_no = $request->passport_no;
-
-            $application->school_name = $request->school_name;
-            $application->school_exam_id = $request->school_exam_id;
-            $application->school_graduation_year = $request->school_graduation_year;
-            $application->school_graduation_point = $request->school_graduation_point;
-            $application->collage_name = $request->collage_name;
-            $application->collage_exam_id = $request->collage_exam_id;
-
-
-
-            $application->collage_graduation_year = $request->collage_graduation_year;
-            $application->collage_graduation_point = $request->collage_graduation_point;
-            if($request->hasFile('school_transcript')){
-            $application->school_transcript = $this->uploadMedia($request, 'school_transcript', $this->path);
-            }
-            else{
-            $application->school_transcript = $data->school_transcript;
-            }
-            if($request->hasFile('school_certificate')){
-            $application->school_certificate = $this->uploadMedia($request, 'school_certificate', $this->path);
-            }
-            else{
-            $application->school_certificate = $data->school_certificate;
-            }
-            if($request->hasFile('collage_transcript')){
-            $application->collage_transcript = $this->uploadMedia($request, 'collage_transcript', $this->path);
-            }
-            else{
-            $application->collage_transcript = $data->collage_transcript;
-            }
-            if($request->hasFile('collage_certificate')){
-            $application->collage_certificate = $this->uploadMedia($request, 'collage_certificate', $this->path);
-            }
-            else{
-            $application->collage_certificate = $data->collage_certificate;
-            }
-            if($request->hasFile('photo')){
-            $application->photo = $this->uploadImage($request, 'photo', $this->path, 300, 300);
-            }
-            else{
-            $application->photo = $data->photo;
-            }
-            if($request->hasFile('signature')){
-            $application->signature = $this->uploadImage($request, 'signature', $this->path, 300, 100);
-            }
-            else{
-            $application->signature = $data->signature;
-            }
-            $application->status = '1';
-            $application->created_by = Auth::guard('web')->user()->id;
-            $application->save();
-
-
-            // Attach Status
-            $application->statuses()->attach($request->statuses);
-
-
-            // Student Relatives
-            if(is_array($request->relations)){
-            foreach($request->relations as $key =>$relation){
-                if($relation != '' && $relation != null){
-                // Insert Data
-                $relation = new StudentRelative;
-                $relation->student_id = $application->id;
-                $relation->relation = $request->relations[$key];
-                $relation->name = $request->relative_names[$key];
-                $relation->occupation = $request->occupations[$key];
-                // $relation->email = $request->relative_emails[$key];
-                $relation->phone = $request->relative_phones[$key];
-                $relation->address = $request->addresses[$key];
-                $relation->save();
-                }
-            }}
-
-
-            // Student Documents
-            if(is_array($request->documents)){
-            $documents = $request->file('documents');
-            foreach($documents as $key =>$attach){
-
-                // Valid extension check
-                $valid_extensions = array('JPG','JPEG','jpg','jpeg','png','gif','ico','svg','webp','pdf','doc','docx','txt','zip','rar','csv','xls','xlsx','ppt','pptx','mp3','avi','mp4','mpeg','3gp','mov','ogg','mkv');
-                $file_ext = $attach->getClientOriginalExtension();
-                if(in_array($file_ext, $valid_extensions, true))
-                {
-
-                //Upload Files
-                $filename = $attach->getClientOriginalName();
-                $extension = $attach->getClientOriginalExtension();
-                $fileNameToStore = str_replace([' ','-','&','#','$','%','^',';',':'],'_',$filename).'_'.time().'.'.$extension;
-
-                // Move file inside public/uploads/ directory
-                $attach->move('uploads/'.$this->path.'/', $fileNameToStore);
-
-                // Insert Data
-                $document = new Document;
-                $document->title = $request->titles[$key];
-                $document->attach = $fileNameToStore;
-                $document->save();
-
-                // Attach
-                $document->students()->attach($application->id);
-
-                }
-            }}
-            
-
-            // Student Enroll
-            $enroll = new StudentEnroll();
-            $enroll->student_id = $application->id;
-            $enroll->program_id = $request->program;
-            $enroll->session_id = $request->session;
-            $enroll->semester_id = $request->semester;
-            $enroll->section_id = $request->section;
-            $enroll->created_by = Auth::guard('web')->user()->id;
-            $enroll->save();
-
-
-            // Assign Subjects
-            $enrollSubject = EnrollSubject::where('program_id', $request->program)->where('semester_id', $request->semester)->where('section_id', $request->section)->first();
-            
-            if(isset($enrollSubject)){
-                foreach($enrollSubject->subjects as $subject){
-                    // Attach Subject
-                    $enroll->subjects()->attach($subject->id);
-                }
-            }
-
-
-            // Application Status Update
-            $data->status = '2';
-            $data->updated_by = Auth::guard('web')->user()->id;
-            $data->save();
-
-            DB::commit();
-
-
-            Toastr::success(__('msg_created_successfully'), __('msg_success'));
-
-            return redirect()->route($this->route.'.index');
-        }
-        catch(\Exception $e){
-
-            Toastr::error(__('msg_created_error'), __('msg_error'));
-
-            return redirect()->back();
-        }
+    // Save files if present
+    if ($request->hasFile('kcse_certificate')) {
+        $application->kcse_certificate = $request->file('kcse_certificate')->store('certificates', 'public');
     }
+    if ($request->hasFile('kcse_result_slip')) {
+        $application->kcse_result_slip = $request->file('kcse_result_slip')->store('result_slips', 'public');
+    }
+
+    $application->save();
+
+    return redirect()->back()->with('success', 'Application submitted successfully!');
+}
+
 
     /**
      * Display the specified resource.
@@ -357,31 +200,41 @@ class ApplicationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Application $application)
-    {
-        //
-        $data['title'] = $this->title;
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = $this->path;
-        
+public function edit(Application $application)
+{
+    $data['title'] = $this->title;
+    $data['route'] = $this->route;
+    $data['view'] = $this->view;
+    $data['path'] = $this->path;
 
-        $data['provinces'] = Province::where('status', '1')
+    // Existing data
+    $data['provinces'] = Province::where('status', '1')
                             ->orderBy('title', 'asc')->get();
-        $data['present_districts'] = District::where('status', '1')
+    $data['present_districts'] = District::where('status', '1')
                             ->where('province_id', $application->present_province)
                             ->orderBy('title', 'asc')->get();
-        $data['permanent_districts'] = District::where('status', '1')
+    $data['permanent_districts'] = District::where('status', '1')
                             ->where('province_id', $application->permanent_province)
                             ->orderBy('title', 'asc')->get();
-        $data['statuses'] = StatusType::where('status', '1')->get();
-        $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
+    $data['statuses'] = StatusType::where('status', '1')->get();
+    $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
+    
+    // Fetch programs and pass to the view
+    $data['programs'] = Program::all();
+    
+    // Counties and SubCounties
+    $data['counties'] = County::all(); // Retrieve all counties
+    
+    // Fetch sub-counties based on the selected county ID from $application
+    $data['sub_counties'] = SubCounty::where('CountyID', $application->county_id)->get(); 
 
-        $data['row'] = $application;
+    $data['row'] = $application; // Pass the application data
 
+    
+    dd($application);
+    return view($this->view.'.edit', $data);
+}
 
-        return view($this->view.'.edit', $data);
-    }
 
     /**
      * Update the specified resource in storage.

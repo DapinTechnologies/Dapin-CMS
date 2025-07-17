@@ -47,7 +47,7 @@ public function Catestore(Request $request){
          $category->name = $request->name;
           $category->description = $request->description;
     $category->save();
-    return redirect()->route('alldigitalbooks')->with('success', 'Category added successfully.'); 
+    return redirect()->route('admin.alldigitalbooks')->with('success', 'Category added successfully.'); 
 
 
 
@@ -70,13 +70,13 @@ public function CateUpdate(Request $request,$id){
      $category = Category::findOrFail($id);
       $category->name = $request->name;
        $category->description = $request->description;
-     $category->save(); return redirect()->route('alldigitalbooks')->with('success', 'Category updated successfully.');
+     $category->save(); return redirect()->route('admin.alldigitalbooks')->with('success', 'Category updated successfully.');
 }
 
 public function destroyCate($id){
     $category = Category::findOrFail($id);
      $category->delete(); 
-     return redirect()->route('alldigitalbooks')->with('success', 'Category deleted successfully.');
+     return redirect()->route('admin.alldigitalbooks')->with('success', 'Category deleted successfully.');
      }
 
 
@@ -143,7 +143,7 @@ public function destroyCate($id){
          $material->uploaded_by = Auth::id();
          $material->save();
      
-         return redirect()->route('alldigitalbooks')->with('success', 'Material added successfully.');
+         return redirect()->route('admin.alldigitalbooks')->with('success', 'Material added successfully.');
      }
      
      public function EditFile($id){
@@ -217,7 +217,7 @@ public function destroyCate($id){
          // Save updates
          $material->save();
      
-         return redirect()->route('alldigitalbooks')->with('success', 'Material updated successfully.');
+         return redirect()->route('admin.alldigitalbooks')->with('success', 'Material updated successfully.');
      }
      
         

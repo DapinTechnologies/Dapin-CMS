@@ -1,4 +1,3 @@
-<!-- slider-area -->
 <section id="home" class="slider-area fix p-relative">
     <div id="customCarousel" class="carousel slide" data-bs-ride="carousel">
         <div class="carousel-inner">
@@ -16,10 +15,7 @@
                                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </h2>
 
-                                        <p data-animation="fadeInUp" data-delay=".6s">
-                                            <?php echo strip_tags($slider->sub_title, '<b><u><i><br>'); ?>
-
-                                        </p>
+                                        
 
                                         <?php if(!empty($slider->button_link)): ?>
                                             <div class="slider-btn mt-30">
@@ -38,7 +34,6 @@
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
 
-        <!-- Carousel controls -->
         <button class="carousel-control-prev" type="button" data-bs-target="#customCarousel" data-bs-slide="prev">
             <span class="carousel-arrow" aria-hidden="true"><i class="fas fa-chevron-left"></i></span>
             <span class="visually-hidden">Previous</span>
@@ -67,13 +62,14 @@
 
 /* Animated Title container */
 .animated-title {
-    font-size: 3rem;
+    font-size: 5.8rem; /* Increased from 3rem to make the title bigger */
     font-weight: 700;
     display: flex;
     flex-wrap: wrap;
     gap: 2px;
     line-height: 1.2;
     white-space: pre-wrap;
+    transform: none;
 }
 
 /* Animate each letter one by one */
@@ -82,7 +78,7 @@
     opacity: 0;
     transform: translateY(20px) scale(0.95);
     animation: letterFadeIn 0.6s ease-out forwards;
-    border-bottom: none !important;   /* <- this kills any underline */
+    border-bottom: none !important;
 }
 
 /* Keyframes */
@@ -107,10 +103,17 @@
     background: none !important;
 }
 
+/* --- Adjustments for "move down little" --- */
+/* Target the slider-content to push it down */
+.slider-content {
+    margin-top: 170px; /* Increased from 150px to push it down further */
+    /* Adjust this value (e.g., 180px, 200px) to move it down more or less */
+}
+
 @media (max-width: 767.98px) {
     /* Reduce bottom space below the slider */
     .slider-area {
-        margin-bottom: 20px !important; /* adjust as needed */
+        margin-bottom: 20px !important;
         padding-bottom: 10px !important;
     }
 
@@ -120,15 +123,14 @@
         padding-top: 10px !important;
     }
 
-    /* Optionally reduce inner padding */
+    /* Optionally reduce inner padding for smaller screens */
     .slider-content {
-        margin-top: 60px !important; /* Previously mt-130 might be too big */
+        margin-top: 90px !important; /* Slightly increased for mobile view, ensuring it's not too high */
+    }
+
+    /* Make title smaller on mobile to fit */
+    .animated-title {
+        font-size: 2.5rem; /* Adjusted for smaller screens */
     }
 }
-
-</style>
-
-
-
-
-<?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/slider.blade.php ENDPATH**/ ?>
+</style><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/slider.blade.php ENDPATH**/ ?>

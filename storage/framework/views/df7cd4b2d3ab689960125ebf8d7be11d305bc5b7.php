@@ -145,7 +145,7 @@
                                         <th><?php echo e(__('Title')); ?></th>
                                         
                                         <th><?php echo e(__('Category')); ?></th>
-                                        <th><?php echo e(__('Uploaded By')); ?></th>
+                                        
                                         <th><?php echo e(__('File Path')); ?></th>
                                         <th><?php echo e(__('Actions')); ?></th>
                                     </tr>
@@ -157,7 +157,7 @@
                                             <td><?php echo e($file->title); ?></td>
                                             
                                             <td><?php echo e($file->category->name); ?></td>
-                                            <td><?php echo e($file->uploader->first_name ?? 'N/A'); ?></td>
+                                            
                                             <td>
                                                 <a href="<?php echo e(asset($file->file_path)); ?>" target="_blank">View Material</a>
                                             </td>

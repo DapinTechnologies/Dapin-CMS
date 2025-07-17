@@ -141,7 +141,7 @@
                                         <th>{{ __('Title') }}</th>
                                         {{-- <th>{{ __('Description') }}</th> --}}
                                         <th>{{ __('Category') }}</th>
-                                        <th>{{ __('Uploaded By') }}</th>
+                                        {{-- <th>{{ __('Uploaded By') }}</th> --}}
                                         <th>{{ __('File Path') }}</th>
                                         <th>{{ __('Actions') }}</th>
                                     </tr>
@@ -153,7 +153,7 @@
                                             <td>{{ $file->title }}</td>
                                             {{-- <td>{{ \Illuminate\Support\Str::limit($file->description, 15, '...') }}</td> --}}
                                             <td>{{ $file->category->name }}</td>
-                                            <td>{{ $file->uploader->first_name ?? 'N/A' }}</td>
+                                            {{-- <td>{{ $file->uploader->first_name ?? 'N/A' }}</td> --}}
                                             <td>
                                                 <a href="{{ asset($file->file_path) }}" target="_blank">View Material</a>
                                             </td>
