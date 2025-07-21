@@ -64,4 +64,8 @@ public function transactions()
     {
         return $this->amount - $this->payments->sum('amount');
     }
+    public function feeStructureItem()
+{
+    return $this->belongsTo(FeeStructureItem::class, 'fee_structure_item_id');
+}
 }

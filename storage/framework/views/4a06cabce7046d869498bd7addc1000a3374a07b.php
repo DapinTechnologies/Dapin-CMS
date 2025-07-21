@@ -1,223 +1,272 @@
 
+<?php $__env->startSection('title', $title); ?>
+
+<?php $__env->startSection('page_css'); ?>
+<style>
+    #pieChart, #paymentStatusChart, #collectionTrendChart, #facultyInvoiceChart {
+        max-width: 100% !important;
+        max-height: 500px !important;
+    }
+</style>
+<?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
-<div class="container-fluid">
-    <h1 class="mb-4">Fee Dashboard</h1>
-    
-    <!-- Filters -->
-    <div class="card mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5>Filters</h5>
-            
-        </div>
-       <div class="card-body">
-    <form method="GET" action="<?php echo e(route('admin.fee-dashboard.index')); ?>">
+
+<!-- Start Content-->
+<div class="main-body">
+    <div class="page-wrapper">
+        <!-- [ Main Content ] start -->
         <div class="row">
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label for="faculty" class="form-label">Faculty</label>
-                    <select class="form-control select2" id="faculty" name="faculty">
-                        <option value="">All Faculties</option>
-                        <?php $__currentLoopData = $faculties; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $faculty): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($faculty->id); ?>" <?php echo e(request('faculty') == $faculty->id ? 'selected' : ''); ?>>
-                                <?php echo e($faculty->title); ?>
-
-                            </option>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </select>
+            <!-- [ Fee Summary Cards ] start-->
+            <div class="col-sm-6 col-md-6 col-xl-3">
+                <div class="card bg-c-blue bitcoin-wallet">
+                    <div class="card-block">
+                        <h5 class="text-white mb-2">TOTAL BILLED FEES</h5>
+                        <h4 class="text-white mb-2 f-w-100">KSh <?php echo e(number_format($totalBilled, 2)); ?></h4>
+                        <i class="fas fa-file-invoice-dollar f-70 text-white"></i>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label for="semester" class="form-label">Semester</label>
-                    <select class="form-control select2" id="semester" name="semester">
-                        <option value="">All Semesters</option>
-                        <?php $__currentLoopData = $semesters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $semester): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <option value="<?php echo e($semester->id); ?>" <?php echo e(request('semester') == $semester->id ? 'selected' : ''); ?>>
-                                <?php echo e($semester->title); ?>
-
-                            </option>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label for="start_date" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="start_date" name="start_date" value="<?php echo e(request('start_date')); ?>">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="mb-3">
-                    <label for="end_date" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="end_date" name="end_date" value="<?php echo e(request('end_date')); ?>">
-                </div>
-            </div>
-        </div>
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
-            <a href="<?php echo e(route('admin.fee-dashboard.index')); ?>" class="btn btn-outline-secondary">Reset</a>
-        </div>
-    </form>
-</div>
-</div>
-    
-
-   <!-- Summary Cards -->
-<div class="row mb-3">
-    <div class="col-md-3">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h6 class="card-title mb-2" style="color: #fff; font-size: 0.9rem;">TOTAL BILLED FEES</h6>
-                <h4 class="card-text" style="color: #fff; font-size: 1.25rem;">KSh <?php echo e(number_format($totalBilled, 2)); ?></h4>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h6 class="card-title mb-2" style="color: #fff; font-size: 0.9rem;">TOTAL COLLECTED FEES</h6>
-                <h4 class="card-text" style="color: #fff; font-size: 1.25rem;">KSh <?php echo e(number_format($totalPaid, 2)); ?></h4>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-danger">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h6 class="card-title m-0" style="color: #fff; font-size: 0.9rem;">OUTSTANDING FEES</h6>
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('send fee notifications')): ?>
-                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#bulkSmsModal">
-                            <i class="fas fa-envelope"> Remind</i>
-                        </button>
-                    <?php endif; ?>
-                </div>
-                <h4 class="card-text mt-2" style="color: #fff; font-size: 1.25rem;">KSh <?php echo e(number_format($outstanding, 2)); ?></h4>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <h6 class="card-title mb-2" style="color: #fff; font-size: 0.9rem;">BURSARYS/SPONSORSHIP</h6>
-                <h4 class="card-text" style="color: #fff; font-size: 1.25rem;">KSh 0.00</h4>
-            </div>
+            <div class="col-sm-6 col-md-6 col-xl-3">
+    <div class="card bg-c-blue bitcoin-wallet">
+        <div class="card-block">
+            <h5 class="text-white mb-2">TOTAL RECONCILED FEES</h5>
+            <h4 class="text-white mb-2 f-w-300">KSh <?php echo e(number_format($totalReconciledFees, 2)); ?></h4>
+            <i class="fas fa-hand-holding-usd f-70 text-white"></i>
         </div>
     </div>
 </div>
 
-<!-- Discounts/Fines Card - Right Aligned -->
-<div class="row mb-4">
-    <div class="col-md-3 ms-auto">  <!-- ms-auto pushes it to the right -->
-        <div class="card text-white bg-secondary">
-            <div class="card-body">
-                <h6 class="card-title mb-2" style="color: #fff; font-size: 0.9rem;">DISCOUNTS/FINES</h6>
-                <h4 class="card-text" style="color: #fff; font-size: 1.25rem;">KSh 0.00</h4>
-            </div>
+<div class="col-sm-6 col-md-6 col-xl-3">
+    <div class="card bg-c-blue bitcoin-wallet">
+        <div class="card-block">
+            <h5 class="text-white mb-2">TOTAL PAID FEES</h5>
+            <h4 class="text-white mb-2 f-w-300">KSh <?php echo e(number_format($totalPaidFees, 2)); ?></h4>
+            <i class="fas fa-money-bill-wave f-70 text-white"></i>
         </div>
     </div>
 </div>
-    
-    <!-- Charts -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Payment Status Distribution</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="paymentStatusChart" height="300"></canvas>
-                </div>
+            <div class="col-sm-6 col-md-6 col-xl-3">
+    <div class="card bg-c-blue bitcoin-wallet">
+        <div class="card-block">
+            <h5 class="text-white mb-2">OUTSTANDING FEES</h5>
+            <h4 class="text-white mb-2 f-w-300">KSh <?php echo e(number_format($outstanding, 2)); ?></h4>
+            
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('send fee notifications')): ?>
+            <div class="d-flex justify-content-between align-items-end">
+                <i class="fas fa-exclamation-triangle f-70 text-white"></i>
+                <button class="btn btn-success btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#bulkSmsModal">
+                    <i class=" me-1"></i> Send SMS Reminder
+                </button>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Fee Collection Trend</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="collectionTrendChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
-        <!-- Add this to your charts section -->
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5>Faculty-wise Fee Collection</h5>
-            </div>
-            <div class="card-body">
-                <canvas id="facultyInvoiceChart" height="300"></canvas>
-            </div>
+            <?php else: ?>
+            <i class="fas fa-paper-plane f-70 text-white"></i>
+            <?php endif; ?>
         </div>
     </div>
 </div>
-    </div>
-    
-    <!-- Invoice Table -->
-    <div class="card">
-        <div class="card-header">
-            <h5>Fee Collection Details</h5>
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Inv No</th>
-                        <th>Student Name</th>
-                        <th>Course</th>
-                        <th>Billed</th>
-                        <th>Paid</th>
-                        <th>Status</th>
-                        <th>Due Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $__currentLoopData = $invoices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $invoice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <tr>
-                            <td><?php echo e($invoice->invoice_no); ?></td>
-                            <td><?php echo e($invoice->studentEnroll->student->full_name ?? 'N/A'); ?></td>
-                            <td><?php echo e($invoice->studentEnroll->program->title ?? 'N/A'); ?></td>
-                            <td>KSh <?php echo e(number_format($invoice->total_fee, 2)); ?></td>
-                            <td>KSh <?php echo e(number_format($invoice->amount_paid, 2)); ?></td>
-                            <td>
-                                <?php if($invoice->payment_status == 'paid'): ?>
-                                    <span class="badge bg-success">Paid</span>
-                                <?php elseif($invoice->payment_status == 'partial'): ?>
-                                    <span class="badge bg-warning">Partial</span>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">Unpaid</span>
-                                <?php endif; ?>
-                            </td>
-                            <td><?php echo e($invoice->due_date); ?></td>
-                            <td>
-                                <a href="" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('send fee notifications')): ?>
-                                <?php if($invoice->payment_status != 'paid'): ?>
-                                <button class="btn btn-sm btn-warning send-sms-btn" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#singleSmsModal"
-                                    data-invoice-id="<?php echo e($invoice->id); ?>"
-                                    data-student-name="<?php echo e($invoice->studentEnroll->student->full_name ?? 'N/A'); ?>"
-                                    data-student-id="<?php echo e($invoice->studentEnroll->student->student_id ?? ''); ?>"
-                                    data-amount-due="<?php echo e(number_format($invoice->amount_due, 2)); ?>"
-                                    data-phone="<?php echo e($invoice->studentEnroll->student->phone ?? ''); ?>">
-                                    <i class="fas fa-envelope"></i> SMS
-                                </button>
-                                <?php endif; ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </tbody>
-            </table>
+            <div class="col-sm-6 col-md-6 col-xl-3">
+    <div class="card bg-c-blue bitcoin-wallet">
+        <div class="card-block">
+            <h5 class="text-white mb-2">RECONCILED BURSARIES</h5>
+            <h4 class="text-white mb-2 f-w-300">KSh <?php echo e(number_format($totalReconciledBursaries, 2)); ?></h4>
+            <i class="fas fa-gift f-70 text-white"></i>
         </div>
     </div>
 </div>
+
+<!-- Total Discounts Card -->
+<div class="col-sm-6 col-md-6 col-xl-3">
+    <div class="card bg-c-blue bitcoin-wallet">
+        <div class="card-block">
+            <h5 class="text-white mb-2">TOTAL DISCOUNTS GIVEN</h5>
+            <h4 class="text-white mb-2 f-w-300">KSh <?php echo e(number_format($totalDiscounts, 2)); ?></h4>
+            <i class="fas fa-tag f-70 text-white"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Total Fines Card -->
+<div class="col-sm-6 col-md-6 col-xl-3">
+    <div class="card bg-c-blue bitcoin-wallet">
+        <div class="card-block">
+            <h5 class="text-white mb-2">TOTAL FINES APPLIED</h5>
+            <h4 class="text-white mb-2 f-w-300">KSh <?php echo e(number_format($totalFines, 2)); ?></h4>
+            <i class="fas fa-exclamation-triangle f-70 text-white"></i>
+        </div>
+    </div>
+</div>
+            <!-- [ Fee Summary Cards ] end-->
+        </div>
+
+        <!-- Filters -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>Filters</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="GET" action="<?php echo e(route('admin.fee-dashboard.index')); ?>">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="faculty" class="form-label">Faculty</label>
+                                        <select class="form-control select2" id="faculty" name="faculty">
+                                            <option value="">All Faculties</option>
+                                            <?php $__currentLoopData = $faculties; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $faculty): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($faculty->id); ?>" <?php echo e(request('faculty') == $faculty->id ? 'selected' : ''); ?>>
+                                                    <?php echo e($faculty->title); ?>
+
+                                                </option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="semester" class="form-label">Semester</label>
+                                        <select class="form-control select2" id="semester" name="semester">
+                                            <option value="">All Semesters</option>
+                                            <?php $__currentLoopData = $semesters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $semester): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($semester->id); ?>" <?php echo e(request('semester') == $semester->id ? 'selected' : ''); ?>>
+                                                    <?php echo e($semester->title); ?>
+
+                                                </option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="start_date" class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" id="start_date" name="start_date" value="<?php echo e(request('start_date')); ?>">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="end_date" class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="end_date" name="end_date" value="<?php echo e(request('end_date')); ?>">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+                                <a href="<?php echo e(route('admin.fee-dashboard.index')); ?>" class="btn btn-outline-secondary">Reset</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row">
+            <div class="col-12 col-md-6 col-xl-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Payment Status Distribution</h5>
+                    </div>
+                    <div class="card-block">
+                        <canvas id="paymentStatusChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Fee Collection Trend</h5>
+                    </div>
+                    <div class="card-block">
+                        <canvas id="collectionTrendChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Faculty-wise Fee Collection</h5>
+                    </div>
+                    <div class="card-block">
+                        <canvas id="facultyInvoiceChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Fee Collection Details</h5>
+                    </div>
+                    <div class="card-block">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Inv No</th>
+                                    <th>Student Name</th>
+                                    <th>Course</th>
+                                    <th>Invoiced Amount</th>
+                                    <th>Paid Amount</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $__currentLoopData = $invoices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $invoice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <tr>
+                                        <td><?php echo e($invoice->invoice_no); ?></td>
+                                        <td><?php echo e($invoice->studentEnroll->student->full_name ?? 'N/A'); ?></td>
+                                        <td><?php echo e($invoice->studentEnroll->program->title ?? 'N/A'); ?></td>
+                                        <td>KSh <?php echo e(number_format($invoice->total_fee, 2)); ?></td>
+                                        <td>KSh <?php echo e($invoicePayments[$invoice->id] ?? 0); ?></td>
+                                        
+                                        <td>
+                                            <?php if($invoice->payment_status == 'paid'): ?>
+                                                <span class="badge bg-success">Paid</span>
+                                            <?php elseif($invoice->payment_status == 'partial'): ?>
+                                                <span class="badge bg-warning">Partial</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-danger">Unpaid</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?php echo e($invoice->due_date); ?></td>
+                                        <td>
+                                            
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('send fee notifications')): ?>
+                                            <?php if($invoice->payment_status != 'paid'): ?>
+                                            <button class="btn btn-sm btn-warning send-sms-btn" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#singleSmsModal"
+                                                data-invoice-id="<?php echo e($invoice->id); ?>"
+                                                data-student-name="<?php echo e($invoice->studentEnroll->student->full_name ?? 'N/A'); ?>"
+                                                data-student-id="<?php echo e($invoice->studentEnroll->student->student_id ?? ''); ?>"
+                                                data-amount-due="<?php echo e(number_format($invoice->amount_due, 2)); ?>"
+                                                data-phone="<?php echo e($invoice->studentEnroll->student->phone ?? ''); ?>">
+                                                <i class="fas fa-envelope"></i> Send SMS
+                                            </button>
+                                            <?php endif; ?>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
+</div>
+<!-- End Content-->
 
 <!-- Bulk SMS Modal -->
 <div class="modal fade" id="bulkSmsModal" tabindex="-1" aria-labelledby="bulkSmsModalLabel" aria-hidden="true">
@@ -342,13 +391,15 @@
 </div>
 <?php $__env->stopSection(); ?>
 
-<?php $__env->startPush('scripts'); ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+<?php $__env->startSection('page_js'); ?>
+<!-- chart Js -->
+<script src="<?php echo e(asset('dashboard/plugins/chart-chartjs/js/chart.min.js')); ?>"></script>
+
+<script type="text/javascript">
     document.addEventListener('DOMContentLoaded', function() {
         // Payment Status Pie Chart
         const paymentStatusData = <?php echo json_encode($paymentStatus, 15, 512) ?>;
-        const paymentStatusCtx = document.getElementById('paymentStatusChart').getContext('2d');
+        const paymentStatusCtx = document.getElementById('paymentStatusChart')?.getContext('2d');
         
         if (paymentStatusCtx && Object.keys(paymentStatusData).length > 0) {
             new Chart(paymentStatusCtx, {
@@ -358,24 +409,43 @@
                     datasets: [{
                         data: Object.values(paymentStatusData).map(item => item.total_amount),
                         backgroundColor: [
-                            '#4bc0c0', // Paid
-                            '#36A2EB', // Partial
-                            '#FF6384'  // Unpaid
+                            '#1de9b6', // Paid
+                            '#f4c22b', // Partial
+                            '#f44236'  // Unpaid
+                        ],
+                        borderColor: [
+                            '#14cc9e',
+                            '#ecb50c',
+                            '#f22012'
                         ]
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: KSh ${value.toLocaleString()} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
                 }
             });
-        } else {
-            console.warn('Payment status data not available or canvas not found');
         }
-        
+
         // Collection Trend Line Chart
         const trendData = <?php echo json_encode($collectionTrend, 15, 512) ?>;
-        const trendCtx = document.getElementById('collectionTrendChart').getContext('2d');
+        const trendCtx = document.getElementById('collectionTrendChart')?.getContext('2d');
         
         if (trendCtx && trendData.length > 0) {
             new Chart(trendCtx, {
@@ -385,10 +455,11 @@
                     datasets: [{
                         label: 'Amount Collected',
                         data: trendData.map(item => item.total_paid),
-                        borderColor: '#4bc0c0',
-                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                        fill: true,
-                        tension: 0.4
+                        backgroundColor: 'rgba(4, 169, 245, 0.2)',
+                        borderColor: '#04a9f5',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
                     }]
                 },
                 options: {
@@ -403,11 +474,74 @@
                                 }
                             }
                         }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'KSh ' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
                     }
                 }
             });
-        } else {
-            console.warn('Trend data not available or canvas not found');
+        }
+
+        // Faculty Invoices Bar Chart
+        const facultyInvoiceData = <?php echo json_encode($facultyInvoices, 15, 512) ?>;
+        const facultyInvoiceCtx = document.getElementById('facultyInvoiceChart')?.getContext('2d');
+        
+        if (facultyInvoiceCtx && facultyInvoiceData.length > 0) {
+            new Chart(facultyInvoiceCtx, {
+                type: 'bar',
+                data: {
+                    labels: facultyInvoiceData.map(item => item.faculty),
+                    datasets: [
+                        {
+                            label: 'Billed Amount',
+                            data: facultyInvoiceData.map(item => item.billed),
+                            backgroundColor: '#04a9f5',
+                            borderColor: '#038fcf'
+                        },
+                        {
+                            label: 'Paid Amount',
+                            data: facultyInvoiceData.map(item => item.paid),
+                            backgroundColor: '#1de9b6',
+                            borderColor: '#14cc9e'
+                        },
+                        {
+                            label: 'Outstanding',
+                            data: facultyInvoiceData.map(item => item.outstanding),
+                            backgroundColor: '#f44236',
+                            borderColor: '#f22012'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'KSh ' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': KSh ' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         // Bulk SMS Modal - Update message preview when due date changes
@@ -418,110 +552,50 @@
                 `Please clear it by ${dueDate} to avoid penalties. For any queries, contact the accounts office.`;
         });
         
-        // Faculty Invoices Bar Chart
-const facultyInvoiceData = <?php echo json_encode($facultyInvoices, 15, 512) ?>;
-const facultyInvoiceCtx = document.getElementById('facultyInvoiceChart')?.getContext('2d');
+        // Single SMS Modal - Handle modal show event
+        const singleSmsModal = document.getElementById('singleSmsModal');
+        if (singleSmsModal) {
+            singleSmsModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const invoiceId = button.getAttribute('data-invoice-id');
+                const studentName = button.getAttribute('data-student-name');
+                const studentId = button.getAttribute('data-student-id');
+                const amountDue = button.getAttribute('data-amount-due');
+                const phone = button.getAttribute('data-phone');
 
-if (facultyInvoiceCtx && facultyInvoiceData.length > 0) {
-    new Chart(facultyInvoiceCtx, {
-        type: 'bar',
-        data: {
-            labels: facultyInvoiceData.map(item => item.faculty),
-            datasets: [
-                {
-                    label: 'Billed Amount',
-                    data: facultyInvoiceData.map(item => item.billed),
-                    backgroundColor: '#36A2EB'
-                },
-                {
-                    label: 'Paid Amount',
-                    data: facultyInvoiceData.map(item => item.paid),
-                    backgroundColor: '#4BC0C0'
-                },
-                {
-                    label: 'Outstanding',
-                    data: facultyInvoiceData.map(item => item.outstanding),
-                    backgroundColor: '#FF6384'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return 'KSh ' + value.toLocaleString();
-                        }
-                    }
-                },
-                x: {
-                    stacked: false
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                                label += ': ';
-                            }
-                            label += 'KSh ' + context.raw.toLocaleString();
-                            return label;
-                        }
-                    }
-                }
-            }
+                document.getElementById('invoice_id').value = invoiceId;
+                document.getElementById('sms_student_name').value = studentName;
+                document.getElementById('sms_phone').value = phone;
+                document.getElementById('amount_due').value = amountDue;
+
+                // Initialize with current date
+                const today = new Date();
+                const nextWeek = new Date(today);
+                nextWeek.setDate(today.getDate() + 7);
+                const formattedDate = nextWeek.toISOString().split('T')[0];
+                document.getElementById('single_due_date').value = formattedDate;
+
+                updateSingleMessagePreview(studentName, studentId, amountDue, formattedDate);
+            });
+        }
+
+        // Single SMS Modal - Update message preview when due date changes
+        document.getElementById('single_due_date')?.addEventListener('change', function() {
+            const studentName = document.getElementById('sms_student_name').value;
+            const studentId = document.querySelector('.send-sms-btn').getAttribute('data-student-id');
+            const amountDue = document.getElementById('amount_due').value;
+            const dueDate = this.value;
+            updateSingleMessagePreview(studentName, studentId, amountDue, dueDate);
+        });
+
+        function updateSingleMessagePreview(studentName, studentId, amountDue, dueDate) {
+            const formattedDueDate = dueDate ? new Date(dueDate).toLocaleDateString() : '[Due Date]';
+            
+            document.getElementById('singleMessagePreview').textContent = 
+                `Dear ${studentName} (${studentId}), you have an outstanding fee balance of KES ${amountDue}. ` +
+                `Please clear it by ${formattedDueDate} to avoid penalties. For any queries, contact the accounts office.`;
         }
     });
-}
-        // Single SMS Modal - Handle modal show event
-const singleSmsModal = document.getElementById('singleSmsModal');
-if (singleSmsModal) {
-    singleSmsModal.addEventListener('show.bs.modal', function(event) {
-        const button = event.relatedTarget;
-        const invoiceId = button.getAttribute('data-invoice-id');
-        const studentName = button.getAttribute('data-student-name');
-        const studentId = button.getAttribute('data-student-id');
-        const amountDue = button.getAttribute('data-amount-due');
-        const phone = button.getAttribute('data-phone');
-
-        document.getElementById('invoice_id').value = invoiceId;
-        document.getElementById('sms_student_name').value = studentName;
-        document.getElementById('sms_phone').value = phone;
-        document.getElementById('amount_due').value = amountDue;
-
-        // Initialize with current date
-        const today = new Date();
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7);
-        const formattedDate = nextWeek.toISOString().split('T')[0];
-        document.getElementById('single_due_date').value = formattedDate;
-
-        updateSingleMessagePreview(studentName, studentId, amountDue, formattedDate);
-    });
-}
-
-// Single SMS Modal - Update message preview when due date changes
-document.getElementById('single_due_date')?.addEventListener('change', function() {
-    const studentName = document.getElementById('sms_student_name').value;
-    const studentId = document.querySelector('.send-sms-btn').getAttribute('data-student-id');
-    const amountDue = document.getElementById('amount_due').value;
-    const dueDate = this.value;
-    updateSingleMessagePreview(studentName, studentId, amountDue, dueDate);
-});
-
-function updateSingleMessagePreview(studentName, studentId, amountDue, dueDate) {
-    const formattedDueDate = dueDate ? new Date(dueDate).toLocaleDateString() : '[Due Date]';
-    
-    document.getElementById('singleMessagePreview').textContent = 
-        `Dear ${studentName} (${studentId}), you have an outstanding fee balance of KES ${amountDue}. ` +
-        `Please clear it by ${formattedDueDate} to avoid penalties. For any queries, contact the accounts office.`;
-}
-    });
 </script>
-<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
 <?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\Dapin-CMS-main\resources\views/admin/fee-dashboard/index.blade.php ENDPATH**/ ?>

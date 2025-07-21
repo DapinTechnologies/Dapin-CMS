@@ -32,6 +32,25 @@
                                   {{ __('required_field') }} {{ __('Amount') }}
                                 </div>
                             </div>
+
+                            <div class="form-group">
+    <label for="fee_type" class="form-label">Type</label>
+    <select class="form-control" name="fee_type" id="fee_type">
+        <option value="">Select Type</option>
+        <option value="government" {{ old('fee_type', isset($row) ? $row->fee_type : null) == 'government' ? 'selected' : '' }}>
+            {{ __('Government Fee') }}
+        </option>
+        <option value="external" {{ old('fee_type', isset($row) ? $row->fee_type : null) == 'external' ? 'selected' : '' }}>
+            {{ __('External Exam Fee') }}
+        </option>
+        <option value="both" {{ old('fee_type', isset($row) ? $row->fee_type : null) == 'both' ? 'selected' : '' }}>
+            {{ __('Both') }}
+        </option>
+    </select>
+    <div class="invalid-feedback">
+        {{ __('required_field') }} {{ __('Fee Type') }}
+    </div>
+</div>
                             <!-- Form End -->
                         </div>
                         <div class="card-footer">
@@ -56,6 +75,7 @@
                                         <th>#</th>
                                         <th>{{ __('field_title') }}</th>
                                         <th>{{ __('field_amount') }}</th>
+                                        <th>Type</th>
                                         <th>{{ __('field_status') }}</th>
                                         <th>{{ __('field_action') }}</th>
                                     </tr>
@@ -66,6 +86,17 @@
                                         <td>{{ $key + 1 }}</td>
                                         <td>{{ $row->title }}</td>
                                         <td>{{ number_format($row->amount, 2) }}</td>
+                                        <td>
+    @if($row->fee_type === null)
+        <span class="badge badge-pill badge-secondary">{{ __('Not Specified') }}</span>
+    @elseif($row->fee_type == 'government')
+        <span class="badge badge-pill badge-primary">{{ __('Government Fee') }}</span>
+    @elseif($row->fee_type == 'external')
+        <span class="badge badge-pill badge-info">External Exam Fee</span>
+    @else
+        <span class="badge badge-pill badge-warning">{{ __('Both') }}</span>
+    @endif
+</td>
                                         <td>
                                             @if($row->status == 1)
                                             <span class="badge badge-pill badge-success">{{ __('status_active') }}</span>
@@ -80,17 +111,15 @@
                                             </button>
                                             @endcan
 
- @can($access.'-delete')
-<form action="{{ route($route.'.destroy', $row->id) }}" method="POST" class="d-inline">
-    @csrf
-    @method('DELETE')
-    <button type="submit" class="btn btn-icon btn-danger btn-sm" title="Delete">
-        <i class="fas fa-trash-alt"></i>
-    </button>
-</form>
-@endcan
-
-
+                                            @can($access.'-delete')
+                                            <form action="{{ route($route.'.destroy', $row->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-icon btn-danger btn-sm" title="Delete">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                            @endcan
                                         </td>
                                     </tr>
 
@@ -116,6 +145,26 @@
                                               <div class="form-group mt-3">
                                                 <label for="amount-{{ $row->id }}">{{ __('Amount') }} <span>*</span></label>
                                                 <input type="number" class="form-control" id="amount-{{ $row->id }}" name="amount" value="{{ old('amount', $row->amount) }}" min="0" step="0.01" required>
+                                              </div>
+
+                                              <!-- Fee Type select -->
+                                              <div class="form-group mt-3">
+                                                <label for="fee_type" class="form-label">Type</label>
+    <select class="form-control" name="fee_type" id="fee_type">
+        <option value="">Select Type</option>
+        <option value="government" {{ (isset($row->fee_type) && $row->fee_type == 'government' ? 'selected' : '') }}>
+            {{ __('Government Fee') }}
+        </option>
+        <option value="external" {{ (isset($row->fee_type) && $row->fee_type == 'external' ? 'selected' : '') }}>
+            {{ __('External Exam Fee') }}
+        </option>
+        <option value="both" {{ (isset($row->fee_type) && $row->fee_type == 'both' ? 'selected' : '') }}>
+            {{ __('Both') }}
+        </option>
+    </select>
+    <div class="invalid-feedback">
+        {{ __('required_field') }} {{ __('Fee Type') }}
+    </div>
                                               </div>
 
                                               <!-- Status select -->

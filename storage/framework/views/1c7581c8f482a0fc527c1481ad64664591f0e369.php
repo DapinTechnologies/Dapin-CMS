@@ -1,3 +1,4 @@
+
 <?php $__env->startSection('title', __('navbar_home')); ?>
 
 <?php $__env->startSection('social_meta_tags'); ?>

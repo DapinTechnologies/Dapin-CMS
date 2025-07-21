@@ -504,13 +504,31 @@
 
                        
 
+
+
+
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fees-student-due')): ?>
                         <li class="<?php echo e(Request::is('admin/fees-student') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.index')); ?>" class="">All <?php echo e(trans_choice('module_fees_due', 1)); ?></a></li>
                         <?php endif; ?>
 
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fees-student-quick-received')): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-quick-received*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.quick.received')); ?>" class="">Advance Payments</a></li>
-                        <?php endif; ?>
+  <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('bursary-allocation-access')): ?>
+    <li class="<?php echo e(Request::is('admin/bursary-allocation*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.bursary-allocation.index')); ?>" class="">
+            <i class=""></i> Bursary Allocation
+        </a>
+    </li>
+<?php endif; ?>
+
+                       
+
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fees-adjustment-create')): ?>
+<li class="<?php echo e(Request::is('admin/fees-adjustment*') ? 'active' : ''); ?>">
+    <a href="<?php echo e(route('admin.fees-adjustment.index')); ?>" class="">
+        <i class=""></i> Discounts / Fines
+    </a>
+</li>
+<?php endif; ?>
+
  
 
                        
@@ -522,6 +540,14 @@
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('fee-structure-view')): ?>
     <li class="<?php echo e(Request::is('admin/fee-structures*') ? 'active' : ''); ?>">
         <a href="<?php echo e(route('admin.fee-structures.index')); ?>"><i class="fa fa-money"></i> Fee Structures</a>
+    </li>
+<?php endif; ?>
+
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('view fee reconciliation')): ?>
+    <li class="<?php echo e(Request::is('admin/fee-reconciliation*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.fee-reconciliation.index')); ?>">
+            <i class=""></i> Fee Reconciliation
+        </a>
     </li>
 <?php endif; ?>
 
@@ -553,45 +579,66 @@
     </li>
 <?php endif; ?>
 
-                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class="">Outstanding Balance</a></li>
-                        <?php endif; ?>
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('report-student-fees')): ?>
+                <li class="<?php echo e(Request::is('admin/report/student-fees') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.report.student-fees')); ?>" class="">All <?php echo e(trans_choice('module_student_fees', 1)); ?></a></li>
+                <?php endif; ?>
 
-                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class="">Defaulters List</a></li>
-                        <?php endif; ?>
-
-                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class="">Partial Payment Report</a></li>
-                        <?php endif; ?>
-
-                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class="">Goverment Fees Report</a></li>
-                        <?php endif; ?>
-
-                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class=""><?php echo e(trans_choice('module_fees_report', 2)); ?></a></li>
-                        <?php endif; ?>
-
-                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('report-collected-fees')): ?>
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('report-collected-fees')): ?>
                 <li class="<?php echo e(Request::is('admin/report/fees') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.report.fees')); ?>" class="">Total <?php echo e(trans_choice('module_collected_fees', 1)); ?></a></li>
                 <?php endif; ?>
 
-                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('report-student-fees')): ?>
-                <li class="<?php echo e(Request::is('admin/report/student-fees') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.report.student-fees')); ?>" class=""><?php echo e(trans_choice('module_student_fees', 1)); ?></a></li>
-                <?php endif; ?>
+                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['view fee defaulters', 'fees-student-report', 'fees-student-print'])): ?>
+    <li class="<?php echo e(Request::is('admin/defaulters*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.defaulters.index')); ?>" class="">Defaulters List</a>
+    </li>
+<?php endif; ?>
 
-                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class="">Busaries|Sponsorship</a></li>
-                        <?php endif; ?>
+                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['view partial payments', 'fees-student-report', 'fees-student-print'])): ?>
+    <li class="<?php echo e(Request::is('admin/partial-payments*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.partial-payments.index')); ?>" class="">Partial Payments List</a>
+    </li>
+<?php endif; ?>
 
-                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class="">Waivers | Discounts</a></li>
-                        <?php endif; ?>
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('view outstanding fees reports')): ?>
+    <li class="<?php echo e(Request::is('admin/outstanding-fees*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.outstanding-fees.index')); ?>">Outstanding Fees Report</a>
+    </li>
+<?php endif; ?>
 
-                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'fees-student-print'])): ?>
-                        <li class="<?php echo e(Request::is('admin/fees-student-report*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.fees-student.report')); ?>" class="">Exam Fees Report</a></li>
-                        <?php endif; ?>
+ <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['view bursary reports', 'fees-student-report', 'fees-student-print'])): ?>
+    <li class="<?php echo e(Request::is('admin/bursary-report*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.bursary-report.index')); ?>" class="">Bursary | Sponsorship</a>
+    </li>
+<?php endif; ?>
+
+ <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['view financial reports', 'fees-student-report', 'fees-student-print'])): ?>
+    <li class="<?php echo e(Request::is('admin/fines-discounts-report*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.fines-discounts-report.index')); ?>" class="">Fines & Discounts</a>
+    </li>
+<?php endif; ?>
+
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['view fee collection reports', 'fees-student-report', 'fees-student-print'])): ?>
+    <li class="<?php echo e(Request::is('admin/fee-collection-report*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.fee-collection-report.index')); ?>" class="">Fee Collection Summary</a>
+    </li>
+<?php endif; ?>
+
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('view government fees reports')): ?>
+    <li class="<?php echo e(Request::is('admin/government-fees-report*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.government-fees-report.index')); ?>">Government Fees Report</a>
+    </li>
+<?php endif; ?>
+
+<?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('view external fees reports')): ?>
+    <li class="<?php echo e(Request::is('admin/external-fees-report*') ? 'active' : ''); ?>">
+        <a href="<?php echo e(route('admin.external-fees-report.index')); ?>">External Exam Fees Report</a>
+    </li>
+<?php endif; ?>
+
+
+                   
+
+                    
                        
                     </ul>
                 </li>

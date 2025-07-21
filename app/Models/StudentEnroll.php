@@ -20,6 +20,11 @@ class StudentEnroll extends Model
         return $this->belongsTo(Student::class, 'student_id');
     }
 
+     public function faculty()
+    {
+        return $this->belongsTo(Faculty::class, 'faculty_id');
+    }
+
     public function program()
     {
         return $this->belongsTo(Program::class, 'program_id');

@@ -8,6 +8,7 @@ use App\Models\{
     Session, Faculty, Fee, FeeStructure, FeeStructureItem, Invoice, InvoiceItem
 };
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Toastr;
 use Auth;
@@ -583,4 +584,67 @@ class FeesMasterController extends Controller
         
         return $phone;
     }
+
+    /**
+ * Send payment reminder to student
+ */
+public function sendReminder(Request $request)
+{
+    $request->validate([
+        'student_enroll_id' => 'required|exists:student_enrolls,id',
+        'invoice_id' => 'required|exists:invoices,id',
+        'message' => 'required|string|min:10'
+    ]);
+
+    try {
+        $enroll = StudentEnroll::with('student')->findOrFail($request->student_enroll_id);
+        $invoice = Invoice::findOrFail($request->invoice_id);
+        
+        if (!$enroll->student) {
+            throw new \Exception('Student record not found');
+        }
+
+        // Send SMS
+        $apiUrl = 'https://smsportal.dapintechnologies.com/sms/v3/sendsms';
+        $apiKey = config('services.sms.api_key');
+        $serviceId = config('services.sms.service_id');
+        $from = config('services.sms.from');
+        
+        $payload = [
+            'api_key' => $apiKey,
+            'service_id' => $serviceId,
+            'mobile' => $this->formatPhoneNumberForSms($enroll->student->phone),
+            'response_type' => 'json',
+            'shortcode' => $from,
+            'message' => $request->message,
+            'date_send' => now()->format('Y-m-d H:i:s'),
+        ];
+        
+        $response = Http::withOptions(['verify' => false])
+            ->post($apiUrl, $payload);
+            
+        if ($response->successful()) {
+            // Log the reminder
+            \Log::info('Payment reminder sent', [
+                'student_enroll_id' => $enroll->id,
+                'invoice_id' => $invoice->id,
+                'message' => $request->message
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Reminder sent successfully'
+            ]);
+        }
+        
+        throw new \Exception('Failed to send SMS: ' . $response->body());
+        
+    } catch (\Exception $e) {
+        \Log::error('Reminder sending failed: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
 }

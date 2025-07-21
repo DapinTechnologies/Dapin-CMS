@@ -11,7 +11,25 @@ use App\Http\Controllers\Admin\FeeStructureController;
 use App\Http\Controllers\Admin\FeesMasterController;
 use App\Http\Controllers\Admin\FeeClearanceController;
 use App\Http\Controllers\Admin\FeeDashboardController;
+use App\Http\Controllers\Admin\FeeReconciliationController;
+use App\Http\Controllers\Admin\BursaryAllocationController;
+use App\Http\Controllers\Admin\FeesAdjustmentController;
+use App\Http\Controllers\Admin\DefaultersController;
+use App\Http\Controllers\Admin\PartialPaymentsController;
+use App\Http\Controllers\Admin\BursaryReportController;
+use App\Http\Controllers\Admin\FinesDiscountsReportController;
+use App\Http\Controllers\Admin\FeeCollectionReportController;
+use App\Http\Controllers\Admin\GovernmentFeesReportController;
+use App\Http\Controllers\Admin\ExternalFeesReportController;
+use App\Http\Controllers\Admin\OutstandingFeesController;
 
+
+Route::group(['prefix' => 'fees-student', 'as' => 'fees-student.'], function() {
+    
+    // Edit/Update Routes
+    Route::get('quick-assign/{invoice}/edit', 'FeesStudentController@edit')->name('quick.assign.edit');
+    Route::put('quick-assign/{invoice}', 'FeesStudentController@update')->name('quick.assign.update');
+});
 
 //
 /*
@@ -24,6 +42,11 @@ use App\Http\Controllers\Admin\FeeDashboardController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+
+
+
 Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
 Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
 Route::get('/admin/invoice/{id}/print', [FeesStudentController::class, 'printr'])->name('invoice.print');
@@ -50,14 +73,172 @@ Route::get('/payment/receipt/{payment}/download', [FeesStudentController::class,
             Route::post('fees/estimate-students', [FeeStructureController::class, 'estimateStudents'])
     ->name('admin.fees.estimate-students');
 
+   Route::get('invoices/{id}/edit', [FeesStudentController::class, 'edit'])->name('fees-student.edit');
+    Route::put('invoices/{id}', [FeesStudentController::class, 'update'])->name('fees-student.update');
+    Route::get('invoices/{id}', [FeesStudentController::class, 'show'])->name('fees-student.show');
+    Route::get('invoices/{id}/print', [FeesStudentController::class, 'print'])->name('fees-student.print');
+    // routes/web.php
+Route::get('/invoices/{id}', [FeeStudentController::class, 'showinvoice'])->name('invoices.show'); 
     
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+    // ... other routes
     
+    // Payments routes
+    Route::get('payments/quick-receive', [\App\Http\Controllers\Admin\PaymentController::class, 'create'])
+        ->name('payments.quick-receive');
+        
+    Route::post('payments/get-student-data', [\App\Http\Controllers\Admin\PaymentController::class, 'getStudentData'])
+        ->name('payments.get-student-data');
+        
+    Route::post('payments/store', [\App\Http\Controllers\Admin\PaymentController::class, 'store'])
+        ->name('payments.store');
+        
+    Route::get('payments/receipt/{id}', [\App\Http\Controllers\Admin\PaymentController::class, 'receipt'])
+        ->name('payments.receipt');
+        Route::post('payments/get-student-invoices', [PaymentController::class, 'getStudentInvoices'])
+        ->name('payments.getStudentInvoices');
+        
+        
+    Route::resource('payments', \App\Http\Controllers\Admin\PaymentController::class);
+});
+Route::get('/payment/get-fee-categories', [PaymentController::class, 'getFeeCategories'])
+    ->name('payment.getFeeCategories');
+
+Route::get('/fees/get-categories', [FeeStudentController::class, 'getFeeCategories'])
+    ->name('fees.getCategories');
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function() {
+    // Fee Reconciliation Routes
+    Route::get('fee-reconciliation', [FeeReconciliationController::class, 'index'])->name('fee-reconciliation.index');
+    Route::post('fee-reconciliation/reconcile/{payment}', [FeeReconciliationController::class, 'reconcile'])->name('fee-reconciliation.reconcile');
+    Route::post('fee-reconciliation/batch-reconcile', [FeeReconciliationController::class, 'batchReconcile'])->name('fee-reconciliation.batch-reconcile');
+    Route::get('fee-reconciliation/export', [FeeReconciliationController::class, 'export'])->name('fee-reconciliation.export');
+
+    // Bursary Allocation Routes
+    Route::group(['prefix' => 'bursary-allocation', 'as' => 'bursary-allocation.'], function() {
+    Route::get('/', [BursaryAllocationController::class, 'index'])->name('index');
+    Route::get('/create/{student_enroll_id?}', [BursaryAllocationController::class, 'create'])->name('create');
+    Route::post('/', [BursaryAllocationController::class, 'store'])->name('store');
+    Route::post('/batch-allocate', [BursaryAllocationController::class, 'batchAllocate'])->name('batch-allocate');
+    Route::post('/store-fund', [BursaryAllocationController::class, 'storeFund'])->name('store-fund');
+    Route::post('/{id}/reconcile', [BursaryAllocationController::class, 'reconcile'])->name('reconcile');
+    Route::post('/batch-reconcile', [BursaryAllocationController::class, 'batchReconcile'])->name('batch-reconcile');
+    Route::get('/export', [BursaryAllocationController::class, 'export'])->name('export');
+    Route::get('/admin/bursary-types/{code}/details', [BursaryAllocationController::class, 'getBursaryTypeDetails'])->name('admin.bursary-types.details');
+    Route::put('/update-fund', [BursaryAllocationController::class, 'updateFund'])->name('update-fund');
+Route::delete('/delete-fund', [BursaryAllocationController::class, 'deleteFund'])->name('delete-fund');
+    Route::get('/get-bursary-payments', [BursaryAllocationController::class, 'getBursaryPayments'])->name('get-bursary-payments');
+});
+});
+
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    // Defaulters routes
+    Route::group(['prefix' => 'defaulters', 'as' => 'defaulters.'], function() {
+        Route::get('/', [DefaultersController::class, 'index'])->name('index');
+        Route::get('/export', [DefaultersController::class, 'export'])->name('export');
+    });
+    
+});Route::get('/admin/get-programs', [DefaultersController::class, 'getPrograms'])->name('admin.get-programs');
+
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    // Outstanding fees routes
+    Route::group(['prefix' => 'outstanding-fees', 'as' => 'outstanding-fees.'], function() {
+        Route::get('/', [OutstandingFeesController::class, 'index'])->name('index');
+        Route::get('/export', [OutstandingFeesController::class, 'export'])->name('export');
+    });
+});
+
+Route::get('/admin/get-programs', [OutstandingFeesController::class, 'getPrograms'])->name('admin.get-programs');
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+    // Government Fees Report routes
+    Route::group(['prefix' => 'government-fees-report', 'as' => 'government-fees-report.'], function () {
+        Route::get('/', [GovernmentFeesReportController::class, 'index'])->name('index');
+        Route::get('/export', [GovernmentFeesReportController::class, 'export'])->name('export');
+    });
+
+    // AJAX program loader
+    Route::get('/get-programs', [GovernmentFeesReportController::class, 'getPrograms'])->name('get-programs');
+});
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+// External Fees Report routes
+Route::group(['prefix' => 'external-fees-report', 'as' => 'external-fees-report.'], function () {
+    Route::get('/', [ExternalFeesReportController::class, 'index'])->name('index');
+    Route::get('/export', [ExternalFeesReportController::class, 'export'])->name('export');
+});
+
+// AJAX program loader
+    Route::get('/get-programs', [ExternalFeesReportController::class, 'getPrograms'])->name('get-programs');
+
+
+});
+
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    // Fee Collection Report routes
+    Route::group(['prefix' => 'fee-collection-report', 'as' => 'fee-collection-report.'], function() {
+        Route::get('/', [FeeCollectionReportController::class, 'index'])->name('index');
+        Route::get('/export', [FeeCollectionReportController::class, 'export'])->name('export');
+        // Add the get-programs route inside this group
+        Route::get('/get-programs', [FeeCollectionReportController::class, 'getPrograms'])->name('get-programs');
+    });
+});
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    // Partial payments routes
+    Route::group(['prefix' => 'partial-payments', 'as' => 'partial-payments.'], function() {
+        Route::get('/', [PartialPaymentsController::class, 'index'])->name('index');
+        Route::get('/export', [PartialPaymentsController::class, 'export'])->name('export');
+    });
+    
+    // Bursary Report
+Route::group(['prefix' => 'bursary-report', 'as' => 'bursary-report.'], function() {
+    Route::get('/', [BursaryReportController::class, 'index'])->name('index');
+    Route::get('/get-programs', [BursaryReportController::class, 'getPrograms'])->name('get-programs');
+    Route::get('/export', [BursaryReportController::class, 'export'])->name('export');
+});
+
+// Fines & Discounts Report
+Route::group(['prefix' => 'fines-discounts-report', 'as' => 'fines-discounts-report.'], function() {
+    Route::get('/', [FinesDiscountsReportController::class, 'index'])->name('index');
+    Route::get('/get-programs', [FinesDiscountsReportController::class, 'getPrograms'])->name('get-programs');
+    Route::get('/export', [FinesDiscountsReportController::class, 'export'])->name('export');
+});
+
+});
+
+Route::get('/admin/get-programs', [PartialPaymentsController::class, 'getPrograms'])->name('admin.get-programs');
+
+    Route::group([
+    'prefix' => 'admin',
+    'as' => 'admin.',
+    'middleware' => ['auth']
+], function () {
+    // Fees Adjustment Routes
+    Route::group([
+        'prefix' => 'fees-adjustment',
+        'as' => 'fees-adjustment.',
+        'middleware' => ['permission:fees-adjustment-create'] // Added permission middleware
+    ], function() {
+        Route::get('/', [FeesAdjustmentController::class, 'index'])->name('index');
+        Route::post('/', [FeesAdjustmentController::class, 'store'])->name('store');
+        Route::get('/get-invoices', [FeesAdjustmentController::class, 'getInvoices'])->name('getInvoices');
+        Route::get('/get-invoice-details', [FeesAdjustmentController::class, 'getInvoiceDetails'])->name('getInvoiceDetails');
+    });
+});
+
 
             Route::middleware(['auth'])->group(function() {
     // Fee editing routes
     Route::get('/admin/fees/get-invoice-data', [FeesStudentController::class, 'getInvoiceData'])
             ->name('fees.get-invoice-data')
         ->middleware('permission:fees-edit-view');
+
+        Route::get('/admin/fees/get-details', [FeesStudentController::class, 'getDetails'])->name('invoices.getDetails');
+
 
     Route::post('/admin/fees/update', [FeesStudentController::class, 'updateFees'])
         ->name('fees.update')
@@ -80,7 +261,6 @@ Route::get('fees/get-student-invoices', [FeesStudentController::class, 'getStude
 Route::get('fees/invoice/{invoice}', [InvoiceController::class, 'show'])->name('fees.invoice.show');
 
 
-
 // Fee Clearance Module Routes
     Route::prefix('admin/fee-clearance')->group(function () {
         Route::get('/', [FeeClearanceController::class, 'index'])->name('admin.fee-clearance.index');
@@ -91,6 +271,7 @@ Route::get('fees/invoice/{invoice}', [InvoiceController::class, 'show'])->name('
         Route::get('/history/{id}', [FeeClearanceController::class, 'paymentHistory'])->name('admin.fee-clearance.history');
         Route::get('/report', [FeeClearanceController::class, 'generateReport'])->name('admin.fee-clearance.report');
         Route::get('students/fetch', [FeeClearanceController::class, 'fetchStudents'])->name('students.fetch');
+        
     });
 
 // Fee Structure Routes
@@ -276,7 +457,7 @@ Route::get('/initiatepush',[PesaController::class,'initiateStkPush'])->name('ini
 Route::post('/paybill/store', [PesaController::class, 'store'])->name('storegatedetails');
 Route::get('/settings', [PesaController::class, 'index'])->name('settings.index');
 
-// Route::post('/pay/pesa/store/', [PesaController::class, 'Feepaymentmpesa'])->name('paymentprocess');
+ Route::get('/pay/pesa/store/', [PesaController::class, 'Feepaymentmpesa'])->name('paymentprocess');
 
 // Route::get('/payment/{fee_id}', [PaymentController::class, 'showPaymentForm'])->name('paymentform');
 
@@ -558,7 +739,9 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::post('fees-student-quick-received', 'FeesStudentController@quickReceivedStore')->name('fees-student.quick.received.store');
     Route::get('fees-student-quick-assign', 'FeesStudentController@quickAssign')->name('fees-student.quick.assign');
     Route::post('fees-student-quick-assign', 'FeesStudentController@quickAssignStore')->name('fees-student.quick.assign.store');
-
+     Route::get('quick-assign/{invoice}/edit', 'FeesStudentController@edit')->name('fees-student.quick.assign.edit');
+    Route::put('quick-assign/{invoice}', 'FeesStudentController@update')->name('fees-student.quick.assign.update');
+    
     // Fees Master Routes
     Route::resource('fees-master', 'FeesMasterController');
      Route::get('/', [FeesMasterController::class, 'index'])->name('index');
@@ -566,6 +749,7 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::post('/', [FeesMasterController::class, 'store'])->name('store');
     Route::get('fees-master/get-fee-structure', [FeesMasterController::class, 'getFeeStructure'])
         ->name('fees-master.getFeeStructure');
+        Route::post('/send-reminder', [FeesMasterController::class, 'sendReminder'])->name('send-reminder');
 
 
     // Fees Routes

@@ -1,8 +1,7 @@
-    <!-- Edit modal content -->
-    <div id="editModal-{{ $row->id }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <form class="needs-validation" novalidate action="{{ route($route.'.update', $row->id) }}" method="post" enctype="multipart/form-data">
+<div class="modal fade" id="editModal-{{ $row->id }}" tabindex="-1" aria-labelledby="editModalLabel-{{ $row->id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form class="needs-validation" novalidate action="{{ route($route.'.update', $row->id) }}" method="post" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -22,6 +21,33 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="amount" class="form-label">{{ __('Amount') }} <span>*</span></label>
+                        <input type="number" class="form-control" name="amount" id="amount" value="{{ $row->amount }}" min="0" step="0.01" required>
+                        <div class="invalid-feedback">
+                          {{ __('required_field') }} {{ __('Amount') }}
+                        </div>
+                    </div>
+
+                   <div class="form-group">
+    <label for="fee_type" class="form-label">{{ __('Fee Type') }}</label>
+    <select class="form-control" name="fee_type" id="fee_type">
+        <option value="">{{ __('select_fee_type') }}</option>
+        <option value="government" {{ (isset($row->fee_type) && $row->fee_type == 'government' ? 'selected' : '') }}>
+            {{ __('Government Fee') }}
+        </option>
+        <option value="external" {{ (isset($row->fee_type) && $row->fee_type == 'external' ? 'selected' : '') }}>
+            {{ __('External Fee') }}
+        </option>
+        <option value="both" {{ (isset($row->fee_type) && $row->fee_type == 'both' ? 'selected' : '') }}>
+            {{ __('Both') }}
+        </option>
+    </select>
+    <div class="invalid-feedback">
+        {{ __('required_field') }} {{ __('Fee Type') }}
+    </div>
+</div>
+
+                    <div class="form-group">
                         <label for="status" class="form-label">{{ __('select_status') }}</label>
                         <select class="form-control" name="status" id="status">
                             <option value="1" @if( $row->status == 1 ) selected @endif>{{ __('status_active') }}</option>
@@ -34,8 +60,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> {{ __('btn_close') }}</button>
                     <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> {{ __('btn_update') }}</button>
                 </div>
-
-              </form>
-            </div>
+            </form>
         </div>
     </div>
+</div>

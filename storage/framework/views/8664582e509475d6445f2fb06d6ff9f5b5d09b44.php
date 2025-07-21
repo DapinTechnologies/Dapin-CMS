@@ -33,6 +33,29 @@
 
                                 </div>
                             </div>
+
+                            <div class="form-group">
+    <label for="fee_type" class="form-label">Type</label>
+    <select class="form-control" name="fee_type" id="fee_type">
+        <option value="">Select Type</option>
+        <option value="government" <?php echo e(old('fee_type', isset($row) ? $row->fee_type : null) == 'government' ? 'selected' : ''); ?>>
+            <?php echo e(__('Government Fee')); ?>
+
+        </option>
+        <option value="external" <?php echo e(old('fee_type', isset($row) ? $row->fee_type : null) == 'external' ? 'selected' : ''); ?>>
+            <?php echo e(__('External Exam Fee')); ?>
+
+        </option>
+        <option value="both" <?php echo e(old('fee_type', isset($row) ? $row->fee_type : null) == 'both' ? 'selected' : ''); ?>>
+            <?php echo e(__('Both')); ?>
+
+        </option>
+    </select>
+    <div class="invalid-feedback">
+        <?php echo e(__('required_field')); ?> <?php echo e(__('Fee Type')); ?>
+
+    </div>
+</div>
                             <!-- Form End -->
                         </div>
                         <div class="card-footer">
@@ -57,6 +80,7 @@
                                         <th>#</th>
                                         <th><?php echo e(__('field_title')); ?></th>
                                         <th><?php echo e(__('field_amount')); ?></th>
+                                        <th>Type</th>
                                         <th><?php echo e(__('field_status')); ?></th>
                                         <th><?php echo e(__('field_action')); ?></th>
                                     </tr>
@@ -67,6 +91,17 @@
                                         <td><?php echo e($key + 1); ?></td>
                                         <td><?php echo e($row->title); ?></td>
                                         <td><?php echo e(number_format($row->amount, 2)); ?></td>
+                                        <td>
+    <?php if($row->fee_type === null): ?>
+        <span class="badge badge-pill badge-secondary"><?php echo e(__('Not Specified')); ?></span>
+    <?php elseif($row->fee_type == 'government'): ?>
+        <span class="badge badge-pill badge-primary"><?php echo e(__('Government Fee')); ?></span>
+    <?php elseif($row->fee_type == 'external'): ?>
+        <span class="badge badge-pill badge-info">External Exam Fee</span>
+    <?php else: ?>
+        <span class="badge badge-pill badge-warning"><?php echo e(__('Both')); ?></span>
+    <?php endif; ?>
+</td>
                                         <td>
                                             <?php if($row->status == 1): ?>
                                             <span class="badge badge-pill badge-success"><?php echo e(__('status_active')); ?></span>
@@ -81,17 +116,15 @@
                                             </button>
                                             <?php endif; ?>
 
- <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check($access.'-delete')): ?>
-<form action="<?php echo e(route($route.'.destroy', $row->id)); ?>" method="POST" class="d-inline">
-    <?php echo csrf_field(); ?>
-    <?php echo method_field('DELETE'); ?>
-    <button type="submit" class="btn btn-icon btn-danger btn-sm" title="Delete">
-        <i class="fas fa-trash-alt"></i>
-    </button>
-</form>
-<?php endif; ?>
-
-
+                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check($access.'-delete')): ?>
+                                            <form action="<?php echo e(route($route.'.destroy', $row->id)); ?>" method="POST" class="d-inline">
+                                                <?php echo csrf_field(); ?>
+                                                <?php echo method_field('DELETE'); ?>
+                                                <button type="submit" class="btn btn-icon btn-danger btn-sm" title="Delete">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
 
@@ -117,6 +150,30 @@
                                               <div class="form-group mt-3">
                                                 <label for="amount-<?php echo e($row->id); ?>"><?php echo e(__('Amount')); ?> <span>*</span></label>
                                                 <input type="number" class="form-control" id="amount-<?php echo e($row->id); ?>" name="amount" value="<?php echo e(old('amount', $row->amount)); ?>" min="0" step="0.01" required>
+                                              </div>
+
+                                              <!-- Fee Type select -->
+                                              <div class="form-group mt-3">
+                                                <label for="fee_type" class="form-label">Type</label>
+    <select class="form-control" name="fee_type" id="fee_type">
+        <option value="">Select Type</option>
+        <option value="government" <?php echo e((isset($row->fee_type) && $row->fee_type == 'government' ? 'selected' : '')); ?>>
+            <?php echo e(__('Government Fee')); ?>
+
+        </option>
+        <option value="external" <?php echo e((isset($row->fee_type) && $row->fee_type == 'external' ? 'selected' : '')); ?>>
+            <?php echo e(__('External Exam Fee')); ?>
+
+        </option>
+        <option value="both" <?php echo e((isset($row->fee_type) && $row->fee_type == 'both' ? 'selected' : '')); ?>>
+            <?php echo e(__('Both')); ?>
+
+        </option>
+    </select>
+    <div class="invalid-feedback">
+        <?php echo e(__('required_field')); ?> <?php echo e(__('Fee Type')); ?>
+
+    </div>
                                               </div>
 
                                               <!-- Status select -->
@@ -153,5 +210,4 @@
 <!-- End Content -->
 
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\Dapin-CMS-main\resources\views/admin/fees-category/index.blade.php ENDPATH**/ ?>

@@ -1,7 +1,6 @@
 @extends('student.layouts.master')
 @section('title', $title)
 @section('content')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 
 <!-- Start Content-->
 <div class="main-body">
@@ -14,20 +13,20 @@
                         <h5>{{ $title }}</h5>
                     </div>
                     <div class="card-block">
-                        <!-- Notification for Bank Payment Details -->
-                      
-
+                        <!-- Filter Form -->
                         <form class="needs-validation" novalidate method="get" action="{{ route($route .'.index') }}">
                             <div class="row gx-2">
                                 <div class="form-group col-md-3">
                                     <label for="session">{{ __('field_session') }}</label>
                                     <select class="form-control" name="session" id="session">
                                         <option value="0">{{ __('all') }}</option>
-                                        @foreach( $sessions as $session )
-                                        <option value="{{ $session->session_id }}" @if( $selected_session == $session->session_id) selected @endif>{{ $session->session->title }}</option>
+                                        @foreach($sessions as $session)
+                                        <option value="{{ $session->session_id }}" 
+                                            @if($selected_session == $session->session_id) selected @endif>
+                                            {{ $session->session->title }}
+                                        </option>
                                         @endforeach
                                     </select>
-
                                     <div class="invalid-feedback">
                                         {{ __('required_field') }} {{ __('field_session') }}
                                     </div>
@@ -36,129 +35,163 @@
                                     <label for="semester">{{ __('field_semester') }}</label>
                                     <select class="form-control" name="semester" id="semester">
                                         <option value="0">{{ __('all') }}</option>
-                                        @foreach( $semesters as $semester )
-                                        <option value="{{ $semester->semester_id }}" @if( $selected_semester == $semester->semester_id) selected @endif>{{ $semester->semester->title }}</option>
+                                        @foreach($semesters as $semester)
+                                        <option value="{{ $semester->semester_id }}" 
+                                            @if($selected_semester == $semester->semester_id) selected @endif>
+                                            {{ $semester->semester->title }}
+                                        </option>
                                         @endforeach
                                     </select>
-
                                     <div class="invalid-feedback">
                                         {{ __('required_field') }} {{ __('field_semester') }}
                                     </div>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label for="category">{{ __('field_fees_type') }}</label>
-                                    <select class="form-control" name="category" id="category" required>
+                                    <select class="form-control" name="category" id="category">
                                         <option value="0">{{ __('all') }}</option>
-                                        @foreach( $categories as $category )
-                                        <option value="{{ $category->id }}" @if( $selected_category == $category->id) selected @endif>{{ $category->title }}</option>
+                                        @foreach($categories as $category)
+                                        <option value="{{ $category->id }}" 
+                                            @if($selected_category == $category->id) selected @endif>
+                                            {{ $category->title }}
+                                        </option>
                                         @endforeach
                                     </select>
-
                                     <div class="invalid-feedback">
-                                    {{ __('required_field') }} {{ __('field_fees_type') }}
+                                        {{ __('required_field') }} {{ __('field_fees_type') }}
                                     </div>
                                 </div>
-
                                 <div class="form-group col-md-3">
-                                    <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-search"></i> {{ __('btn_filter') }}</button>
+                                    <button type="submit" class="btn btn-info btn-filter">
+                                        <i class="fas fa-search"></i> {{ __('btn_filter') }}
+                                    </button>
                                 </div>
                             </div>
                         </form>
                     </div>
-                    <div class="card-block">
-                        {{-- <div class="alert alert-info" role="alert">
-                            <strong>Bank Payment Details:</strong><br>
-                            Bank Name:  Kenya Commercial Bank (KCB)<br>
-                            Account Number:  1296864421 
-                        </div> --}}
-                        <!-- [ Data table ] start -->
-                        @isset($rows)
-                        <div class="table-responsive">
-                            <table id="basic-table" class="display table nowrap table-striped table-hover" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th class="text-center">#</th>
-                                        <th class="text-center">{{ __('field_session') }}</th>
-                                        <th class="text-center">{{ __('field_semester') }}</th>
-                                        <th class="text-center">{{ __('field_fees_type') }}</th>
-                                        <th class="text-right">{{ __('field_fee') }}</th>
-                                        <th class="text-right">{{ __('field_paid_amount') }}</th>
-                                        <th class="text-right">{{ __('Due Amount') }}</th>
-                                        <th class="text-center">{{ __('field_due_date') }}</th>
-                                        <th class="text-center">{{ __('field_action') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($rows as $key => $row)
-                                    <tr>
-                                        <!-- Serial Number -->
-                                        <td class="text-center">{{ $key + 1 }}</td>
-                            
-                                        <!-- Session and Semester -->
-                                        <td class="text-center">{{ $row->studentEnroll->session->title ?? '' }}</td>
-                                        <td class="text-center">{{ $row->studentEnroll->semester->title ?? '' }}</td>
-                            
-                                        <!-- Fees Type -->
-                                        <td class="text-center">{{ $row->category->title ?? '' }}</td>
-                            
-                                        <!-- Total Fee -->
-                                        <td class="text-right">
-                                            {{ number_format((float)$row->fee_amount, $setting->decimal_place ?? 2, '.', '') }} {!! $setting->currency_symbol !!}
-                                        </td>
-                            
-                                        <!-- Paid Amount -->
-                                        <td class="text-right">
-                                            {{ number_format($row->paid_amount, $setting->decimal_place ?? 2, '.', '') }} {!! $setting->currency_symbol !!}
-                                        </td>
-                            
-                                        <!-- Due Amount -->
-                                        <td class="text-right">
-                                            @php
-                                                $dueAmount = max(0, $row->fee_amount - $row->paid_amount);
-                                            @endphp
-                                            {{ number_format($dueAmount, $setting->decimal_place ?? 2, '.', '') }} {!! $setting->currency_symbol !!}
-                                        </td>
-                            
-                                        <!-- Due Date -->
-                                        <td class="text-center">
-                                            @if($row->due_date != '1970-01-01')
-                                                {{ date($setting->date_format ?? "Y-m-d", strtotime($row->due_date)) }}
-                                            @endif
-                                        </td>
-                            
-                                        <!-- Action -->
-                                        <td class="text-center">
-                                            @php
-                                            $queryData = [
-                                                'fee_id' => $row->id,
-                                                'student_id' => Auth::user()->id,
-                                                'fee_category_id' => $row->category->id ?? '',
-                                                'due_date' => $row->due_date ?? '',
-                                                'fee_amount' => $row->fee_amount,
-                                                'paid_amount' => $row->paid_amount ?? 0,
-                                                'phone_number' => Auth::user()->phone,
-                                            ];
-                                            $queryString = http_build_query($queryData);
-                                        @endphp
-                                        
-                                        <a href="{{ route('paymentprocess', $row->id) }}?{{ $queryString }}" 
-                                           class="btn btn-success" 
-                                           style="padding: 4px 8px; font-size: 12px;">
-                                            <i class="fas fa-money-bill-alt"></i> {{ __('Pay') }}
-                                        </a>
-                                        
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                            
-                            
-                            
-                                
+                    
+                    @if(!empty($invoices) && $invoices->count())
+                    <div class="card mt-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5>Latest Invoices</h5>
+                            <input type="text" id="invoice-search" class="form-control w-50" placeholder="Search by invoice no...">
                         </div>
-                        @endisset
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="invoice-table">
+                                    <thead>
+                                        <tr>
+                                            
+                                            <th>Session</th>
+                                            <th>Semester</th>
+                                            <th>Fee Categories</th>
+                                            <th class="text-right">Total Fee</th>
+                                            <th class="text-right">Amount Paid</th>
+                                            <th class="text-right">Amount Due</th>
+                                            <th>Assign Date</th>
+                                            <th>Due Date</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($invoices as $invoice)
+                                        @php
+    // Calculate total paid amount
+    $totalPaid = $invoice->payments->sum('amount');
+    $amountDue = max(0, $invoice->total_fee - $totalPaid);
+    
+    
+   
+    // Get fees from relationship or direct query
+    $fees = $invoice->fees ?? \App\Models\Fee::where('invoice_id', $invoice->id)->get();
+    
+    // Fallback query if still empty
+    if ($fees->isEmpty()) {
+        $fees = \App\Models\Fee::where('student_enroll_id', $invoice->student_enroll_id)
+            ->where('assign_date', $invoice->assign_date)
+            ->where('due_date', $invoice->due_date)
+            ->get();
+    }
+
+    // Generate HTML for each fee category in separate spans
+    $categoryList = $fees->map(function($fee) {
+        $categoryTitle = $fee->category->title ?? 'Category #' . $fee->category_id;
+        $amount = number_format($fee->category->amount ?? $fee->amount, 2);
+        
+        return sprintf(
+            '<div class="mb-1"><span class="badge badge-info">%s (%s)</span></div>',
+            $categoryTitle,
+            $amount
+        );
+    })->implode('');
+
+    if ($fees->isEmpty()) {
+        $categoryList = '<span class="text-danger">No fees assigned</span>';
+    }
+
+
+    // Determine status
+    if ($totalPaid >= $invoice->total_fee) {
+        $status = 'Paid';
+        $statusClass = 'success';
+    } elseif ($totalPaid > 0) {
+        $status = 'Partial';
+        $statusClass = 'warning';
+    } else {
+        $status = 'Unpaid';
+        $statusClass = 'danger';
+    }
+@endphp
+
+                                        <tr>
+                                            
+                                            <td>{{ $invoice->studentEnroll->session->title ?? '' }}</td>
+                                            <td>{{ $invoice->studentEnroll->semester->title ?? '' }}</td>
+                                            <td class="d-flex flex-column">
+                                                {!! $categoryList !!}
+                                            </td>
+                                            <td class="text-right">
+                                                {{ number_format($invoice->total_fee, $setting->decimal_place ?? 2) }} 
+                                                {!! $setting->currency_symbol !!}
+                                            </td>
+                                            <td class="text-right">
+                                                {{ number_format($totalPaid, $setting->decimal_place ?? 2) }} 
+                                                {!! $setting->currency_symbol !!}
+                                            </td>
+                                            <td class="text-right">
+                                                {{ number_format($amountDue, $setting->decimal_place ?? 2) }} 
+                                                {!! $setting->currency_symbol !!}
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($invoice->assign_date)->format('d M Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($invoice->due_date)->format('d M Y') }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $statusClass }}">{{ $status }}</span>
+                                            </td>
+                                            <td>
+                                                @if($amountDue > 0)
+                                                <a href="{{ route('paymentprocess', $invoice->id) }}" 
+                                                   class="btn btn-success btn-sm">
+                                                    <i class="fas fa-money-bill-alt"></i> Pay
+                                                </a>
+                                                @else
+                                                <span class="badge bg-success">Paid</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
+                    @else
+                    <div class="card-body">
+                        <div class="alert alert-info" role="alert">
+                            No invoices found matching your criteria.
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -166,11 +199,19 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#basic-table').DataTable();
+        // Invoice search functionality
+        $('#invoice-search').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#invoice-table tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
     });
 </script>
 @endsection
