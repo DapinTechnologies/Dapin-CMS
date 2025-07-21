@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateFeesCategoriesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,13 +14,18 @@ class CreateFeesCategoriesTable extends Migration
     public function up()
     {
         Schema::create('fees_categories', function (Blueprint $table) {
-            $table->id(); // Auto-incrementing primary key (bigint)
-            $table->string('title')->unique();
-            $table->string('slug')->unique();
+            $table->bigIncrements('id');
+            $table->string('title', 191);
+            $table->string('slug', 191);
             $table->text('description')->nullable();
-            $table->double('amount')->nullable(); // New amount field
-            $table->boolean('status')->default(true); // Default to true (1)
-            $table->timestamps(); // created_at & updated_at
+            $table->boolean('status')->default(true);
+            $table->double('amount')->default(0);
+            $table->enum('fee_type', ['government', 'external', 'both'])->nullable();
+            $table->timestamps();
+
+            // Add indexes
+            $table->index('title');
+            $table->index('slug');
         });
     }
 
@@ -33,4 +38,4 @@ class CreateFeesCategoriesTable extends Migration
     {
         Schema::dropIfExists('fees_categories');
     }
-}
+};
