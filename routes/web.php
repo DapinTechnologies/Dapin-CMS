@@ -179,6 +179,9 @@ Route::delete('accreditations/{id}', [AboutUsController::class, 'destroyAccredit
     Route::get('statistics/{id}/edit', [StatisticController::class, 'edit'])->name('statistics.edit');
     Route::put('statistics/{id}', [StatisticController::class, 'update'])->name('statistics.update');
     Route::delete('statistics/{id}', [StatisticController::class, 'destroy'])->name('statistics.destroy');
+Route::delete('/admin/inquiries/{id}', [EnquiryController::class, 'deleteInquiry'])->name('admin.inquiry.delete');
+Route::get('admin/inquiry/{id}', [EnquiryController::class, 'show'])->name('admin.inquiry.show');
+Route::post('admin/inquiry/{id}/reply', [EnquiryController::class, 'reply'])->name('admin.inquiry.reply');
 
 
 

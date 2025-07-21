@@ -14,7 +14,10 @@ use App\Models\Inquiry;
 use App\Models\Subscription;
 use Toastr;
 use Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InquiryReply;
 use Illuminate\Validation\Rule; 
+
 class EnquiryController extends Controller
 {
     /**
@@ -47,32 +50,81 @@ class EnquiryController extends Controller
 
 
 
-
-
-
-
-
-
  public function index()
     {
-        $inquiries = Inquiry::latest()->paginate(10); // Paginate for large number of inquiries
-        return view('admin.inquiries.index', compact('inquiries'));
+           $inquiries = Inquiry::orderBy('created_at', 'desc')->paginate(15);
+        return view('admin.frontdesk.enqury.index', compact('inquiries'));
     }
+public function deleteInquiry($id)
+{
+    try {
+        $inquiry = Inquiry::findOrFail($id);
+        $inquiry->delete();
 
-
-
- public function show(Inquiry $inquiry)
-    {
-        return view('admin.inquiries.show', compact('inquiry'));
+        session()->flash('success', 'Inquiry deleted successfully.');
+       return redirect()->back();
+    } catch (\Exception $e) {
+        session()->flash('error', 'An error occurred. Please try again later.');
+        return redirect()->back();
     }
+}
 
+
+
+public function show($id)
+{
+    // Fetch the inquiry by ID
+    $inquiry = Inquiry::findOrFail($id);
+
+    // Return the view with the inquiry data
+    return view('admin.frontdesk.enqury.detail', compact('inquiry'));
+}
+
+
+
+public function reply(Request $request, $id)
+{
+    $validated = $request->validate([
+        'reply_message' => 'required|string|max:1000',
+    ]);
+
+    $inquiry = Inquiry::findOrFail($id);
+
+    try {
+        // Store the reply in the database if needed
+        $inquiry->update([
+            'reply_message' => $validated['reply_message'],
+            'replied_at' => now(),
+            'status' => 'replied'
+        ]);
+
+        // Send email with both inquiry and reply message
+        Mail::send('emails.inquiry_reply', [
+            'inquiry' => $inquiry,
+            'replyMessage' => $validated['reply_message']
+        ], function($message) use ($inquiry) {
+            $message->to($inquiry->email)
+                   ->subject('Response to Your Inquiry - ' . config('app.name'));
+        });
+
+        return redirect()
+            ->route('admin.admin.inquiry.show', $inquiry->id)
+            ->with('success', 'Reply sent successfully!');
+            
+    } catch (\Exception $e) {
+        \Log::error('Reply sending failed: ' . $e->getMessage());
+        return back()
+            ->withInput()
+            ->with('error', 'Failed to send reply: ' . $e->getMessage());
+    }
+}
 
 
 public function destroy(Inquiry $inquiry)
     {
         $inquiry->delete();
       // Use Toastr
-        return redirect()->route('admin.inquiries.index');
+        return redirect()->back();
     }
 
 

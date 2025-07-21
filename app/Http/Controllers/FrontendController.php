@@ -70,35 +70,37 @@ public function storeInquiry(Request $request)
 }
 
 
+public function storeNewsletterSubscription(Request $request)
+{
+    // Validate the email input
+    $validated = $request->validate([
+        'email' => 'required|email|max:255|unique:subscriptions,email',
+    ]);
 
- public function storeNewsletterSubscription(Request $request)
-    {
-        // Validate the email input
-        $validated = $request->validate([
-            'email' => 'required|email|max:255|unique:subscriptions,email',
+    try {
+        // Store the email in the database
+        $subscription = Subscription::create([
+            'email' => $validated['email'],
         ]);
 
-        try {
-            // Store the email in the database
-            $subscription = Subscription::create([
-                'email' => $validated['email'],
-            ]);
+        // Send the confirmation email
+        Mail::to($validated['email'])->send(new SubscriptionConfirmation($validated['email']));
 
-            // Send the confirmation email
-            Mail::to($validated['email'])->send(new SubscriptionConfirmation($validated['email']));
+        // Flash success message
+        session()->flash('success', 'Thank you for subscribing! You will now receive updates and newsletters from us.');
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Thank you for subscribing! You will now receive updates and newsletters from us.',
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Subscription failed: ' . $e->getMessage());
+        // Redirect to home page
+        return redirect('/');
+    } catch (\Exception $e) {
+        \Log::error('Subscription failed: ' . $e->getMessage());
 
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred. Please try again later.',
-            ], 500);
-        }
+        // Flash error message
+        session()->flash('error', 'An error occurred. Please try again later.');
+
+        // Redirect to home page
+        return redirect('/');
     }
+}
+
 
 }
