@@ -18,8 +18,37 @@ use App\Http\Controllers\Admin\Web\CoreValueController;
 use App\Http\Controllers\Admin\StatisticController;
 
 
-Route::post('/frontend/inquiry/store', [FrontendController::class, 'storeInquiry'])->name('frontend.inquiry.store');
-Route::post('/frontend/newsletter/store', [FrontendController::class, 'storeNewsletterSubscription'])->name('frontend.newsletter.store');
+Route::get('/test-email', function() {
+    try {
+        Mail::raw('This is a test email', function($message) {
+            $message->to('losotosh@gmail.com')->subject('Test Email');
+        });
+        return 'Email sent successfully!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+Route::get('/test-db', function() {
+    try {
+        $inquiry = App\Models\Inquiry::create([
+            'name' => 'Test',
+            'email' => 'losotosh@gmail.com',
+            'phone' => '1234567890',
+            'message' => 'Test message'
+        ]);
+        return 'DB Insert Successful. ID: '.$inquiry->id;
+    } catch (\Exception $e) {
+        return 'DB Error: '.$e->getMessage();
+    }
+});
+
+
+
+
+
+
+
 
 Route::get('/student/test/', [StudentFileController::class, 'testFile'])->name('testfile');
 
@@ -225,6 +254,9 @@ Route::middleware(['XSS'])->namespace('Web')->group(function () {
 
     // SetCookie Route
     Route::get('/set-cookie', 'HomeController@setCookie')->name('setCookie');
+Route::post('/frontend/inquiry/store', [FrontendController::class, 'storeInquiry'])->name('frontend.inquiry.store');
+Route::post('/frontend/newsletter/store', [FrontendController::class, 'storeNewsletterSubscription'])->name('frontend.newsletterstore');
+
 
 
 });

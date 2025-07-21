@@ -9,49 +9,96 @@ use App\Models\Subscription; // Ensure correct model import
 
 use Illuminate\Validation\Rule; // For unique email validation
 use Log;
+use DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InquiryConfirmation;
+use App\Mail\InquiryReceived; 
+use App\Mail\SubscriptionConfirmation; 
 class FrontendController extends Controller
 {
     
 
 public function storeInquiry(Request $request)
 {
-    dd($request->all());
+    \Log::info('Inquiry submission started', $request->all());
+
+    DB::beginTransaction();
+
     try {
-        $request->validate([
-            'name' => 'required|string|max:100',
+        // Validate the form data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:100',
-            'message' => 'required|string|max:1000',
+            'email' => 'required|email|max:255',
+            'message' => 'required|string'
         ]);
 
-        $enquiry = new Inquiry();
-        $enquiry->name = $request->name;
-        $enquiry->phone = $request->phone;
-        $enquiry->email = $request->email;
-        $enquiry->message = $request->message;
-        $enquiry->save();
+        // Save the inquiry to the database
+        $inquiry = Inquiry::create($validated);
+        \Log::info('Inquiry saved to DB', ['id' => $inquiry->id]);
 
-        return response()->json(['success' => true]);
+        // Send the inquiry email to the user
+        Mail::to($validated['email'])  // Dynamic email from form input
+            ->send(new InquiryReceived($inquiry));  // Using the InquiryReceived Mailable class
 
+        // Send email to admin or other recipients if necessary (optional)
+
+        // Commit the transaction
+        DB::commit();
+
+        // Store a success message in the session and redirect to the homepage
+        session()->flash('success', 'Thank you! We have received your inquiry. We will get back to you soon.');
+
+        // Redirect back to home
+        return redirect('/');
     } catch (\Illuminate\Validation\ValidationException $e) {
-        \Log::error('Validation Failed', $e->errors());
-        return response()->json(['errors' => $e->errors()], 422);
+        DB::rollBack();
+        return response()->json([
+            'success' => false,
+            'message' => 'Please correct the form errors',
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Inquiry submission failed', ['error' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while submitting your inquiry. Please try again later.'
+        ], 500);
     }
 }
 
 
-public function storeNewsletter(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email|unique:subscriptions,email',
-    ]);
 
-    \DB::table('subscriptions')->insert([
-        'email' => $request->email,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+ public function storeNewsletterSubscription(Request $request)
+    {
+        // Validate the email input
+        $validated = $request->validate([
+            'email' => 'required|email|max:255|unique:subscriptions,email',
+        ]);
 
-    return response()->json(['success' => true]);
-}
+        try {
+            // Store the email in the database
+            $subscription = Subscription::create([
+                'email' => $validated['email'],
+            ]);
+
+            // Send the confirmation email
+            Mail::to($validated['email'])->send(new SubscriptionConfirmation($validated['email']));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Thank you for subscribing! You will now receive updates and newsletters from us.',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Subscription failed: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred. Please try again later.',
+            ], 500);
+        }
+    }
+
 }
