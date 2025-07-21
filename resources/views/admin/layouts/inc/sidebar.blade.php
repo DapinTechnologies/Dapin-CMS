@@ -1000,6 +1000,11 @@
                 <li class="{{ Request::is('admin/web/feature*') ? 'active' : '' }}"><a href="{{ route('admin.feature.index') }}" class="">{{ trans_choice('module_feature', 2) }}</a></li>
                 @endcanany
 
+
+                  @canany(['statistics'])
+                <li class="{{ Request::is('admin/web/statistics*') ? 'active' : '' }}"><a href="{{ route('admin.statistics.index') }}" class="">{{ trans_choice('statistics', 2) }}</a></li>
+                @endcanany
+
                 @canany(['course-view', 'course-create'])
                 <li class="{{ Request::is('admin/web/course*') ? 'active' : '' }}"><a href="{{ route('admin.course.index') }}" class="">{{ trans_choice('module_course', 2) }}</a></li>
                 @endcanany

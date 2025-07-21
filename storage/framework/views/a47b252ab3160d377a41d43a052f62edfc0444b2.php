@@ -1000,6 +1000,11 @@
                 <li class="<?php echo e(Request::is('admin/web/feature*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.feature.index')); ?>" class=""><?php echo e(trans_choice('module_feature', 2)); ?></a></li>
                 <?php endif; ?>
 
+
+                  <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['statistics'])): ?>
+                <li class="<?php echo e(Request::is('admin/web/statistics*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.statistics.index')); ?>" class=""><?php echo e(trans_choice('statistics', 2)); ?></a></li>
+                <?php endif; ?>
+
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['course-view', 'course-create'])): ?>
                 <li class="<?php echo e(Request::is('admin/web/course*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.course.index')); ?>" class=""><?php echo e(trans_choice('module_course', 2)); ?></a></li>
                 <?php endif; ?>

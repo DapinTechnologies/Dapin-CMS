@@ -1,4 +1,3 @@
-<!-- Sidemenu -->
 <div class="navbar-content scroll-div ps ps--active-y">
     <ul class="nav pcoded-inner-navbar">
 
@@ -14,7 +13,6 @@
                 <span class="pcoded-mtext"><?php echo e(trans_choice('module_dashboard', 1)); ?></span>
             </a>
         </li>
-
 
         <?php if(($panel = panel('panel_class_routine')) && $panel->status == 1): ?>
         <li class="nav-item <?php echo e(Request::is('student/class-routine*') ? 'active' : ''); ?>">
@@ -33,6 +31,20 @@
             </a>
         </li>
         <?php endif; ?>
+
+
+
+  <?php if(($panel = panel('testfile')) && $panel->status == 1): ?>
+        <li class="nav-item <?php echo e(Request::is('student/test*') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('testfile')); ?>" class="nav-link">
+                <span class="pcoded-micon"><i class="fas fa-align-left"></i></span>
+                <span class="pcoded-mtext"><?php echo e(trans_choice('Test', 2)); ?></span>
+            </a>
+        </li>
+        <?php endif; ?>
+
+
+
 
         <?php if(($panel = panel('panel_attendance')) && $panel->status == 1): ?>
         <li class="nav-item <?php echo e(Request::is('student/attendance*') ? 'active' : ''); ?>">
@@ -61,15 +73,12 @@
         </li>
         <?php endif; ?>
 
-         
-     
-
-<li class="nav-item <?php echo e(Request::is('student/subject*') ? 'active' : ''); ?>">
-    <a href="<?php echo e(route('student.subject.index')); ?>" class="nav-link">
-        <span class="pcoded-micon"><i class="fas fa-clipboard-list"></i></span>
-        <span class="pcoded-mtext"><?php echo e(__('Register Units')); ?></span>
-    </a>
-</li>
+        <li class="nav-item <?php echo e(Request::is('student/subject*') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('student.subject.index')); ?>" class="nav-link">
+                <span class="pcoded-micon"><i class="fas fa-clipboard-list"></i></span>
+                <span class="pcoded-mtext"><?php echo e(__('Register Units')); ?></span>
+            </a>
+        </li>
 
         <?php if(($panel = panel('panel_library')) && $panel->status == 1): ?>
         <li class="nav-item <?php echo e(Request::is('student/library*') ? 'active' : ''); ?>">
@@ -80,14 +89,16 @@
         </li>
         <?php endif; ?>
     
-        <?php if(($panel = panel('panel_digital')) && $panel->status == 1): ?>
-        <li class="nav-item <?php echo e(Request::is('student/digital*') ? 'active' : ''); ?>">
-            <a href="<?php echo e(route('studentlibrarydigital')); ?>" class="nav-link">
-                <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
-                <span class="pcoded-mtext"><?php echo e(trans_choice('Digital Library', 2)); ?></span>
-            </a>
-        </li>
-        <?php endif; ?>
+   <?php if(($panel = panel('panel_digital')) && $panel->status == 1): ?>
+<li class="nav-item <?php echo e(Request::is('student/all/digital/file/student*') ? 'active' : ''); ?>">
+    <a href="<?php echo e(route('studentlibrarydigital')); ?>" class="nav-link">
+        <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
+        <span class="pcoded-mtext"><?php echo e(trans_choice('Digital Library', 2)); ?></span>
+    </a>
+</li>
+<?php endif; ?>
+
+
 
         <?php if(($panel = panel('panel_notice')) && $panel->status == 1): ?>
         <li class="nav-item <?php echo e(Request::is('student/notice*') ? 'active' : ''); ?>">
@@ -136,4 +147,5 @@
 
     </ul>
 </div>
-<!-- End Sidebar --><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/student/layouts/inc/sidebar.blade.php ENDPATH**/ ?>
+<!-- End Sidebar -->
+<?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/student/layouts/inc/sidebar.blade.php ENDPATH**/ ?>

@@ -16,6 +16,16 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\PdfToImage\Pdf;
 class FileController extends Controller
 {
+
+    
+    protected $app_url;
+
+    public function __construct()
+    {
+        $this->app_url = config('app.url');
+    }
+
+
     public function index(){
         $title = 'Digital Library';
         $access = 'library';

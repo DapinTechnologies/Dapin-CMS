@@ -7,25 +7,27 @@
     <div class="page-wrapper">
         <!-- [ Main Content ] start -->
         <div class="row">
+            <div class="float-right">
+    <a href="{{ route('admin.histories.index') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-history"></i> Manage History
+</a>
+    <a href="{{ route('admin.admin.about-us.partners') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-handshake"></i> Manage Partners
+</a>
+
+    <a href="{{route('admin.admin.about-us.accreditations')}}" class="btn btn-primary btn-sm">
+        <i class="fas fa-certificate"></i> Manage Accreditations
+    </a>
+      <a href="{{route('admin.core-values.index')}}" class="btn btn-primary btn-sm">
+        <i class="fas fa-certificate"></i> Manage Core Values
+    </a>
+</div>
             <div class="col-sm-12">
                 <!-- Main Form - Wrapping all content including modals -->
                 <form class="needs-validation" novalidate action="{{ route($route.'.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="card">
-                        <div class="card-header">
-                            <h5>{{ __('btn_update') }} {{ $title }}</h5>
-                            <div class="float-right">
-                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#historyModal">
-                                    <i class="fas fa-history"></i> Manage History
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#partnersModal">
-                                    <i class="fas fa-handshake"></i> Manage Partners
-                                </button>
-                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#accreditationsModal">
-                                    <i class="fas fa-certificate"></i> Manage Accreditations
-                                </button>
-                            </div>
-                        </div>
+                      
                         
                         <!-- Main Form Fields -->
                         <div class="card-block">

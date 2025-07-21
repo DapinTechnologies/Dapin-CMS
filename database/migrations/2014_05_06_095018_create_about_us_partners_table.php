@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('logo')->nullable();     // Logo image path
             $table->string('url')->nullable();      // Website or profile URL
             $table->integer('order')->default(0); 
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

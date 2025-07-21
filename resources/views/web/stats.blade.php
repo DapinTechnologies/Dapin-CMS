@@ -128,114 +128,71 @@
 </style>
 
 
+ @php
+                        use App\Models\Statistic;
+                        $statistics = Statistic::all();
+                    @endphp
 
 
 
-
-    <section class="statistics-area">
-        
-
-            <!-- Desktop Grid (visible on medium screens and above) -->
+  <!-- Statistics Section -->
+    <section class="statistics-area py-5">
+        <div class="container">
             <div class="desktop-grid">
                 <div class="row justify-content-center text-center">
-                    <!-- Students -->
-                    <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
-                        <article class="statistic-card" role="region" aria-label="Students Enrolled">
-                            <div class="statistic-icon text-primary">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h3 class="statistic-number" data-count="5000">0</h3>
-                            <p class="statistic-label">Students</p>
-                        </article>
-                    </div>
-
-                    <!-- Departments -->
-                    <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="200">
-                        <article class="statistic-card" role="region" aria-label="Departments Available">
-                            <div class="statistic-icon text-success">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <h3 class="statistic-number" data-count="12">0</h3>
-                            <p class="statistic-label">Departments</p>
-                        </article>
-                    </div>
-
-                    <!-- Courses -->
-                    <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="300">
-                        <article class="statistic-card" role="region" aria-label="Courses Offered">
-                            <div class="statistic-icon text-warning">
-                                <i class="fas fa-book"></i>
-                            </div>
-                            <h3 class="statistic-number" data-count="58">0</h3>
-                            <p class="statistic-label">Courses</p>
-                        </article>
-                    </div>
-
-                    <!-- Lecturers -->
-                    <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="400">
-                        <article class="statistic-card" role="region" aria-label="Qualified Lecturers">
-                            <div class="statistic-icon text-danger">
-                                <i class="fas fa-chalkboard-user"></i>
-                            </div>
-                            <h3 class="statistic-number" data-count="215">0</h3>
-                            <p class="statistic-label">Lecturers</p>
-                        </article>
-                    </div>
+                    @foreach($statistics as $statistic)
+                        <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
+                            <article class="statistic-card" role="region" aria-label="{{ ucfirst($statistic->type) }}">
+                                <div class="statistic-icon 
+                                    @if($statistic->type == 'students') text-primary
+                                    @elseif($statistic->type == 'departments') text-success
+                                    @elseif($statistic->type == 'courses') text-warning
+                                    @elseif($statistic->type == 'lecturers') text-danger
+                                    @endif">
+                                    <i class="fas 
+                                        @if($statistic->type == 'students') fa-users
+                                        @elseif($statistic->type == 'departments') fa-building
+                                        @elseif($statistic->type == 'courses') fa-book
+                                        @elseif($statistic->type == 'lecturers') fa-chalkboard-user
+                                        @endif"></i>
+                                </div>
+                                <h3 class="statistic-number" data-count="{{ $statistic->count }}">{{ $statistic->count }}</h3>
+                                <p class="statistic-label">{{ ucfirst($statistic->type) }}</p>
+                            </article>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 
             <!-- Mobile Carousel (visible on small screens) -->
             <div class="mobile-carousel">
-            <div class="glide statistics-glide">
-
+                <div class="glide statistics-glide">
                     <div class="glide__track" data-glide-el="track">
                         <div class="glide__slides">
-                            <!-- Students -->
-                            <div class="glide__slide">
-                                <article class="statistic-card" role="region" aria-label="Students Enrolled">
-                                    <div class="statistic-icon text-primary">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                    <h3 class="statistic-number" data-count="5000">0</h3>
-                                    <p class="statistic-label">Students</p>
-                                </article>
-                            </div>
-
-                            <!-- Departments -->
-                            <div class="glide__slide">
-                                <article class="statistic-card" role="region" aria-label="Departments Available">
-                                    <div class="statistic-icon text-success">
-                                        <i class="fas fa-building"></i>
-                                    </div>
-                                    <h3 class="statistic-number" data-count="12">0</h3>
-                                    <p class="statistic-label">Departments</p>
-                                </article>
-                            </div>
-
-                            <!-- Courses -->
-                            <div class="glide__slide">
-                                <article class="statistic-card" role="region" aria-label="Courses Offered">
-                                    <div class="statistic-icon text-warning">
-                                        <i class="fas fa-book"></i>
-                                    </div>
-                                    <h3 class="statistic-number" data-count="58">0</h3>
-                                    <p class="statistic-label">Courses</p>
-                                </article>
-                            </div>
-
-                            <!-- Lecturers -->
-                            <div class="glide__slide">
-                                <article class="statistic-card" role="region" aria-label="Qualified Lecturers">
-                                    <div class="statistic-icon text-danger">
-                                        <i class="fas fa-chalkboard-user"></i>
-                                    </div>
-                                    <h3 class="statistic-number" data-count="215">0</h3>
-                                    <p class="statistic-label">Lecturers</p>
-                                </article>
-                            </div>
+                            @foreach($statistics as $statistic)
+                                <div class="glide__slide">
+                                    <article class="statistic-card" role="region" aria-label="{{ ucfirst($statistic->type) }}">
+                                        <div class="statistic-icon 
+                                            @if($statistic->type == 'students') text-primary
+                                            @elseif($statistic->type == 'departments') text-success
+                                            @elseif($statistic->type == 'courses') text-warning
+                                            @elseif($statistic->type == 'lecturers') text-danger
+                                            @endif">
+                                            <i class="fas 
+                                                @if($statistic->type == 'students') fa-users
+                                                @elseif($statistic->type == 'departments') fa-building
+                                                @elseif($statistic->type == 'courses') fa-book
+                                                @elseif($statistic->type == 'lecturers') fa-chalkboard-user
+                                                @endif"></i>
+                                        </div>
+                                        <h3 class="statistic-number" data-count="{{ $statistic->count }}">{{ $statistic->count }}</h3>
+                                        <p class="statistic-label">{{ ucfirst($statistic->type) }}</p>
+                                    </article>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
-                    
+
                     <div class="glide__arrows" data-glide-el="controls">
                         <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
                             <i class="fas fa-chevron-left"></i>
@@ -244,7 +201,7 @@
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
-                    
+
                     <div class="glide__bullets" data-glide-el="controls[nav]">
                         <button class="glide__bullet" data-glide-dir="=0"></button>
                         <button class="glide__bullet" data-glide-dir="=1"></button>

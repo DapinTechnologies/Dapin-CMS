@@ -13,517 +13,370 @@ use App\Models\MpesaSetting;
 use App\Models\BankMpesaDetails;
 use App\Models\PaybillDetail;
 use App\Models\Transaction;
+use App\Models\MpesaTrascation;
 Use Auth;
 use Toastr;
 use Illuminate\Support\Facades\DB;
 use Str;
 use Illuminate\Support\Facades\Http;
-
+use Log;
 use Carbon\Carbon;
 use App\Models\Stkrequest;
+use App\Models\PaymentTransaction;
+
+
 class PesaController extends Controller
 {
-    
+
+
+    protected $app_url;
+
+    public function __construct()
+    {
+        $this->app_url = config('app.url');
+    }
+
+
+    private function token()
+    {
+        $mpesaSettings = MpesaSetting::first();
+        if (!$mpesaSettings) {
+            throw new \Exception('M-Pesa settings not configured.');
+        }
+
+        $consumerKey = $mpesaSettings->consumer_key;
+        $consumerSecret = $mpesaSettings->consumer_secret;
+
+        $credentials = base64_encode("$consumerKey:$consumerSecret");
+
+       // dd($credentials);
+        $response = Http::withHeaders([
+            'Authorization' => 'Basic ' . $credentials,
+        ])->withOptions(['verify' => false]) // Disable SSL verification (or use CA bundle)
+        ->get("https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials");
+
+        if (!$response->successful() || !isset($response->json()['access_token'])) {
+            throw new \Exception('Failed to get M-Pesa access token.');
+        }
+
+        return $response->json()['access_token'];
+     
+    }
+
+    // Process payment
     public function process($id, Request $request)
     {
-        $queryData = $request->query();
-    
-        // Fetch Fee Category details
-        $feeCategory = FeesCategory::findOrFail($id);
-    
-        if (empty($queryData)) {
-            return redirect()->route('paymentprocess', [
-                'id' => $id,
-                'fee_id' => $id, // Pass fee_id here
-                'student_id' => auth()->id(),
-                'fee_category_id' => $feeCategory->category_id,
-                'due_date' => now()->addDays(30)->format('Y-m-d'),
-                'fee_amount' => $feeCategory->amount,
-                'paid_amount' => 0,
-                'phone_number' => auth()->user()->phone ?? '',
-               
-                'fee_category_title' => $feeCategory->title,
-                'pay_date' => now()->format('Y-m-d'),
-            ]);
+        // Find the fee record
+        $fee = Fee::find($id);
+
+        // If fee not found, redirect with error
+        if (!$fee) {
+            return redirect()->route('student.fees.index')->with('error', 'Fee record not found.');
         }
-    
-        $formData = [
-            'fee_category_id' => $feeCategory->id,
-            'fee_amount' => $queryData['fee_amount'] ?? $feeCategory->amount,
-            'phone_number' => $queryData['phone_number'] ?? auth()->user()->phone ?? '',
-            'due_date' => $queryData['due_date'] ?? now()->addDays(30)->format('Y-m-d'),
-            'fee_category_title' => $queryData['fee_category_title'] ?? $feeCategory->title,
-        ];
-    
+
+        // Fetch bank and PayBill details
+        $bankDetails = BankMpesaDetails::first();
+        $paybill = PaybillDetail::first();
+
+        // Calculate balance
+        $balance = max(0, $fee->fee_amount - $fee->paid_amount);
+
+        // Data for M-Pesa payment page
         return view('student.fees.mpesa_payment', [
-            'paymentId' => $id,
-            'feeId' => $id, // Ensure this is passed
-            'queryData' => $queryData,
-            'formData' => $formData,
-            'feeCategoryTitle' => $feeCategory->title,
+            'fee' => $fee,
+            'balance' => $balance,
+            'bankDetails' => $bankDetails,
+            'paybill' => $paybill
         ]);
     }
-    
-    
 
 
-    public function token(){
-        
-        $consumerKey = 'BsAU74zUN0GsLllnOfPwtitJM6p4dsxt5XDd4lErwY5eqnU4';
-        $consumerSecret = 'zQyxrE8WLOjmHANwNo1G4AG19NXsphiW3LJD0osRZwRRdglhkk4s9AB5GIr29FWr';
-        $url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
- 
-        $response = Http::withBasicAuth($consumerKey, $consumerSecret)->get($url);
-      
-
-        return $response['access_token'];
-       // dd($response['access_token']);
-    }
-    
-
-    public function manualPay(Request $request)
+    public function getMpesaAccessToken($consumerKey, $consumerSecret)
 {
-    // Validate input data
-    $request->validate([
-        'fee_id' => 'required|exists:fees,id',
-        'payment_amount' => 'required|numeric|min:1',
-        'phone_number' => 'required|numeric',
-    ]);
+    $tokenUrl = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+    
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $tokenUrl);
+    $credentials = base64_encode($consumerKey . ':' . $consumerSecret);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Authorization: Basic ' . $credentials]);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
-    // Retrieve the fee details
-    $fee = Fee::findOrFail($request->fee_id);
-    $Amount = $request->payment_amount;
-    $phoneNumber = $request->phone_number;
+    $response = curl_exec($curl);
+    curl_close($curl);
 
-    // Fetch the authenticated student
-    $studentId = Auth::user()->id;
+    $data = json_decode($response, true);
+    
+    return $data['access_token'] ?? null; // Return access token if available
+}
 
-    // Clean the phone number (standardize it)
-    if (str_starts_with($phoneNumber, '0')) {
-        $phoneNumber = '254' . substr($phoneNumber, 1);
-    } elseif (str_starts_with($phoneNumber, '+')) {
-        $phoneNumber = substr($phoneNumber, 1);
-    }
+public function sendStkPush($token, $businessShortCode, $password, $timestamp, $transactionType, $amount, $phone, $callbackUrl)
+{
+    $onlinePaymentUrl = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
 
-    // Validate the phone number format
-    if (!preg_match('/^2547[0-9]{8}$/', $phoneNumber)) {
-        return redirect()->back()->withErrors(['phone_number' => 'Invalid phone number format.']);
-    }
-
-    // Get Access Token
-    $accessToken = $this->token();
-    if (!$accessToken) {
-        return redirect()->back()->withErrors(['payment_amount' => 'Failed to get access token.']);
-    }
-
-    // Prepare the STK Push request
-    $url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-    $BusinessShortCode = 174379;  // Business shortcode (replace with your shortcode)
-    $Timestamp = now()->format('YmdHis');
-    $PassKey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';  // Passkey
-    $password = base64_encode($BusinessShortCode . $PassKey . $Timestamp);
-
-    // Make the STK Push request to M-Pesa API
-    $response = Http::withToken($accessToken)->post($url, [
-        'BusinessShortCode' => $BusinessShortCode,
+    // Prepare STK Push data
+    $stkPushData = [
+        'BusinessShortCode' => $businessShortCode,
         'Password' => $password,
-        'Timestamp' => $Timestamp,
-        'TransactionType' => 'CustomerPayBillOnline',
-        'Amount' => $Amount,
-        'PartyA' => $phoneNumber,
-        'PartyB' => $BusinessShortCode,
-        'PhoneNumber' => $phoneNumber,
-        'CallBackURL' => 'https://your-ngrok-url.ngrok.io/student/stkcallback',  // Replace with your callback URL
+        'Timestamp' => $timestamp,
+        'TransactionType' => $transactionType,
+        'Amount' => $amount,
+        'PartyA' => $phone,
+        'PartyB' => $businessShortCode,
+        'PhoneNumber' => $phone,
+        'CallBackURL' => $callbackUrl,
         'AccountReference' => 'Fee Payment',
         'TransactionDesc' => 'Fee Payment',
+    ];
+
+    // Send STK Push request
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $onlinePaymentUrl);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Authorization: Bearer ' . $token]);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($stkPushData));
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+
+    return json_decode($response); // Return the response as a decoded JSON object
+}
+
+
+public function initiatePush(Request $request)
+{
+    $request->validate([
+        'phone_number' => 'required|numeric',
+        'payment_amount' => 'required|numeric|min:1',
+        'fee_id' => 'required|exists:fees,id',
     ]);
 
-    $res = $response->json();
+    $fee = Fee::with('studentEnroll.student')->findOrFail($request->fee_id);
+    $phone = $this->formatPhoneNumber($request->phone_number);
+    $amount = $request->payment_amount;
 
-    // Check if the request was successful
-    if (isset($res['ResponseCode']) && $res['ResponseCode'] == 0) {
-        // Save the STK Push request data
-        $payment = new Stkrequest();
-        $payment->MerchantRequestID = $res['MerchantRequestID'];
-        $payment->CheckoutRequestID = $res['CheckoutRequestID'];
-        $payment->TransactionDesc = 'Fee Payment';
-        $payment->phone_number = $phoneNumber;
-        $payment->Amount = $Amount;
-        $payment->fee_id = $fee->id;
-        $payment->student_name = Auth::user()->name;  // Store student name
-        $payment->Date_payment = now();
-        $payment->status = 'Pending';
-        $payment->save();
+    if (!$phone) {
+        return back()->withErrors(['phone_number' => 'Invalid phone format. Use 2547XXXXXXXX']);
+    }
 
-        // Redirect the user to a payment status page or the fees index with a success message
-        return redirect()->route('student.fees.index')->with('message', 'Payment request sent. Please complete the payment on your phone.');
+    // Get M-Pesa credentials
+    $consumerKey = env('MPESA_CONSUMER_KEY_SANDBOX');
+    $consumerSecret = env('MPESA_CONSUMER_SECRET_SANDBOX');
+    $businessShortCode = env('MPESA_SHORT_CODE_SANDBOX');
+    $passkey = env('MPESA_PASS_KEY_SANDBOX');
+    
+    $timestamp = Carbon::now()->format('YmdHis');
+    $password = base64_encode($businessShortCode . $passkey . $timestamp);
+    $callbackUrl = $this->app_url . '/api/mpesa/callback';
+
+    // Get access token
+    $token = $this->getMpesaAccessToken($consumerKey, $consumerSecret);
+    if (!$token) {
+        return back()->withErrors(['message' => 'Failed to get access token']);
+    }
+
+    // Send STK Push
+    $stkResponse = $this->sendStkPush(
+        $token, 
+        $businessShortCode, 
+        $password, 
+        $timestamp, 
+        'CustomerPayBillOnline', 
+        $amount, 
+        $phone, 
+        $callbackUrl
+    );
+
+    if (isset($stkResponse->CheckoutRequestID)) {
+        DB::beginTransaction();
+        try {
+            // Create payment record
+            $payment = PaymentTransaction::create([
+                'merchant_request_id' => $stkResponse->MerchantRequestID,
+                'checkout_request_id' => $stkResponse->CheckoutRequestID,
+                'phone_number' => $phone,
+                'payment_amount' => $amount,
+                'status' => 'Pending',
+                'fee_id' => $fee->id,
+                'student_id' => $fee->studentEnroll->student->id,
+            ]);
+
+            // Create STK request record
+            Stkrequest::create([
+                'merchant_request_id' => $stkResponse->MerchantRequestID,
+                'checkout_request_id' => $stkResponse->CheckoutRequestID,
+                'response_code' => $stkResponse->ResponseCode,
+                'customer_message' => $stkResponse->CustomerMessage,
+                'phone_number' => $phone,
+                'amount' => $amount,
+                'status' => 'Requested',
+                'fee_id' => $fee->id,
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Payment request sent. Check your phone to complete payment.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Payment initiation failed: ' . $e->getMessage());
+            return back()->withErrors(['message' => 'Failed to initiate payment']);
+        }
     } else {
-        // If the payment initiation failed
-        return redirect()->back()->withErrors(['payment_amount' => 'Failed to initiate payment. Try again later.']);
+        Log::error('STK Push failed', ['response' => $stkResponse]);
+        return back()->withErrors(['message' => $stkResponse->errorMessage ?? 'Payment initiation failed']);
     }
 }
 
-
-public function StkCallback()
+public function handleCallback(Request $request)
 {
-    // Get the raw data from M-Pesa's callback
-    $data = file_get_contents('php://input');
-    $response = json_decode($data, true);
-    
-    \Log::info('STK Push Callback:', $data);  // Log callback data for debugging
+    try {
+        $data = json_decode($request->getContent(), true);
+        Log::info('M-Pesa Callback Received:', $data);
 
-    if (isset($response['Body']['stkCallback'])) {
-        $callback = $response['Body']['stkCallback'];
-        $ResultCode = $callback['ResultCode'];
-        $CheckoutRequestID = $callback['CheckoutRequestID'];
+        if (!isset($data['Body']['stkCallback'])) {
+            throw new \Exception('Invalid callback structure');
+        }
 
-        // Find the original payment request using CheckoutRequestID
-        $payment = StkRequest::where('CheckoutRequestID', $CheckoutRequestID)->first();
+        $callback = $data['Body']['stkCallback'];
+        $checkoutRequestID = $callback['CheckoutRequestID'];
+        $resultCode = $callback['ResultCode'];
 
-        if ($payment) {
-            // Check if the payment was successful
-            if ($ResultCode == 0) {
-                // Payment was successful
-                $payment->status = 'Paid';
-                $payment->MpesaReceiptNumber = $callback['CallbackMetadata']['Item'][1]['Value'];  // Receipt Number
-                $payment->TransactionDate = $callback['CallbackMetadata']['Item'][3]['Value'];  // Transaction Date
-                $payment->save();
+        DB::beginTransaction();
 
-                // Find the corresponding fee record for the student
-                $student = Student::where('phone_number', $payment->phone_number)->first();
-                $fee = Fee::where('student_id', $student->id)->first();
+        // Find the payment transaction
+        $payment = PaymentTransaction::where('checkout_request_id', $checkoutRequestID)->first();
+        
+        if (!$payment) {
+            throw new \Exception("Transaction not found for CheckoutRequestID: $checkoutRequestID");
+        }
 
-                if ($fee) {
-                    // Update the fee record
-                    $fee->payment_status = 'paid';
-                    $fee->paid_amount += $payment->Amount;  // Add the paid amount to the already paid amount
-                    $fee->due_amount -= $payment->Amount;  // Deduct the paid amount from the due amount
-                    $fee->transaction_date = $payment->TransactionDate;
-                    $fee->receipt_number = $payment->MpesaReceiptNumber;
-                    $fee->save();
+        // Update transaction status
+        $status = ($resultCode == 0) ? 'Successful' : 'Failed';
+        $updateData = ['status' => $status];
 
-                    // Record the transaction
-                    Transaction::create([
-                        'student_id' => $student->id,
-                        'amount' => $payment->Amount,
-                        'transaction_date' => $payment->TransactionDate,
-                        'receipt_number' => $payment->MpesaReceiptNumber,
-                        'payment_status' => 'successful',
-                        'payment_method' => 'M-Pesa',
-                    ]);
+        if ($resultCode == 0 && isset($callback['CallbackMetadata']['Item'])) {
+            $metadata = $callback['CallbackMetadata']['Item'];
+            $updateData['mpesa_receipt_number'] = $metadata[1]['Value'] ?? null;
+            $updateData['transaction_date'] = isset($metadata[3]['Value']) 
+                ? Carbon::parse($metadata[3]['Value'])->toDateTimeString() 
+                : now();
+        }
 
-                    return response()->json(['status' => 'success', 'message' => 'Payment processed successfully']);
-                }
-            } else {
-                // Payment failed, log the failure and update payment status
-                $payment->status = 'Failed';
-                $payment->ResultDesc = $callback['ResultDesc'];
-                $payment->save();
+        $payment->update($updateData);
+
+        // If payment successful, update related records
+        if ($resultCode == 0) {
+            $fee = $payment->fee;
+            if ($fee) {
+                $creditedAmount = min($payment->amount, $fee->due_amount);
+                
+                $fee->update([
+                    'paid_amount' => $fee->paid_amount + $creditedAmount,
+                    'due_amount' => max(0, $fee->due_amount - $creditedAmount),
+                    'status' => ($fee->due_amount - $creditedAmount) <= 0 ? 1 : 0,
+                    'pay_date' => now(),
+                ]);
+
+                Transaction::create([
+                    'transaction_id' => Str::uuid(),
+                    'amount' => $creditedAmount,
+                    'type' => 'credit',
+                    'status' => 'approved',
+                    'student_id' => $payment->student_id,
+                    'fee_id' => $fee->id,
+                    'CheckoutRequestID' => $checkoutRequestID,
+                    'created_by' => Auth::id(),
+                ]);
             }
         }
-    }
 
-    return response()->json(['status' => 'failed', 'message' => 'Invalid callback data']);
+        DB::commit();
+        return response()->json(['message' => 'Callback processed successfully']);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Callback processing error: ' . $e->getMessage());
+        return response()->json(['message' => 'Error processing callback'], 500);
+    }
+}
+
+private function formatPhoneNumber($number)
+{
+    $number = preg_replace('/[^0-9]/', '', $number);
+    
+    if (strlen($number) === 10 && strpos($number, '0') === 0) {
+        return '254' . substr($number, 1);
+    }
+    
+    if (strlen($number) === 9 && strpos($number, '7') === 0) {
+        return '254' . $number;
+    }
+    
+    if (strlen($number) === 12 && strpos($number, '254') === 0) {
+        return $number;
+    }
+    
+    return false;
+
+
+    return response()->json(['message' => 'Callback received']);
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-                // Payment successful
-                // DB::beginTransaction();
-                // $fee->paid_amount += $Amount;
-                // $fee->due_amount = max(0, $fee->fee_amount - $fee->paid_amount);
-                // $fee->status = $fee->paid_amount >= $fee->fee_amount ? '1' : '0';
-                // $fee->save();
-    
-                // $transaction = new Transaction();
-                // $transaction->transaction_id = Str::random(16);
-                // $transaction->amount = $Amount;
-                // $transaction->type = '1'; // Payment type: credit
-                // $transaction->created_by = Auth::id();
-                // $fee->studentEnroll->student->transactions()->save($transaction);
-    
-                // DB::commit();
-    
-                //return redirect()->route('student.fees.index')->with('success', 'Payment successfully recorded.');if (isset($res['ResponseCode']) && $res['ResponseCode'] == 0) {
-                    // Save the pending payment in the database
-        //             DB::beginTransaction();
-                
-        //             $transaction = new Transaction();
-        //             $transaction->transaction_id = $res['CheckoutRequestID']; // Use M-Pesa's CheckoutRequestID
-        //             $transaction->fee_id = $fee->id;
-        //             $transaction->amount = $Amount;
-        //             $transaction->status = 'pending'; // Set initial status to pending
-        //             $transaction->created_by = Auth::id();
-        //             $transaction->save();
-                
-        //             DB::commit();
-                
-        //             return redirect()->route('student.fees.index')->with('success', 'Payment initiated. Please complete it on your phone.');
-        //         }
-               
-                
-        //     } elseif (isset($res['errorCode']) && $res['errorCode'] == '400.002.01') {
-        //         // Payment not completed: No PIN entered or user canceled the transaction
-        //         \Log::warning('Payment not completed (no PIN entered): ', $res);
-        //         return redirect()->back()->withErrors(['payment_amount' => 'Payment was not completed. Please enter your PIN and try again.']);
-        //     } else {
-        //         // Other payment failure
-        //         \Log::error('M-Pesa API Response Error: ', $res);
-        //         return redirect()->back()->withErrors(['payment_amount' => 'M-Pesa payment failed.']);
-        //     }
-        // } catch (\Throwable $e) {
-        //     \Log::error('STK Push Error: ' . $e->getMessage());
-        //     return redirect()->back()->withErrors(['payment_amount' => 'Payment process failed.']);
-         
-
-
-
-        public function StkCallbackMain()
-        {
-            $data = file_get_contents('php://input');
-            $response = json_decode($data, true);
-        
-            \Log::info('STK Push Callback:', $data);
-
-
-            if (isset($response['Body']['stkCallback'])) {
-                $callback = $response['Body']['stkCallback'];
-                $ResultCode = $callback['ResultCode'];
-                $CheckoutRequestID = $callback['CheckoutRequestID'];
-        
-                $payment = Stkrequest::where('CheckoutRequestID', $CheckoutRequestID)->first();
-        
-                if ($payment) {
-                    if ($ResultCode == 0) {
-                        // Successful payment
-                        $payment->status = 'Paid';
-                        $payment->MpesaReceiptNumber = $callback['CallbackMetadata']['Item'][1]['Value'];
-                        $payment->TransactionDate = $callback['CallbackMetadata']['Item'][3]['Value'];
-                        $payment->save();
-        
-                        // Update fee record
-                        $student = Student::where('phone_number', $phoneNumber)->first();
-                        if (!$student) {
-                            \Log::error("Student not found for phone number: $phoneNumber");
-                            return response()->json(['status' => 'failed', 'message' => 'Student not found']);
-                        }
-                        $fee = Fee::where('student_id', $student->id)->first();
-
-                        if (!$fee) {
-                            \Log::error("Fee not found for student: $student->id");
-                            return response()->json(['status' => 'failed', 'message' => 'Fee record not found']);
-                        }
-                        $fee->payment_status = 'paid';  
-                        $fee->paid_amount = $amountPaid; 
-                        $fee->transaction_date = $transactionDate;
-                        $fee->receipt_number = $receiptNumber; 
-                        $fee->save();
-
-                        Transaction::create([
-                            'student_id' => $student->id,
-                            'amount' => $amountPaid,
-                            'transaction_date' => $transactionDate,
-                            'receipt_number' => $receiptNumber,
-                            'payment_status' => 'successful',
-                            'payment_method' => 'M-Pesa', // Or whatever method you are using
-                        ]);
-                        return response()->json(['status' => 'success', 'message' => 'Payment processed successfully']);
-
-                    } else {
-                        // Payment failed
-                        $payment->status = 'Failed';
-                        $payment->ResultDesc = $callback['ResultDesc'];
-                        $payment->save();
-                    }
-                }
-            }
-        }
-        
-
-
-
-
-
-            
-
-    public function mainStkCallback()
-    {
-        $data=file_get_contents('php://input');
-        $response=json_decode($data, true);
-        $ResultCode=$response['Body']['stkCallback']['ResultCode'];
-        if($ResultCode==0){
-            $MerchantRequestID=$response['Body']['stkCallback']['MerchantRequestID'];
-            $CheckoutRequestID=$response['Body']['stkCallback']['CheckoutRequestID'];
-            $ResultDesc=$response['Body']['stkCallback']['ResultDesc'];
-            $Amount=$response['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'];
-            $MpesaReceiptNumber=$response['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'];
-            //$Balance=$response['Body']['stkCallback']['CallbackMetadata']['Item'][2]['Value'];
-            $TransactionDate=$response['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value'];
-            $PhoneNumber=$response['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'];
-    
-            $payment=Stkrequest::where('CheckoutRequestID',$CheckoutRequestID)->first();
-            $payment->status='Paid';
-            $payment->TransactionDate=$TransactionDate;
-            $payment->MpesaReceiptNumber=$MpesaReceiptNumber;
-            $payment->ResultDesc=$ResultDesc;
-            $payment->save();
-
-
-
-
-
-
-
-
-            
-            //Database save my data and return back to  the index page
-
-
-
-
-
-
-    
-        }else{
-    
-        $CheckoutRequestID=$response['Body']['stkCallback']['CheckoutRequestID'];
-        $ResultDesc=$response['Body']['stkCallback']['ResultDesc'];
-        $payment=Stkrequest::where('CheckoutRequestID',$CheckoutRequestID)->first();
-    
-        $payment->ResultDesc=$ResultDesc;
-        $payment->status='Failed';
-        $payment->save();
-        //Redirect to notify that payment was unsuccessful With a reason= result description;
-        
-
-
-
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public function handle(Request $request)
-    {
-        // Log the callback data for debugging
-        Log::debug('M-Pesa Callback Received:', $request->all());
-
-        // Check the result code from the callback
-        $resultCode = $request->input('Body.stkCallback.ResultCode');
-        $resultDesc = $request->input('Body.stkCallback.ResultDesc');
-        $metadata = $request->input('Body.stkCallback.CallbackMetadata');
-
-        if ($resultCode == 0) {
-            // Payment successful
-            $amount = $metadata['Item'][0]['Value'];
-            $transactionId = $metadata['Item'][1]['Value'];
-            $phoneNumber = $metadata['Item'][4]['Value'];
-
-            // Update the database
-            // Implement your logic to update the fee record and log the transaction
-            Log::info('Payment Successful:', compact('transactionId', 'amount', 'phoneNumber'));
-
-            return response()->json(['success' => true]);
-        } else {
-            // Payment failed
-            Log::error('Payment Failed:', compact('resultCode', 'resultDesc'));
-            return response()->json(['success' => false, 'message' => $resultDesc]);
-        }
-    }
-
-
-
-
-
-
-    
-    private function calculateDiscount(Fee $fee)
-    {
-        // Add your discount logic here
-        return 0; // Replace with actual logic
-    }
-    
-    private function calculateFine(Fee $fee)
-    {
-        // Add your fine calculation logic here
-        return 0; // Replace with actual logic
-    }
-    
 
 
 
 
 public function store(Request $request)
 {
-   // dd($request->all());
+    // Validate the request
+    $validated = $request->validate([
+        'consumer_key' => 'required|string|max:255',
+        'consumer_secret' => 'required|string|max:255',
+        'shortcode' => 'required|string|max:10',
+        'passkey' => 'required|string|max:255', // Add passkey validation
+        'bank_name' => 'required|string|max:255',
+        'bank_account' => 'required|string|max:255',
+        'bank_branch' => 'required|string|max:255',
+        'paybill_number' => 'required|string|max:10',
+        'paybill_account' => 'required|string|max:255',
+    ]);
 
-     $validated = $request->validate([
-            'consumer_key' => 'required|string|max:255',
-            'consumer_secret' => 'required|string|max:255',
-            'shortcode' => 'required|string|max:10',
-            'bank_name' => 'required|string|max:255',
-            'bank_account' => 'required|string|max:255',
-            'bank_branch' => 'required|string|max:255',
-            'paybill_number' => 'required|string|max:10',
-            'paybill_account' => 'required|string|max:255',
-        ]);
+    // Update or create MpesaSetting
+    MpesaSetting::updateOrCreate(
+        ['id' => 1], // Assume a single record, replace with actual condition if needed
+        [
+            'consumer_key' => $validated['consumer_key'],
+            'consumer_secret' => $validated['consumer_secret'],
+            'shortcode' => $validated['shortcode'],
+            'passkey' => $validated['passkey'], // Add passkey
+        ]
+    );
 
-        // Update or create MpesaSetting
-        MpesaSetting::updateOrCreate(
-            ['id' => 1], // Assume a single record, replace with actual condition if needed
-            [
-                'consumer_key' => $validated['consumer_key'],
-                'consumer_secret' => $validated['consumer_secret'],
-                'shortcode' => $validated['shortcode'],
-            ]
-        );
+    // Update or create BankMpesaDetails
+    BankMpesaDetails::updateOrCreate(
+        ['id' => 1], // Assume a single record, replace with actual condition if needed
+        [
+            'bank_name' => $validated['bank_name'],
+            'bank_account' => $validated['bank_account'],
+            'bank_branch' => $validated['bank_branch'],
+        ]
+    );
 
-        // Update or create BankMpesaDetails
-        BankMpesaDetails::updateOrCreate(
-            ['id' => 1], // Assume a single record, replace with actual condition if needed
-            [
-                'bank_name' => $validated['bank_name'],
-                'bank_account' => $validated['bank_account'],
-                'bank_branch' => $validated['bank_branch'],
-            ]
-        );
+    // Update or create PaybillDetail
+    PaybillDetail::updateOrCreate(
+        ['id' => 1], // Assume a single record, replace with actual condition if needed
+        [
+            'paybill_number' => $validated['paybill_number'],
+            'paybill_account' => $validated['paybill_account'],
+        ]
+    );
 
-        // Update or create PaybillDetail
-        PaybillDetail::updateOrCreate(
-            ['id' => 1], // Assume a single record, replace with actual condition if needed
-            [
-                'paybill_number' => $validated['paybill_number'],
-                'paybill_account' => $validated['paybill_account'],
-            ]
-        );
-
-        // Redirect or return success response
-        return redirect()->back()->with('success', 'Settings have been successfully saved!');
-
-
-
-    }
-
+    // Redirect or return success response
+    return redirect()->back()->with('success', 'Settings have been successfully saved!');
+}
     public function index()
     {
         $title = 'Payment Gateway';
@@ -540,163 +393,50 @@ public function store(Request $request)
 
 
 
-    public function Feepaymentmpesa(Request $request)
-    {
-        $request->validate([
-            'fee_id' => 'required',
-            'student_id' => 'required',
-            'amount' => 'required|numeric',
-            'phone_number' => 'required',
-        ]);
+    //  public function process($id, Request $request)
+    // {
+    //     $queryData = $request->query();
     
-        // Retrieve the payment data
-        $fee_id = $request->input('fee_id');
-        $student_id = $request->input('student_id');
-        $amount = $request->input('amount');
-        $phone_number = $request->input('phone_number');
+    //     // Fetch Fee Category details
+    //     $feeCategory = FeesCategory::findOrFail($id);
     
-        // Call the M-Pesa payment API or service here to initiate the payment
+    //     if (empty($queryData)) {
+    //         return redirect()->route('paymentprocess', [
+    //             'id' => $id,
+    //             'fee_id' => $id, // Pass fee_id here
+    //             'student_id' => auth()->id(),
+    //             'fee_category_id' => $feeCategory->category_id,
+    //             'due_date' => now()->addDays(30)->format('Y-m-d'),
+    //             'fee_amount' => $feeCategory->amount,
+    //             'paid_amount' => 0,
+    //             'phone_number' => auth()->user()->phone ?? '',
+               
+    //             'fee_category_title' => $feeCategory->title,
+    //             'pay_date' => now()->format('Y-m-d'),
+    //         ]);
+    //     }
     
-        // Example of initiating an M-Pesa payment request using a service class
-        $mpesaService = new MpesaPaymentService();
-        $response = $mpesaService->initiatePayment($phone_number, $amount);
+    //     $formData = [
+    //         'fee_category_id' => $feeCategory->id,
+    //         'fee_amount' => $queryData['fee_amount'] ?? $feeCategory->amount,
+    //         'phone_number' => $queryData['phone_number'] ?? auth()->user()->phone ?? '',
+    //         'due_date' => $queryData['due_date'] ?? now()->addDays(30)->format('Y-m-d'),
+    //         'fee_category_title' => $queryData['fee_category_title'] ?? $feeCategory->title,
+    //     ];
     
-        if ($response->isSuccessful()) {
-            // Handle success (e.g., update payment status in the database)
-            return redirect()->route('payment.success')->with('message', 'Payment was successful.');
-        } else {
-            // Handle failure
-            return redirect()->route('payment.failure')->with('error', 'Payment failed. Please try again.');
-        }
-    }
+    //     return view('student.fees.mpesa_payment', [
+    //         'paymentId' => $id,
+    //         'feeId' => $id, // Ensure this is passed
+    //         'queryData' => $queryData,
+    //         'formData' => $formData,
+    //         'feeCategoryTitle' => $feeCategory->title,
+    //     ]);
+    // }
     
-    
-    private function normalizePhoneNumber($phone)
-    {
-        // Remove non-numeric characters
-        $phone = preg_replace('/\D/', '', $phone);
-    
-        // If the phone starts with "0", replace it with "254"
-        if (strpos($phone, '0') === 0) {
-            $phone = '254' . substr($phone, 1);
-        }
-    
-        return $phone;
-    }
-
-    public function initiatePayment($phone_number, $amount)
-    {
-        // Setup M-Pesa API credentials, endpoint, etc.
-        $apiCredentials = $this->getApiCredentials();
-        $endpoint = 'https://api.safaricom.co.ke/mpesa/express/v1/';
-
-        // Send the payment request using the API credentials and phone number
-        $response = $this->sendPaymentRequest($phone_number, $amount, $apiCredentials, $endpoint);
-
-        // Process the response from M-Pesa
-        if ($response->status === 'Success') {
-            return true;
-        }
-
-        return false;
-    }
-
-    private function sendPaymentRequest($phone_number, $amount, $credentials, $endpoint)
-    {
-        // Implement the logic to call M-Pesa API using cURL, Guzzle, or any other HTTP client
-        // Return the response
-    }
-
-    private function getApiCredentials()
-    {
-        // Fetch and return M-Pesa API credentials (e.g., from environment variables or configuration files)
-        return [
-            'api_key' => env('MPESA_API_KEY'),
-            'api_secret' => env('MPESA_API_SECRET'),
-        ];
-    }
-
     
 
 
 
-
-
-    public function showPaymentForm($fee_id)
-{
-    // Fetch the fee details from the database
-    $fee = Fee::find($fee_id);
-
-    // If the fee doesn't exist, handle the error
-    if (!$fee) {
-        return redirect()->route('fees.index')->with('error', 'Fee not found');
-    }
-
-    // Calculate the discount amount
-    $discount_amount = 0;
-    $amount = $fee->fee_amount;
-    $today = date('Y-m-d');
-    
-    if (isset($fee->category)) {
-        foreach ($fee->category->discounts->where('status', '1') as $discount) {
-            $availability = \App\Models\FeesDiscount::availability($discount->id, $fee->studentEnroll->student_id);
-            if (isset($availability) && $discount->start_date <= $today && $discount->end_date >= $today) {
-                if ($discount->type == '1') {
-                    $discount_amount += $discount->amount;
-                } else {
-                    $discount_amount += ($fee->fee_amount / 100) * $discount->amount;
-                }
-            }
-        }
-    }
-
-    // Calculate the final amount after discount
-    $final_amount = $amount - $discount_amount;
-
-    // Pass the necessary data to the view
-    return view('payment.form', compact('fee', 'final_amount', 'discount_amount'));
-}
-
-
-
-public function processPayment(Request $request, $fee_id)
-{
-    // Validate the payment input
-    $validated = $request->validate([
-        'paid_amount' => 'required|numeric|min:0',
-    ]);
-
-    // Fetch the fee using the fee_id
-    $fee = Fee::find($fee_id);
-
-    if (!$fee) {
-        return redirect()->route('fees.index')->with('error', 'Fee not found');
-    }
-
-    // Here, you can process the payment logic with the provided amount and fee details
-    // For example, deduct the paid amount from the outstanding fee amount
-
-    // Update the fee record with the paid amount
-    $fee->paid_amount = $fee->paid_amount + $validated['paid_amount'];
-    $fee->save();
-
-    // Redirect to a success page or payment confirmation view
-    return redirect()->route('payment.success', ['fee_id' => $fee_id])->with('success', 'Payment successfully processed.');
-}
-
-
-public function paymentSuccess($fee_id)
-{
-    // Retrieve the fee record to show the payment details
-    $fee = Fee::find($fee_id);
-
-    if (!$fee) {
-        return redirect()->route('fees.index')->with('error', 'Fee not found');
-    }
-
-    // Return the success view with the fee data
-    return view('payment.success', compact('fee'));
-}
 
 
 }

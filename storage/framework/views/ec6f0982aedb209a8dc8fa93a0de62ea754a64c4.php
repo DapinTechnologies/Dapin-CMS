@@ -10,45 +10,135 @@
             <h2 id="exam-bodies-heading" class="fw-bold h2">Accredited Examination Bodies in Kenya</h2>
             <p class="text-muted">Our institution is officially recognized and accredited by top national and international examination authorities.</p>
         </header>
+<?php
+    use App\Models\Web\AboutUsPartner;
+    $examBodies = AboutUsPartner::all();
+?>
 
+<section class="exam-bodies-section py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Examination Bodies</h2>
+        
         <div id="examBodiesCarousel" class="glide exam-bodies-glide">
             <div class="glide__track" data-glide-el="track">
-                <ul class="glide__slides text-center">
-                    <!-- KNEC -->
-                    <li class="glide__slide" itemscope itemtype="https://schema.org/Organization" data-aos="fade-right" data-aos-delay="100" data-aos-duration="800">
-                        <div class="exam-body-card p-4 shadow-sm bg-white rounded" itemprop="department">
-                            <img src="<?php echo e(asset('uploads/logos/knec.jpg')); ?>" alt="KNEC Logo" style="height: 60px;" class="mb-3" itemprop="logo">
-                            <h3 class="h5" itemprop="name">KNEC</h3>
-                            <p class="text-muted small" itemprop="description">Kenya National Examinations Council - the national assessment body in Kenya.</p>
-                        </div>
-                    </li>
+                <ul class="glide__slides">
+                    <?php $__currentLoopData = $examBodies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $examBody): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li class="glide__slide px-2">
+                            <div class="card border-0 h-100 shadow-sm">
+                                <div class="card-body text-center p-4">
+                                    <!-- Logo with proper path and fallback -->
+                                    <?php
+                                        $logoPath = 'uploads/about-us/partners/' . $examBody->logo;
+                                        $defaultLogo = 'images/default-logo.png';
+                                        $logoExists = !empty($examBody->logo) && file_exists(public_path($logoPath));
+                                    ?>
+                                    
+                                    <img src="<?php echo e($logoExists ? asset($logoPath) : asset($defaultLogo)); ?>" 
+                                         alt="<?php echo e($examBody->name); ?> Logo"
+                                         class="img-fluid mb-3 mx-auto d-block"
+                                         style="height: 80px; width: auto; object-fit: contain;"
+                                         loading="lazy"
+                                         onerror="this.onerror=null;this.src='<?php echo e(asset($defaultLogo)); ?>'">
+                                    
+                                    <h3 class="h5 mb-3"><?php echo e($examBody->name); ?></h3>
+                                    <p class="text-muted small mb-0">
+                                        <?php echo e(\Illuminate\Support\Str::words($examBody->description, 15, '...')); ?>
 
-                    <!-- KASNEB -->
-                    <li class="glide__slide" itemscope itemtype="https://schema.org/Organization" data-aos="fade-up" data-aos-delay="200" data-aos-duration="800">
-                        <div class="exam-body-card p-4 shadow-sm bg-white rounded" itemprop="department">
-                            <img src="<?php echo e(asset('uploads/logos/kasneb.png')); ?>" alt="KASNEB Logo" style="height: 60px;" class="mb-3" itemprop="logo">
-                            <h3 class="h5" itemprop="name">KASNEB</h3>
-                            <p class="text-muted small" itemprop="description">Kenya Accountants and Secretaries National Examinations Board - a professional certification body in Kenya.</p>
-                        </div>
-                    </li>
-
-                    <!-- City & Guilds -->
-                    <li class="glide__slide" itemscope itemtype="https://schema.org/Organization" data-aos="fade-left" data-aos-delay="300" data-aos-duration="800">
-                        <div class="exam-body-card p-4 shadow-sm bg-white rounded" itemprop="department">
-                            <img src="<?php echo e(asset('uploads/logos/city.png')); ?>" alt="City and Guilds Logo" style="height: 60px;" class="mb-3" itemprop="logo">
-                            <h3 class="h5" itemprop="name">City & Guilds</h3>
-                            <p class="text-muted small" itemprop="description">City & Guilds - a globally recognized vocational education and certification authority.</p>
-                        </div>
-                    </li>
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </ul>
             </div>
 
-            <!-- Arrows only visible on mobile -->
+            <!-- Navigation arrows -->
             <div class="glide__arrows d-md-none" data-glide-el="controls">
-                <button class="glide__arrow glide__arrow--left" data-glide-dir="<"><i class="fas fa-chevron-left"></i></button>
-                <button class="glide__arrow glide__arrow--right" data-glide-dir=">"><i class="fas fa-chevron-right"></i></button>
+                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
+                    <i class="fas fa-chevron-left fa-lg"></i>
+                </button>
+                <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
+                    <i class="fas fa-chevron-right fa-lg"></i>
+                </button>
             </div>
         </div>
+    </div>
+</section>
+
+<style>
+.exam-bodies-section {
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+}
+.glide__slide {
+    padding: 0 10px;
+}
+.card {
+    transition: all 0.3s ease;
+    border-radius: 10px;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.glide__arrow {
+    background: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    opacity: 0.9;
+}
+.glide__arrow:hover {
+    background: #f8f9fa;
+}
+.glide__arrow i {
+    color: #495057;
+}
+</style>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new Glide('#examBodiesCarousel', {
+        type: 'carousel',
+        perView: 4,
+        gap: 20,
+        breakpoints: {
+            992: { perView: 3 },
+            768: { perView: 2 },
+            576: { perView: 1 }
+        }
+    }).mount();
+});
+</script>
+<?php $__env->stopPush(); ?>
+
+<style>
+.exam-bodies-section {
+    background-color: #f8f9fa;
+}
+.exam-body-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+.exam-body-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.glide__arrow {
+    background: rgba(255,255,255,0.7);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.glide__arrow i {
+    color: #333;
+}
+</style>
+
     </div>
 </section>
 

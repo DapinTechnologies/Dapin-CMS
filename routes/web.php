@@ -1,4 +1,6 @@
 <?php
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Admin\SmsController;
 use App\Services\SMSService;
 use Illuminate\Support\Facades\Http;
@@ -8,6 +10,37 @@ use App\Http\Controllers\PesaController;
 use App\Http\Controllers\Admin\DirectorController;
 use App\Http\Controllers\Admin\SubEnquiryController;
 use App\Http\Controllers\VisitController;
+use App\Http\Controllers\MpesaController;
+use App\Http\Controllers\Student\StudentFileController;
+use App\Http\Controllers\Admin\EnquiryController;
+use App\Http\Controllers\Admin\Web\AboutUsController;
+use App\Http\Controllers\Admin\Web\CoreValueController;
+use App\Http\Controllers\Admin\StatisticController;
+
+
+Route::post('/frontend/inquiry/store', [FrontendController::class, 'storeInquiry'])->name('frontend.inquiry.store');
+Route::post('/frontend/newsletter/store', [FrontendController::class, 'storeNewsletterSubscription'])->name('frontend.newsletter.store');
+
+Route::get('/student/test/', [StudentFileController::class, 'testFile'])->name('testfile');
+
+
+
+Route::get('/student/my-mpesa-statement', [MpesaController::class, 'myMpesaStatement'])->name('student.my.mpesa.statement');
+
+
+
+Route::get('/student/process/{id}', [MpesaController::class, 'StudentProcess'])->name('studentprocess');
+
+Route::post('/stkpush', [MpesaController::class, 'initiatePush'])->name('stkpush');
+Route::post('/stkcallback', [MpesaController::class, 'StkCallBack'])->name('mpesa.stkCallBack');
+Route::get('/check-payment-status/{id}', [MpesaController::class, 'checkPaymentStatus'])->name('check.payment.status');
+
+
+
+
+
+
+
 
 Route::get('/visits/map', [VisitController::class, 'showMap'])->name('visits.map');
 Route::get('/visit-stats', [VisitController::class, 'showStats'])->name('visits.stats');
@@ -49,7 +82,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
 
 
-
     Route::get('/sms/view', [SmsController::class, 'index'])->name('sms.index');
 Route::get('/sms/create', [SmsController::class, 'create'])->name('sms.create'); // Send New SMS
 Route::post('/sms/send', [SmsController::class, 'send'])->name('sms.send');
@@ -60,8 +92,6 @@ Route::get('/sms/search', [SmsController::class, 'search'])->name('sms.search');
 Route::get('/sms/{id}', [SmsController::class, 'show'])->name('sms.show');
 Route::get('/sms/balance', [SmsController::class, 'showBalance'])->name('sms.balance');
 Route::get('/balance/credit', [SmsController::class, 'showCredits'])->name('dashboardbalance');
-
-
 
 
 Route::get('/digital/files', [FileController::class, 'index'])->name('alldigitalbooks');
@@ -81,20 +111,58 @@ Route::delete('/materials/{id}', [FileController::class, 'destroy'])->name('dele
 
 
 
+ 
+    Route::post('histories', [AboutUsController::class, 'saveHistories'])->name('histories.store');
+    
+   Route::get('histories', [AboutUsController::class, 'histories'])->name('histories.index');
+    Route::get('histories/create', [AboutUsController::class, 'create'])->name('histories.create');
+    Route::post('histories/store', [AboutUsController::class, 'saveHistories'])->name('histories.store');
+      Route::get('histories/{id}/edit', [AboutUsController::class, 'edit'])->name('histories.edit');
+    Route::post('histories/update/{id}', [AboutUsController::class, 'update'])->name('histories.update');
+  Route::delete('histories/{id}', [AboutUsController::class, 'destroy'])->name('histories.destroy');
+
+
+Route::get('partners', [AboutUsController::class, 'partners'])->name('admin.about-us.partners');
+Route::get('partners', [AboutUsController::class, 'partners'])->name('admin.about-us.partners');
+Route::get('partners/create', [AboutUsController::class, 'createPartner'])->name('admin.about-us.partners.create');
+Route::post('partners', [AboutUsController::class, 'storePartner'])->name('admin.about-us.partners.store');
+Route::get('partners/{id}/edit', [AboutUsController::class, 'editPartner'])->name('admin.about-us.partners.edit');
+Route::put('partners/{id}', [AboutUsController::class, 'updatePartner'])->name('admin.about-us.partners.update');
+Route::delete('partners/{id}', [AboutUsController::class, 'destroyPartner'])->name('admin.about-us.partners.destroy');
+
+Route::get('accreditations', [AboutUsController::class, 'accreditations'])->name('admin.about-us.accreditations');
+Route::get('accreditations/create', [AboutUsController::class, 'createAccreditation'])->name('admin.about-us.accreditations.create');
+Route::post('accreditations', [AboutUsController::class, 'storeAccreditation'])->name('admin.about-us.accreditations.store');
+Route::get('accreditations/{id}/edit', [AboutUsController::class, 'editAccreditation'])->name('admin.about-us.accreditations.edit');
+Route::put('accreditations/{id}', [AboutUsController::class, 'updateAccreditation'])->name('admin.about-us.accreditations.update');
+Route::delete('accreditations/{id}', [AboutUsController::class, 'destroyAccreditation'])->name('admin.about-us.accreditations.destroy');
+
+    Route::get('core-values', [CoreValueController::class, 'index'])->name('core-values.index');
+    Route::get('core-values/create', [CoreValueController::class, 'create'])->name('core-values.create');
+    Route::post('core-values', [CoreValueController::class, 'store'])->name('core-values.store');
+    Route::get('core-values/{id}/edit', [CoreValueController::class, 'edit'])->name('core-values.edit');
+    Route::put('core-values/{id}', [CoreValueController::class, 'update'])->name('core-values.update');
+    Route::delete('core-values/{id}', [CoreValueController::class, 'destroy'])->name('core-values.destroy');
+
+    Route::get('statistics', [StatisticController::class, 'index'])->name('statistics.index');
+    Route::get('statistics/create', [StatisticController::class, 'create'])->name('statistics.create');
+    Route::post('statistics', [StatisticController::class, 'store'])->name('statistics.store');
+    Route::get('statistics/{id}/edit', [StatisticController::class, 'edit'])->name('statistics.edit');
+    Route::put('statistics/{id}', [StatisticController::class, 'update'])->name('statistics.update');
+    Route::delete('statistics/{id}', [StatisticController::class, 'destroy'])->name('statistics.destroy');
+
+
+
+
+
+
+
+
+
 
 
 
 });
-
-
-
-
-
-
-
-
-
-
 
 
 Route::get('/home/about',[DirectorController::class,'About'])->name('aboutus');
@@ -159,13 +227,6 @@ Route::middleware(['XSS'])->namespace('Web')->group(function () {
     Route::get('/set-cookie', 'HomeController@setCookie')->name('setCookie');
 
 
-
-
-
-
-
-
-
 });
 
 Route::get('/digital/book/home', [FileController::class, 'Home'])->name('materialhome');
@@ -181,10 +242,12 @@ Route::get('/download-material/{id}', [FileController::class, 'download'])->name
 //Route::get('/all/ditigal/file/student', [FileController::class, 'DigitalFilestudent'])->name('studentlibrarydigital');
 
 // Route for viewing material (accessible by logged-in students)
+
+
+
+
+
 Route::get('/material/{id}', [FileController::class, 'DigitalFilestudent'])->name('student.digital.viewFile');
-
-
-
 Route::get('/digita/book/home', [FileController::class, 'Home'])->name('studentlibrary');
 Route::get('/all/digital/file/student',[FileController::class, 'AllDigitalBook'])->name('studentlibrarydigital');
 Route::get('/view/student/single/student/{id}',[FileController::class, 'viewdigitalSingle'])->name('viewshow');
@@ -200,10 +263,10 @@ Route::get('/materials/{id}', [FileController::class, 'allpdfshow'])->name('mate
 Route::get('/view/file/home/{id}', [FileController::class, 'ViewOnlyFile'])->name('viewOnlyFile');
 
 Route::get('paymentprocess/{id}', [PesaController::class, 'process'])->name('paymentprocess');
-//Route::post('/payment/mpesa/{id}', [PesaController::class, 'processMpesaPayment'])->name('feepaymentmpesa');
+Route::post('/payment/mpesa/{id}', [PesaController::class, 'processMpesaPayment'])->name('feepaymentmpesa');
 
 
-Route::middleware(['auth:student'])->group(function () {
+
 
 Route::post('/feepaymentmpesa', [PesaController::class, 'manualPay'])->name('feepaymentmpesa');
 
@@ -212,7 +275,7 @@ Route::post('/callbacks/stkcallback', [PesaController::class, 'StkCallback'])->n
 
 
 
-});
+
 
 Route::get('/initiatepush',[PesaController::class,'initiateStkPush'])->name('initiatepush');
     Route::post('/stkcallback',[PesaController::class,'stkCallback'])->name('stkcallback');
@@ -224,11 +287,11 @@ Route::get('/initiatepush',[PesaController::class,'initiateStkPush'])->name('ini
 Route::post('/paybill/store', [PesaController::class, 'store'])->name('storegatedetails');
 Route::get('/settings', [PesaController::class, 'index'])->name('settings.index');
 
-// Route::post('/pay/pesa/store/', [PesaController::class, 'Feepaymentmpesa'])->name('paymentprocess');
+ Route::get('/pay/pesa/store/', [PesaController::class, 'Feepaymentmpesa'])->name('paymentprocess');
 
-// Route::get('/payment/{fee_id}', [PaymentController::class, 'showPaymentForm'])->name('paymentform');
+Route::get('/payment/{fee_id}', [PaymentController::class, 'showPaymentForm'])->name('paymentform');
 
-// Route::get('/payment/success/{fee_id}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
+Route::get('/payment/success/{fee_id}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
 
 
 

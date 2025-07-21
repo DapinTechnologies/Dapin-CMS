@@ -10,7 +10,9 @@ class AboutUs extends Model
     use HasFactory;
 
     protected $fillable = [
-        'language_id', 'label', 'title', 'short_desc', 'description', 'features', 'attach', 'video_id', 'button_text', 'mission_title', 'mission_desc', 'mission_icon', 'mission_image', 'vision_title', 'vision_desc', 'vision_icon', 'vision_image', 'status',
+        'language_id', 'label', 'title', 'short_desc', 'description', 'features', 'attach',
+         'video_id', 'button_text', 'mission_title', 'mission_desc', 'mission_icon', 'mission_image', 
+         'vision_title', 'vision_desc', 'vision_icon', 'vision_image', 'status',
     ];
 
     public function language()
@@ -20,16 +22,16 @@ class AboutUs extends Model
 
      public function histories()
     {
-        return $this->hasMany(\App\Models\AboutUsHistory::class, 'about_us_id')->orderBy('order');
+        return $this->hasMany(AboutUsHistory::class, 'about_us_id')->orderBy('order');
     }
      public function accreditations()
     {
-        return $this->hasMany(\App\Models\AboutUsAccreditation::class)->orderBy('order');
+        return $this->hasMany(AboutUsAccreditation::class)->orderBy('order');
     }
 
      public function partners()
     {
-        return $this->hasMany(\App\Models\AboutUsPartner::class)->orderBy('order');
+        return $this->hasMany(AboutUsPartner::class)->orderBy('order');
     }
 
       public function director()
