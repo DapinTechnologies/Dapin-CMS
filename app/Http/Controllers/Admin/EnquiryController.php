@@ -17,6 +17,7 @@ use Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InquiryReply;
 use Illuminate\Validation\Rule; 
+use App\Mail\BulkEmail;
 
 class EnquiryController extends Controller
 {
@@ -126,6 +127,58 @@ public function destroy(Inquiry $inquiry)
       // Use Toastr
         return redirect()->back();
     }
+
+      public function sendBulkEmail(Request $request)
+    {
+        // Validate the message content
+        $validated = $request->validate([
+            'message_content' => 'required|string|max:1000',
+        ]);
+
+        // Fetch all the subscribers' emails
+        $subscribers = Subscription::all();
+
+        // Send the email to each subscriber
+        foreach ($subscribers as $subscriber) {
+            try {
+                Mail::to($subscriber->email)->send(new BulkEmail($validated['message_content']));
+            } catch (\Exception $e) {
+                \Log::error('Error sending bulk email: ' . $e->getMessage());
+                return response()->json(['success' => false, 'message' => 'An error occurred while sending the emails.'], 500);
+            }
+        }
+
+        // Flash success message
+        session()->flash('success', 'Bulk email sent successfully to all subscribers!');
+        
+        return redirect()->back();
+    }
+
+
+
+
+
+public function subindex()
+{
+    // Fetch all subscriptions with pagination
+    $subscriptions = Subscription::paginate(15);
+    
+    return view('admin.frontdesk.enqury.subscription', compact('subscriptions'));
+}
+
+
+public function destroysub($id)
+{
+    // Find the subscription by ID and delete it
+    $subscription = Subscription::findOrFail($id);
+    $subscription->delete();
+
+    // Redirect back with success message
+    return redirect()->route('admin.subscriptions.index')->with('success', 'Subscription deleted successfully.');
+}
+
+
+
 
 
 

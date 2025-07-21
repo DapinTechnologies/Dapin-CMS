@@ -12,7 +12,9 @@
 <!-- Start Content-->
 <div class="main-body">
     <div class="page-wrapper">
-
+<button>
+    <a href="<?php echo e(route('admin.admin.subscriptions.index')); ?>">Subscription </a>
+</button>
 <div class="table-responsive">
     <table class="table">
         <thead>

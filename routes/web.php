@@ -182,7 +182,9 @@ Route::delete('accreditations/{id}', [AboutUsController::class, 'destroyAccredit
 Route::delete('/admin/inquiries/{id}', [EnquiryController::class, 'deleteInquiry'])->name('admin.inquiry.delete');
 Route::get('admin/inquiry/{id}', [EnquiryController::class, 'show'])->name('admin.inquiry.show');
 Route::post('admin/inquiry/{id}/reply', [EnquiryController::class, 'reply'])->name('admin.inquiry.reply');
-
+Route::post('/admin/subscriptions/sendBulkEmail', [EnquiryController::class, 'sendBulkEmail'])->name('admin.subscriptions.sendBulkEmail');
+Route::get('/admin/subscriptions', [EnquiryController::class, 'subindex'])->name('admin.subscriptions.index');
+Route::delete('/admin/subscriptions/{id}', [EnquiryController::class, 'destroysub'])->name('admin.subscriptions.destroy');
 
 
 
