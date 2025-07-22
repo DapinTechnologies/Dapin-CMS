@@ -1002,7 +1002,17 @@
 
 
                   @canany(['statistics'])
-                <li class="{{ Request::is('admin/web/statistics*') ? 'active' : '' }}"><a href="{{ route('admin.statistics.index') }}" class="">{{ trans_choice('statistics', 2) }}</a></li>
+                <li class="{{ Request::is('admin/web/statistics*') ? 'active' : '' }}"><a href="{{ route('admin.statistics.index') }}" class="">{{ trans_choice('Statistics', 2) }}</a></li>
+                @endcanany
+                
+
+                 @canany(['stats'])
+                <li class="{{ Request::is('admin/visit-stats*') ? 'active' : '' }}"><a href="{{ route('admin.visits.stats') }}" class="">{{ trans_choice('Visitor Data', 2) }}</a></li>
+                @endcanany
+
+                
+                 @canany(['Reasons'])
+                <li class="{{ Request::is('admin/reasons*') ? 'active' : '' }}"><a href="{{ route('admin.admin.reasons.index') }}" class="">{{ trans_choice('Reasons', 2) }}</a></li>
                 @endcanany
 
                 @canany(['course-view', 'course-create'])

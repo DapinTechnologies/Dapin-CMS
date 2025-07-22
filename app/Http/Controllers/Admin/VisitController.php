@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use Jenssegers\Agent\Agent;
@@ -62,7 +63,7 @@ public function showStats()
                       ->orderByDesc('total')
                       ->get();
 
-    return view('visits.stats', compact('deviceStats', 'countryStats', 'cityStats', 'pageStats'));
+    return view('admin.stats', compact('deviceStats', 'countryStats', 'cityStats', 'pageStats'));
 }
 
 

@@ -9,14 +9,14 @@ use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\PesaController;
 use App\Http\Controllers\Admin\DirectorController;
 use App\Http\Controllers\Admin\SubEnquiryController;
-use App\Http\Controllers\VisitController;
+use App\Http\Controllers\Admin\VisitController;
 use App\Http\Controllers\MpesaController;
 use App\Http\Controllers\Student\StudentFileController;
 use App\Http\Controllers\Admin\EnquiryController;
 use App\Http\Controllers\Admin\Web\AboutUsController;
 use App\Http\Controllers\Admin\Web\CoreValueController;
 use App\Http\Controllers\Admin\StatisticController;
-
+use App\Http\Controllers\Admin\ReasonController;
 
 Route::get('/test-email', function() {
     try {
@@ -71,8 +71,7 @@ Route::get('/check-payment-status/{id}', [MpesaController::class, 'checkPaymentS
 
 
 
-Route::get('/visits/map', [VisitController::class, 'showMap'])->name('visits.map');
-Route::get('/visit-stats', [VisitController::class, 'showStats'])->name('visits.stats');
+
 
 Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
 Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
@@ -186,9 +185,16 @@ Route::post('/admin/subscriptions/sendBulkEmail', [EnquiryController::class, 'se
 Route::get('/admin/subscriptions', [EnquiryController::class, 'subindex'])->name('admin.subscriptions.index');
 Route::delete('/admin/subscriptions/{id}', [EnquiryController::class, 'destroysub'])->name('admin.subscriptions.destroy');
 
+Route::get('/visits/map', [VisitController::class, 'showMap'])->name('visits.map');
+Route::get('/visit-stats', [VisitController::class, 'showStats'])->name('visits.stats');
 
-
-
+Route::get('/all/reason', [ReasonController::class, 'index'])->name('admin.reasons.index');
+Route::get('/create/reason', [ReasonController::class, 'create'])->name('admin.reasons.create');
+Route::post('/store/reasons', [ReasonController::class, 'store'])->name('admin.reasons.store');
+Route::get('/edit/reason/{id}', [ReasonController::class, 'edit'])->name('admin.reasons.edit');
+Route::post('/update/reasons/{id}', [ReasonController::class, 'update'])->name('admin.reasons.update');
+Route::delete('/delete/reason/{id}', [ReasonController::class, 'destroy'])->name('admin.reasons.destroy');
+//admin.reasons.update
 
 
 

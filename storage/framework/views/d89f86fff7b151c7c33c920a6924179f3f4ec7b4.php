@@ -73,70 +73,40 @@
             <h2 id="choose-heading">Why Choose Us?</h2>
             <p>A choice that makes the difference in your academic journey and future career</p>
         </div>
+<?php
+    // Fetching all the reasons from the 'reasons' table
+    $reasons = \App\Models\Reason::all();
+?>
 
-        <div class="glide" id="reasonsCarousel">
-            <div class="glide__track" data-glide-el="track">
-                <ul class="glide__slides">
-                    <!-- Reason 1 -->
-                    <li class="glide__slide">
-                        <div class="reason-card">
-                            <div class="reason-icon">
-                                <i class="fas fa-graduation-cap"></i>
-                            </div>
-                            <div class="reason-content">
-                                <h3 class="reason-title">Academic Excellence</h3>
-                                <p class="reason-description">Learn from distinguished faculty members who are leaders in their fields. Our innovative curriculum is designed to challenge and inspire you to reach your full potential.</p>
-                            </div>
+     <div class="glide" id="reasonsCarousel">
+    <div class="glide__track" data-glide-el="track">
+        <ul class="glide__slides">
+            <?php $__currentLoopData = $reasons; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $reason): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <li class="glide__slide">
+                    <div class="reason-card">
+                        <div class="reason-icon">
+                            <i class="<?php echo e($reason['icon']); ?>"></i>
                         </div>
-                    </li>
-
-                    <!-- Reason 2 -->
-                    <li class="glide__slide">
-                        <div class="reason-card">
-                            <div class="reason-icon">
-                                <i class="fas fa-briefcase"></i>
-                            </div>
-                            <div class="reason-content">
-                                <h3 class="reason-title">Career Success</h3>
-                                <p class="reason-description">Our graduates are highly sought after by top employers. With career services starting in your first year, we prepare you for professional success from day one.</p>
-                            </div>
+                        <div class="reason-content">
+                            <h3 class="reason-title"><?php echo e($reason['title']); ?></h3>
+                            <p class="reason-description"><?php echo e($reason['description']); ?></p>
                         </div>
-                    </li>
+                    </div>
+                </li>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </ul>
+    </div>
 
-                    <!-- Reason 3 -->
-                    <li class="glide__slide">
-                        <div class="reason-card">
-                            <div class="reason-icon">
-                                <i class="fas fa-globe-americas"></i>
-                            </div>
-                            <div class="reason-content">
-                                <h3 class="reason-title">Global Reach</h3>
-                                <p class="reason-description">Study abroad, engage in global projects, and experience different cultures. We prepare you to thrive in a connected, international world.</p>
-                            </div>
-                        </div>
-                    </li>
-
-                    <!-- Reason 4 -->
-                    <li class="glide__slide">
-                        <div class="reason-card">
-                            <div class="reason-icon">
-                                <i class="fas fa-hands-helping"></i>
-                            </div>
-                            <div class="reason-content">
-                                <h3 class="reason-title">Community Support</h3>
-                                <p class="reason-description">From mentoring to mental health, we support your journey. Join a close-knit, inclusive environment where you belong and succeed.</p>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Arrows -->
-            <div class="glide__arrows text-center mt-4" data-glide-el="controls">
-                <button class="glide__arrow glide__arrow--left me-2" data-glide-dir="<"><i class="fas fa-chevron-left"></i></button>
-                <button class="glide__arrow glide__arrow--right" data-glide-dir=">"><i class="fas fa-chevron-right"></i></button>
-            </div>
-        </div>
+    <!-- Arrows -->
+    <div class="glide__arrows text-center mt-4" data-glide-el="controls">
+        <button class="glide__arrow glide__arrow--left me-2" data-glide-dir="<">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
     </div>
 </section>
 

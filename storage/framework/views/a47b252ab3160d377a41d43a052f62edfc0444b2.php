@@ -1002,7 +1002,17 @@
 
 
                   <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['statistics'])): ?>
-                <li class="<?php echo e(Request::is('admin/web/statistics*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.statistics.index')); ?>" class=""><?php echo e(trans_choice('statistics', 2)); ?></a></li>
+                <li class="<?php echo e(Request::is('admin/web/statistics*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.statistics.index')); ?>" class=""><?php echo e(trans_choice('Statistics', 2)); ?></a></li>
+                <?php endif; ?>
+                
+
+                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['stats'])): ?>
+                <li class="<?php echo e(Request::is('admin/visit-stats*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.visits.stats')); ?>" class=""><?php echo e(trans_choice('Visitor Data', 2)); ?></a></li>
+                <?php endif; ?>
+
+                
+                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['Reasons'])): ?>
+                <li class="<?php echo e(Request::is('admin/reasons*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.admin.reasons.index')); ?>" class=""><?php echo e(trans_choice('Reasons', 2)); ?></a></li>
                 <?php endif; ?>
 
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['course-view', 'course-create'])): ?>
