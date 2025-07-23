@@ -154,141 +154,86 @@
  <body>
 
  	<!-- header -->
-    <header class="header-area header-three">  
-       <div class="header-top second-header d-none d-md-block">
-            <div class="container">
-                <div class="row align-items-center">      
-                   
-                    <div class="col-lg-4 col-md-4 d-none d-lg-block ">
-                        @if(isset($topbarSetting) && $topbarSetting->social_status == 1)
-                        <div class="header-social">
-                            <span>
-                            @if(isset($socialSetting->facebook))
-                            <a href="{{ $socialSetting->facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                            @endif
-                            @if(isset($socialSetting->instagram))
-                            <a href="{{ $socialSetting->instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>
-                            @endif
-                            @if(isset($socialSetting->twitter))
-                            <a href="{{ $socialSetting->twitter }}" target="_blank"><i class="fab fa-twitter"></i></a>
-                            @endif
-                            @if(isset($socialSetting->linkedin))
-                            <a href="{{ $socialSetting->linkedin }}" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                            @endif
-                            @if(isset($socialSetting->pinterest))
-                            <a href="{{ $socialSetting->pinterest }}" target="_blank"><i class="fab fa-pinterest"></i></a>
-                            @endif
-                            @if(isset($socialSetting->youtube))
-                            <a href="{{ $socialSetting->youtube }}" target="_blank"><i class="fab fa-youtube"></i></a>
-                            @endif
-                           </span>                    
-                           <!--  /social media icon redux -->                               
+<header class="header-area header-three" style="padding-top: 10px; padding-bottom: 10px;">  
+   @include('web.layouts.nav')  
+
+    <div id="header-sticky" class="menu-area" style="padding: 5px 0;">
+        <div class="container">
+            <div class="second-menu">
+                <div class="row align-items-center py-1">
+                    <div class="col-xl-3 col-lg-3">
+                        @if(isset($setting))
+                        <div class="logo" style="max-height: 50px; overflow: hidden;">
+                            <a href="{{ route('home') }}">
+                                <img src="{{ asset('/uploads/setting/'.$setting->logo_path) }}" alt="logo" style="max-height: 40px;">
+                            </a>
                         </div>
                         @endif
                     </div>
 
-                    <div class="col-lg-8 col-md-8 d-none d-lg-block text-right">
-                        <div class="header-cta">
-                            <ul>
-                               @isset($topbarSetting->phone)
-                               <li>
-                                  <div class="call-box">
-                                     <div class="icon">
-                                        <img src="{{ asset('web/img/icon/phone-call.png') }}" alt="img">
-                                     </div>
-                                     <div class="text">
-                                        <strong><a href="tel:{{ str_replace(' ', '', $topbarSetting->phone ?? '') }}">{{ $topbarSetting->phone ?? '' }}</a></strong>
-                                     </div>
-                                  </div>
-                               </li>
-                               @endisset
-                               @isset($topbarSetting->email)
-                               <li>
-                                  <div class="call-box">
-                                     <div class="icon">
-                                        <img src="{{ asset('web/img/icon/mailing.png') }}" alt="img">
-                                     </div>
-                                     <div class="text">
-                                        <strong><a href="mailto:{{ $topbarSetting->email ?? '' }}">{{ $topbarSetting->email ?? '' }}</a></strong>
-                                     </div>
-                                  </div>
-                               </li>
-                               @endisset
-                            </ul>
-                        </div>                        
-                    </div>
-                    
-                </div>
-            </div>
-        </div>    
-
-
-        <div id="header-sticky" class="menu-area">
-            <div class="container">
-                <div class="second-menu">
-                    <div class="row align-items-center">
-                        <div class="col-xl-3 col-lg-3">
-                            @if(isset($setting))
-                            <div class="logo">
-                                <a href="{{ route('home') }}"><img src="{{ asset('/uploads/setting/'.$setting->logo_path) }}" alt="logo"></a>
-                            </div>
-                            @endif
-                        </div>
-
-                        <div class="col-xl-8 col-lg-8">
-                            <div class="main-menu text-right text-xl-right">
-                                <nav id="mobile-menu">
-                                    <ul>
-                                        <li class="{{ Request::path() == '/' ? 'current' : '' }}"><a href="{{ route('home') }}">{{ __('navbar_home') }}</a></li>
-                                        <li class="{{ Request::is('course*') ? 'current' : '' }}"><a href="{{ route('course') }}">{{ __('navbar_course') }}</a></li>
-                                        <li class="{{ Request::is('event*') ? 'current' : '' }}"><a href="{{ route('event') }}">{{ __('navbar_event') }}</a></li>
-                                        <li class="{{ Request::is('faq*') ? 'current' : '' }}"><a href="{{ route('faq') }}">{{ __('navbar_faqs') }}</a></li>
-                                        <li class="{{ Request::is('gallery*') ? 'current' : '' }}"><a href="{{ route('gallery') }}">{{ __('navbar_gallery') }}</a></li>
-                                        <li class="{{ Request::is('news*') ? 'current' : '' }}"><a href="{{ route('news') }}">{{ __('navbar_news') }}</a></li>
-                                 
-                                        
-
-                                        <li class="{{ Request::is('materials*') ? 'current' : '' }}">
-                                            <a href="{{ route('materialhome') }}">{{ __('Digital Library') }}</a>
-                                        </li>
-                                        
-                                        <li class="{{ Request::is('about*') ? 'current' : '' }}">
-                                            <a href="#">{{ __('About Us') }}</a>
-                                        </li>
-                                        
-                                        {{-- <li class="{{ Request::is('elearning*') ? 'current' : '' }}">
-                                            <a href="#">{{ __('E-learning Portal') }}</a>
-                                        </li> --}}
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
-
-                        <div class="col-xl-3 col-lg-3 text-right d-none d-lg-block text-right text-xl-right">
-                            @php 
-                            $application = App\Models\ApplicationSetting::status(); 
-                            @endphp
-                            @isset($application)
-                            <div class="login">
-                                <ul>
-                                    <li>
-                                        <div class="second-header-btn">
-                                           <a href="{{ route('application.index') }}" target="_blank" class="btn">{{ __('navbar_admission') }}</a>
-                                        </div>
-                                    </li>
+                    <div class="col-xl-8 col-lg-8">
+                        <div class="main-menu text-right text-xl-right">
+                            <nav id="mobile-menu">
+                                <ul class="mb-0">
+                                    <li class="{{ Request::path() == '/' ? 'current' : '' }}"><a href="{{ route('home') }}">{{ __('navbar_home') }}</a></li>
+                                    <li class="{{ Request::is('course*') ? 'current' : '' }}"><a href="{{ route('course') }}">{{ __('navbar_course') }}</a></li>
+                                    <li class="{{ Request::is('event*') ? 'current' : '' }}"><a href="{{ route('event') }}">{{ __('navbar_event') }}</a></li>
+                                    <li class="{{ Request::is('faq*') ? 'current' : '' }}"><a href="{{ route('faq') }}">{{ __('navbar_faqs') }}</a></li>
+                                    <li class="{{ Request::is('gallery*') ? 'current' : '' }}"><a href="{{ route('gallery') }}">{{ __('navbar_gallery') }}</a></li>
+                                    <li class="{{ Request::is('news*') ? 'current' : '' }}"><a href="{{ route('news') }}">{{ __('navbar_news') }}</a></li>
+                                    <li class="{{ Request::is('about*') ? 'current' : '' }}"><a href="#">{{ __('About Us') }}</a></li>
                                 </ul>
-                            </div>
-                            @endisset
+                            </nav>
                         </div>
-                        
-                        <div class="col-12">
-                            <div class="mobile-menu"></div>
+                    </div>
+
+                    <div class="col-xl-3 col-lg-3 d-none d-lg-block text-right text-xl-right">
+                        @php 
+                        $application = App\Models\ApplicationSetting::status(); 
+                        @endphp
+                        @isset($application)
+                        <div class="login">
+                            <ul class="mb-0">
+                                <li>
+                                    <div class="second-header-btn">
+                                       <a href="{{ route('application.index') }}" target="_blank" class="btn py-1 px-3" style="font-size: 0.875rem;">{{ __('navbar_admission') }}</a>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
+                        @endisset
+                    </div>
+
+                    <div class="col-12">
+                        <div class="mobile-menu"></div>
                     </div>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
+</header>
+ <style>
+    /* Optional compact tweaks if not inline */
+.header-area {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.menu-area {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.header-area .btn {
+    padding: 6px 15px;
+    font-size: 0.875rem;
+}
+
+.logo img {
+    max-height: 40px;
+}
+
+ </style>
     <!-- header-end -->
 
  	

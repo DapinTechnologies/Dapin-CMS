@@ -187,6 +187,17 @@
       0 => 'Srmklive\\PayPal\\Providers\\PayPalServiceProvider',
     ),
   ),
+  'stevebauman/purify' => 
+  array (
+    'aliases' => 
+    array (
+      'Purify' => 'Stevebauman\\Purify\\Facades\\Purify',
+    ),
+    'providers' => 
+    array (
+      0 => 'Stevebauman\\Purify\\PurifyServiceProvider',
+    ),
+  ),
   'unicodeveloper/laravel-paystack' => 
   array (
     'aliases' => 
