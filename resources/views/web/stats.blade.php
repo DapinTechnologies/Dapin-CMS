@@ -127,99 +127,75 @@
     }
 </style>
 
+@php
+    use App\Models\Statistic;
+    $statistics = Statistic::all();
+@endphp
 
- @php
-                        use App\Models\Statistic;
-                        $statistics = Statistic::all();
-                    @endphp
+<!-- Statistics Section -->
+<section class="statistics-area py-5">
+    <div class="container">
+        <div class="desktop-grid">
+            <div class="row justify-content-center text-center">
+                @foreach($statistics as $statistic)
+                    <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
+                        <article class="statistic-card" role="region" aria-label="{{ ucfirst($statistic->type) }}">
+                            <div class="statistic-icon text-{{ $statistic->icon_color ?? 'primary' }}">
+                                <i class="fas {{ $statistic->icon ?? 'fa-circle' }}"></i>
+                            </div>
+                            <h3 class="statistic-number" data-count="{{ $statistic->count }}">{{ $statistic->count }}</h3>
+                            <p class="statistic-label">{{ ucfirst($statistic->type) }}</p>
+                        </article>
+                    </div>
+                @endforeach
+            </div>
+        </div>
 
+        <!-- Mobile Carousel (visible on small screens) -->
+        <div class="mobile-carousel">
+            <div class="glide statistics-glide">
+                <div class="glide__track" data-glide-el="track">
+                    <div class="glide__slides">
+                        @foreach($statistics as $statistic)
+                            <div class="glide__slide">
+                                <article class="statistic-card" role="region" aria-label="{{ ucfirst($statistic->type) }}">
+                                    <div class="statistic-icon text-{{ $statistic->icon_color ?? 'primary' }}">
+                                        <i class="fas {{ $statistic->icon ?? 'fa-circle' }}"></i>
+                                    </div>
+                                    <h3 class="statistic-number" data-count="{{ $statistic->count }}">{{ $statistic->count }}</h3>
+                                    <p class="statistic-label">{{ ucfirst($statistic->type) }}</p>
+                                </article>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
 
+                <div class="glide__arrows" data-glide-el="controls">
+                    <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
 
-  <!-- Statistics Section -->
-    <section class="statistics-area py-5">
-        <div class="container">
-            <div class="desktop-grid">
-                <div class="row justify-content-center text-center">
-                    @foreach($statistics as $statistic)
-                        <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
-                            <article class="statistic-card" role="region" aria-label="{{ ucfirst($statistic->type) }}">
-                                <div class="statistic-icon 
-                                    @if($statistic->type == 'students') text-primary
-                                    @elseif($statistic->type == 'departments') text-success
-                                    @elseif($statistic->type == 'courses') text-warning
-                                    @elseif($statistic->type == 'lecturers') text-danger
-                                    @endif">
-                                    <i class="fas 
-                                        @if($statistic->type == 'students') fa-users
-                                        @elseif($statistic->type == 'departments') fa-building
-                                        @elseif($statistic->type == 'courses') fa-book
-                                        @elseif($statistic->type == 'lecturers') fa-chalkboard-user
-                                        @endif"></i>
-                                </div>
-                                <h3 class="statistic-number" data-count="{{ $statistic->count }}">{{ $statistic->count }}</h3>
-                                <p class="statistic-label">{{ ucfirst($statistic->type) }}</p>
-                            </article>
-                        </div>
+                <div class="glide__bullets" data-glide-el="controls[nav]">
+                    @foreach($statistics as $index => $statistic)
+                        <button class="glide__bullet" data-glide-dir="={{ $index }}"></button>
                     @endforeach
                 </div>
             </div>
-
-            <!-- Mobile Carousel (visible on small screens) -->
-            <div class="mobile-carousel">
-                <div class="glide statistics-glide">
-                    <div class="glide__track" data-glide-el="track">
-                        <div class="glide__slides">
-                            @foreach($statistics as $statistic)
-                                <div class="glide__slide">
-                                    <article class="statistic-card" role="region" aria-label="{{ ucfirst($statistic->type) }}">
-                                        <div class="statistic-icon 
-                                            @if($statistic->type == 'students') text-primary
-                                            @elseif($statistic->type == 'departments') text-success
-                                            @elseif($statistic->type == 'courses') text-warning
-                                            @elseif($statistic->type == 'lecturers') text-danger
-                                            @endif">
-                                            <i class="fas 
-                                                @if($statistic->type == 'students') fa-users
-                                                @elseif($statistic->type == 'departments') fa-building
-                                                @elseif($statistic->type == 'courses') fa-book
-                                                @elseif($statistic->type == 'lecturers') fa-chalkboard-user
-                                                @endif"></i>
-                                        </div>
-                                        <h3 class="statistic-number" data-count="{{ $statistic->count }}">{{ $statistic->count }}</h3>
-                                        <p class="statistic-label">{{ ucfirst($statistic->type) }}</p>
-                                    </article>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <div class="glide__arrows" data-glide-el="controls">
-                        <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-
-                    <div class="glide__bullets" data-glide-el="controls[nav]">
-                        <button class="glide__bullet" data-glide-dir="=0"></button>
-                        <button class="glide__bullet" data-glide-dir="=1"></button>
-                        <button class="glide__bullet" data-glide-dir="=2"></button>
-                        <button class="glide__bullet" data-glide-dir="=3"></button>
-                    </div>
-                </div>
-            </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- AOS -->
-    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <!-- Glide.js for carousel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
-    
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- AOS -->
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<!-- Glide.js for carousel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const startCounter = (element) => {
@@ -266,5 +242,3 @@
         }
     });
 </script>
-
-

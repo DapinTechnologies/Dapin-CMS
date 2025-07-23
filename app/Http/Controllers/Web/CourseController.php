@@ -43,4 +43,7 @@ public function show($slug)
     return view('web.course-single', $data);
 }
 
+
+
+
 }

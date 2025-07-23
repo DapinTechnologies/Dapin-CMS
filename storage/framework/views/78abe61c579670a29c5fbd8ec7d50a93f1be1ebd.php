@@ -13,18 +13,42 @@ $courses = Course::where('status', 1)->orderBy('faculty')->get();
 
 /* Course Card */
 .course-card {
-    background: white;
+    background: linear-gradient(145deg, #ffffff, #f7f7f7); /* Slightly lighter color */
     border-radius: 12px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     height: auto;
     padding: 1.5rem;
     border: 1px solid #eaeaea;
     min-height: 380px;
 }
+
 .course-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Text Colors */
+.course-card a {
+    color: #495057; /* Darker grey for links */
+    text-decoration: none;
+}
+
+.course-card a:hover {
+    color: #2d3748; /* Slightly darker shade when hovered */
+}
+
+.course-card h3 {
+    color: #2d3748; /* Dark grey color for course titles */
+}
+
+.course-card p {
+    color: #4a5568; /* Grey for course details like Department, Duration, etc. */
+}
+
+/* Icons Color */
+.course-card i {
+    color: #4a5568; /* Grey for icons */
 }
 
 /* Desktop grid carousel (safe with Bootstrap) */
@@ -92,7 +116,6 @@ $courses = Course::where('status', 1)->orderBy('faculty')->get();
         <?php $__currentLoopData = $courses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $course): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <div class="course-card">
             <a href="<?php echo e(route('course.single', ['slug' => $course->slug])); ?>" class="text-decoration-none text-dark d-block">
-
                 <h3 class="text-xl font-bold mb-3 text-blue-700"><?php echo e($course->title); ?></h3>
                 <p class="mb-2 text-gray-600"><i class="fas fa-building mr-2 text-blue-500"></i><strong>Department:</strong> <?php echo e($course->faculty); ?></p>
                 <p class="mb-2 text-gray-600"><i class="fas fa-clock mr-2 text-blue-500"></i><strong>Duration:</strong> <?php echo e($course->duration); ?></p>

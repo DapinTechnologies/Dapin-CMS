@@ -127,99 +127,75 @@
     }
 </style>
 
+<?php
+    use App\Models\Statistic;
+    $statistics = Statistic::all();
+?>
 
- <?php
-                        use App\Models\Statistic;
-                        $statistics = Statistic::all();
-                    ?>
+<!-- Statistics Section -->
+<section class="statistics-area py-5">
+    <div class="container">
+        <div class="desktop-grid">
+            <div class="row justify-content-center text-center">
+                <?php $__currentLoopData = $statistics; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $statistic): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
+                        <article class="statistic-card" role="region" aria-label="<?php echo e(ucfirst($statistic->type)); ?>">
+                            <div class="statistic-icon text-<?php echo e($statistic->icon_color ?? 'primary'); ?>">
+                                <i class="fas <?php echo e($statistic->icon ?? 'fa-circle'); ?>"></i>
+                            </div>
+                            <h3 class="statistic-number" data-count="<?php echo e($statistic->count); ?>"><?php echo e($statistic->count); ?></h3>
+                            <p class="statistic-label"><?php echo e(ucfirst($statistic->type)); ?></p>
+                        </article>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+        </div>
 
+        <!-- Mobile Carousel (visible on small screens) -->
+        <div class="mobile-carousel">
+            <div class="glide statistics-glide">
+                <div class="glide__track" data-glide-el="track">
+                    <div class="glide__slides">
+                        <?php $__currentLoopData = $statistics; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $statistic): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="glide__slide">
+                                <article class="statistic-card" role="region" aria-label="<?php echo e(ucfirst($statistic->type)); ?>">
+                                    <div class="statistic-icon text-<?php echo e($statistic->icon_color ?? 'primary'); ?>">
+                                        <i class="fas <?php echo e($statistic->icon ?? 'fa-circle'); ?>"></i>
+                                    </div>
+                                    <h3 class="statistic-number" data-count="<?php echo e($statistic->count); ?>"><?php echo e($statistic->count); ?></h3>
+                                    <p class="statistic-label"><?php echo e(ucfirst($statistic->type)); ?></p>
+                                </article>
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </div>
+                </div>
 
+                <div class="glide__arrows" data-glide-el="controls">
+                    <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
 
-  <!-- Statistics Section -->
-    <section class="statistics-area py-5">
-        <div class="container">
-            <div class="desktop-grid">
-                <div class="row justify-content-center text-center">
-                    <?php $__currentLoopData = $statistics; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $statistic): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
-                            <article class="statistic-card" role="region" aria-label="<?php echo e(ucfirst($statistic->type)); ?>">
-                                <div class="statistic-icon 
-                                    <?php if($statistic->type == 'students'): ?> text-primary
-                                    <?php elseif($statistic->type == 'departments'): ?> text-success
-                                    <?php elseif($statistic->type == 'courses'): ?> text-warning
-                                    <?php elseif($statistic->type == 'lecturers'): ?> text-danger
-                                    <?php endif; ?>">
-                                    <i class="fas 
-                                        <?php if($statistic->type == 'students'): ?> fa-users
-                                        <?php elseif($statistic->type == 'departments'): ?> fa-building
-                                        <?php elseif($statistic->type == 'courses'): ?> fa-book
-                                        <?php elseif($statistic->type == 'lecturers'): ?> fa-chalkboard-user
-                                        <?php endif; ?>"></i>
-                                </div>
-                                <h3 class="statistic-number" data-count="<?php echo e($statistic->count); ?>"><?php echo e($statistic->count); ?></h3>
-                                <p class="statistic-label"><?php echo e(ucfirst($statistic->type)); ?></p>
-                            </article>
-                        </div>
+                <div class="glide__bullets" data-glide-el="controls[nav]">
+                    <?php $__currentLoopData = $statistics; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $statistic): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <button class="glide__bullet" data-glide-dir="=<?php echo e($index); ?>"></button>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
-
-            <!-- Mobile Carousel (visible on small screens) -->
-            <div class="mobile-carousel">
-                <div class="glide statistics-glide">
-                    <div class="glide__track" data-glide-el="track">
-                        <div class="glide__slides">
-                            <?php $__currentLoopData = $statistics; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $statistic): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <div class="glide__slide">
-                                    <article class="statistic-card" role="region" aria-label="<?php echo e(ucfirst($statistic->type)); ?>">
-                                        <div class="statistic-icon 
-                                            <?php if($statistic->type == 'students'): ?> text-primary
-                                            <?php elseif($statistic->type == 'departments'): ?> text-success
-                                            <?php elseif($statistic->type == 'courses'): ?> text-warning
-                                            <?php elseif($statistic->type == 'lecturers'): ?> text-danger
-                                            <?php endif; ?>">
-                                            <i class="fas 
-                                                <?php if($statistic->type == 'students'): ?> fa-users
-                                                <?php elseif($statistic->type == 'departments'): ?> fa-building
-                                                <?php elseif($statistic->type == 'courses'): ?> fa-book
-                                                <?php elseif($statistic->type == 'lecturers'): ?> fa-chalkboard-user
-                                                <?php endif; ?>"></i>
-                                        </div>
-                                        <h3 class="statistic-number" data-count="<?php echo e($statistic->count); ?>"><?php echo e($statistic->count); ?></h3>
-                                        <p class="statistic-label"><?php echo e(ucfirst($statistic->type)); ?></p>
-                                    </article>
-                                </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </div>
-                    </div>
-
-                    <div class="glide__arrows" data-glide-el="controls">
-                        <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-
-                    <div class="glide__bullets" data-glide-el="controls[nav]">
-                        <button class="glide__bullet" data-glide-dir="=0"></button>
-                        <button class="glide__bullet" data-glide-dir="=1"></button>
-                        <button class="glide__bullet" data-glide-dir="=2"></button>
-                        <button class="glide__bullet" data-glide-dir="=3"></button>
-                    </div>
-                </div>
-            </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- AOS -->
-    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <!-- Glide.js for carousel -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
-    
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- AOS -->
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<!-- Glide.js for carousel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const startCounter = (element) => {
@@ -265,7 +241,4 @@
             if (firstStat && firstStat.innerText === '0') startCounter(firstStat);
         }
     });
-</script>
-
-
-<?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/stats.blade.php ENDPATH**/ ?>
+</script><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/stats.blade.php ENDPATH**/ ?>

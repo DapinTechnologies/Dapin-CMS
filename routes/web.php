@@ -17,8 +17,10 @@ use App\Http\Controllers\Admin\Web\AboutUsController;
 use App\Http\Controllers\Admin\Web\CoreValueController;
 use App\Http\Controllers\Admin\StatisticController;
 use App\Http\Controllers\Admin\ReasonController;
+use App\Http\Controllers\Web\AdmissionController;
 
-Route::get('/test-email', function() {
+Route::get('/admission', [AdmissionController::class, 'index'])->name('web.admission');
+Route::get('/test-email', action: function() {
     try {
         Mail::raw('This is a test email', function($message) {
             $message->to('losotosh@gmail.com')->subject('Test Email');
@@ -290,11 +292,6 @@ Route::get('/download-material/{id}', [FileController::class, 'download'])->name
 
 
 
-Route::get('/material/{id}', [FileController::class, 'DigitalFilestudent'])->name('student.digital.viewFile');
-Route::get('/digita/book/home', [FileController::class, 'Home'])->name('studentlibrary');
-Route::get('/all/digital/file/student',[FileController::class, 'AllDigitalBook'])->name('studentlibrarydigital');
-Route::get('/view/student/single/student/{id}',[FileController::class, 'viewdigitalSingle'])->name('viewshow');
-Route::get('/library', [FileController::class, 'searchdigitalbook'])->name('library.index');
 
 Route::get('/materials/{id}/download', [FileController::class, 'download'])->name('material.download');
 Route::get('/materials/create', [FileController::class, 'create'])->name('materials.create');
@@ -859,6 +856,7 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
         Route::resource('feature', 'FeatureController');
         Route::resource('about-us', 'AboutUsController');
         Route::resource('course', 'CourseController');
+            
         Route::resource('web-event', 'WebEventController');
         Route::resource('news', 'NewsController');
         Route::resource('gallery', 'GalleryController');
@@ -868,7 +866,10 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
         Route::resource('call-to-action', 'CallToActionController');
         Route::resource('social-setting', 'SocialSettingController');
         Route::resource('topbar-setting', 'TopbarSettingController');
+        
     });
+
+
 });
 
 
@@ -957,4 +958,11 @@ Route::resource('subject', 'App\Http\Controllers\Student\StudentSubjectControlle
     Route::get('profile/account', 'ProfileController@account')->name('profile.account');
     // Route::post('profile/changemail', 'ProfileController@changeMail')->name('profile.changemail');
     // Route::post('profile/changepass', 'ProfileController@changePass')->name('profile.changepass');
+
+    Route::get('/material/{id}', [FileController::class, 'DigitalFilestudent'])->name('student.digital.viewFile');
+Route::get('/digita/book/home', [FileController::class, 'Home'])->name('studentlibrary');
+Route::get('/all/digital/file/student',[FileController::class, 'AllDigitalBook'])->name('admin.studentlibrarydigital');
+Route::get('/view/student/single/student/{id}',[FileController::class, 'viewdigitalSingle'])->name('viewshow');
+Route::get('/library', [FileController::class, 'searchdigitalbook'])->name('library.index');
+
 });

@@ -912,8 +912,8 @@ $testimonials = Testimonial::where('status', 1)->latest()->take(3)->get();
 </section>
 
 
-  <section class="cta-section py-6 position-relative overflow-hidden" style="background: linear-gradient(135deg, #0a2463 0%, #1e3a8a 100%);">
-    <!-- Decorative elements -->
+ - CTA Section -->
+<section class="cta-section py-6 position-relative overflow-hidden" style="background: linear-gradient(135deg, #32519a 0%, #1e3a8a 100%);">
     <div class="position-absolute top-0 end-0 w-100 h-100 opacity-10">
         <div class="position-absolute end-0" style="width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%); transform: translate(30%, -30%);"></div>
     </div>
@@ -921,38 +921,39 @@ $testimonials = Testimonial::where('status', 1)->latest()->take(3)->get();
     <div class="container position-relative z-index-1">
         <div class="row align-items-center">
             <div class="col-lg-8 mb-4 mb-lg-0">
-                <h3 class="display-5 fw-bold mb-3 text-white">Ready to Transform Your Future?</h3>
-                <p class="lead mb-0 text-white-80">Join our community of ambitious learners and take the first step toward your dream career</p>
-                
-                <!-- Application features list -->
-                <div class="d-flex flex-wrap gap-3 mt-4">
-                    <div class="d-flex align-items-center text-white-80">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+               <h3 class="display-5 fw-bold mb-3 text-white">Ready to Transform Your Future?</h3>
+               <p class="lead mb-0 text-white text-opacity-80">Join our community of ambitious learners and take the first step toward your dream career</p>
+               
+               <div class="d-flex flex-wrap gap-3 mt-4">
+                    <div class="d-flex align-items-center text-white">
+                        <i class="fas fa-check-circle text-success me-2"></i>
                         <span>Simple 3-step application</span>
                     </div>
-                    <div class="d-flex align-items-center text-white-80">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    <div class="d-flex align-items-center text-white">
+                        <i class="fas fa-check-circle text-success me-2"></i>
                         <span>No application fees</span>
                     </div>
-                    <div class="d-flex align-items-center text-white-80">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    <div class="d-flex align-items-center text-white">
+                        <i class="fas fa-check-circle text-success me-2"></i>
                         <span>Quick response time</span>
                     </div>
                 </div>
+                <div class="mb-4"></div>
             </div>
             
             <div class="col-lg-4 text-lg-end">
                 <a href="<?php echo e(route('application.index')); ?>" class="btn btn-light btn-lg px-4 py-3 fw-bold hover-lift">
                     Start Application
-                    <i class="bi bi-arrow-right ms-2"></i>
+                    <i class="fas fa-arrow-right ms-2"></i>
                 </a>
-                <div class="mt-3 text-white-60 small">
-                    <i class="bi bi-shield-lock me-1"></i> Secure application process
+                <div class="mt-3 text-white text-opacity-60 small">
+                    <i class="fas fa-lock me-1"></i> Secure application process
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 
 <style>
     .cta-section {

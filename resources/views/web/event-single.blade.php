@@ -70,7 +70,7 @@
                                 <p>{!! $event->description !!}</p>
 
 
-                                <div countdown class="conterdown wow fadeInDown animated" data-animation="fadeInDown animated" data-delay=".2s" data-date="{{ date("M d Y", strtotime($event->date)) }} {{ date("h:i:s", strtotime($event->time)) }}">
+                                {{-- <div countdown class="conterdown wow fadeInDown animated" data-animation="fadeInDown animated" data-delay=".2s" data-date="{{ date("M d Y", strtotime($event->date)) }} {{ date("h:i:s", strtotime($event->time)) }}">
                                      <div class="timer">                                         
                                         <div class="timer-outer bdr1">
                                            <span class="days" data-days>0</span> 
@@ -91,7 +91,7 @@
                                         </div>
                                         <p id="time-up"></p>
                                      </div>
-                                </div>
+                                </div> --}}
 
                                 <div class="two-column mt-30">
                                     <div class="row aling-items-center">

@@ -70,28 +70,7 @@
                                 <p><?php echo $event->description; ?></p>
 
 
-                                <div countdown class="conterdown wow fadeInDown animated" data-animation="fadeInDown animated" data-delay=".2s" data-date="<?php echo e(date("M d Y", strtotime($event->date))); ?> <?php echo e(date("h:i:s", strtotime($event->time))); ?>">
-                                     <div class="timer">                                         
-                                        <div class="timer-outer bdr1">
-                                           <span class="days" data-days>0</span> 
-                                           <div class="smalltext"><?php echo e(__('Days')); ?></div>
-                                           <div class="value-bar"></div>
-                                        </div>
-                                        <div class="timer-outer bdr2">
-                                           <span class="hours" data-hours>0</span> 
-                                           <div class="smalltext"><?php echo e(__('Hours')); ?></div>
-                                        </div>
-                                        <div class="timer-outer bdr3">
-                                           <span class="minutes" data-minutes>0</span> 
-                                           <div class="smalltext"><?php echo e(__('Minutes')); ?></div>
-                                        </div>
-                                        <div class="timer-outer bdr4">
-                                           <span class="seconds" data-seconds>0</span> 
-                                           <div class="smalltext"><?php echo e(__('Seconds')); ?></div>
-                                        </div>
-                                        <p id="time-up"></p>
-                                     </div>
-                                </div>
+                                
 
                                 <div class="two-column mt-30">
                                     <div class="row aling-items-center">

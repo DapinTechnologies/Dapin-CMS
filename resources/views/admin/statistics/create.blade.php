@@ -18,6 +18,24 @@
             <input type="number" class="form-control" name="count" required>
         </div>
 
+         <div class="form-group">
+            <label for="icon">Icon</label>
+            <select class="form-control" name="icon" required>
+                @foreach(\App\Models\Statistic::iconOptions() as $value => $label)
+                    <option value="{{ $value }}">{{ $label }} ({{ $value }})</option>
+                @endforeach
+            </select>
+        </div>
+
+           <div class="form-group">
+            <label for="icon_color">Icon Color</label>
+            <select class="form-control" name="icon_color" required>
+                @foreach(\App\Models\Statistic::colorOptions() as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <button type="submit" class="btn btn-success mt-3">Save Statistic</button>
     </form>
 </div>

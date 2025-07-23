@@ -44,7 +44,7 @@
                                 <div class="cat"><i class="fal fa-graduation-cap"></i> {{ $course->faculty }}</div>
 
                                 <h3><a href="{{ route('course.single', ['slug' => $course->slug]) }}">{{ $course->title }}</a></h3>
-                                <p>{!! str_limit(strip_tags($course->description), 120, ' ...') !!}</p>
+                                <p style="color: #666;">{!! str_limit(strip_tags($course->description), 120, ' ...') !!}</p>  <!-- Lighter Dark Color -->
 
                                 <a href="{{ route('course.single', ['slug' => $course->slug]) }}" class="readmore">{{ __('btn_read_more') }} <i class="fal fa-long-arrow-right"></i></a>
                             </div>
@@ -80,8 +80,8 @@
 <!-- Add this style to the bottom of your content -->
 
 <style>
-    /* Ensure course description text is black */
+    /* Ensure course description text is lighter dark color */
     .courses-content p {
-        color: black;  /* Set text color to black */
+        color: #666 !important;  /* Set text color to lighter dark gray */
     }
 </style>

@@ -23,22 +23,22 @@
             <div class="col-lg-8 col-md-6">
                 <article class="director-text ps-lg-4" itemscope itemtype="https://schema.org/Article" data-aos="fade-left">
                     <header>
-                        <h1 class="text-uppercase text-muted mb-2 h6">
+                        <h1 class="text-uppercase text-muted mb-2 h6" style="color: #666;">
                             <i class="fal fa-user-tie me-2"></i>
                             <span itemprop="headline">Message from the Director</span>
                         </h1>
-                        <h2 class="fw-bold h4 mb-3" itemprop="about"><?php echo e($director->title); ?></h2>
+                        <h2 class="fw-bold h4 mb-3" style="color: #666;" itemprop="about"><?php echo e($director->title); ?></h2>
                     </header>
 
                     <!-- Quote Box -->
                     <blockquote class="director-quote mb-3" itemprop="articleBody" data-aos="fade-up" data-aos-duration="800">
                         <i class="fas fa-quote-left text-primary me-2"></i>
-                        <p class="mb-0 text-dark d-inline"><?php echo e($director->message); ?></p>
+                        <p class="mb-0 text-dark d-inline" style="color: #666;"><?php echo e($director->message); ?></p>
                         <i class="fas fa-quote-right text-primary ms-2"></i>
                     </blockquote>
 
                     <footer>
-                        <h3 class="fw-semibold mb-1 h5" itemprop="author"><?php echo e($director->name); ?></h3>
+                        <h3 class="fw-semibold mb-1 h5" itemprop="author" style="color: #666;"><?php echo e($director->name); ?></h3>
                         <p class="fst-italic text-muted mb-0">Director</p>
                     </footer>
                 </article>

@@ -48,7 +48,7 @@
                                         </h2>
                                     </div>
                                     <div id="collapse-<?php echo e($key); ?>" class="collapse <?php if($key == 0): ?> show <?php endif; ?>" data-bs-parent="#accordionExample">
-                                        <div class="card-body">
+                                        <div class="card-body" style="color: #666;"> <!-- Lighter dark text -->
                                             <?php echo $faq->description; ?>
 
                                         </div>
@@ -68,4 +68,20 @@
     <!-- main-area-end -->
 
 <?php $__env->stopSection(); ?>
+
+<!-- Styles for Light Dark Text -->
+<style>
+    .card-body {
+        color: #666; /* Apply lighter dark color to FAQ descriptions */
+    }
+
+    .card-header button {
+        color: #666; /* Apply lighter dark color to FAQ titles */
+    }
+
+    .card-header button.collapsed {
+        color: #4A5568; /* Darker text on collapse */
+    }
+</style>
+
 <?php echo $__env->make('web.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/faq.blade.php ENDPATH**/ ?>

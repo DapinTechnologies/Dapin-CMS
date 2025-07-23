@@ -30,6 +30,8 @@ use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
 use App\Services\ApplicationSmsService;
 use Illuminate\Support\Facades\Http;
+use Flasher\Laravel\FlashServiceProvider; // Ensure this is imported
+use Flasher\Laravel\Flasher;
 
 class ApplicationController extends Controller
 {
@@ -238,70 +240,43 @@ public function edit(Application $application)
      */
 public function update(Request $request, Application $application)
 {
+    // Validate the incoming request
     $request->validate([
-        'program'           => 'required|integer',
-        'first_name'        => 'required|string|max:255',
-        'last_name'         => 'required|string|max:255',
-        'email'             => 'required|email|unique:applications,email,' . $application->id,
-        'phone'             => 'required|string|max:30',
-        'gender'            => 'required|in:1,2,3',
-        'dob'               => 'required|date',
-        'kcse_index_no'     => 'required|string|max:50',
-        'kcse_year'         => 'required|string|max:10',
-        'kcse_grade'        => 'required|string|max:10',
-        'kcse_certificate'  => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-        'kcse_result_slip'  => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-        'county'            => 'required|integer',
-        'sub_county'        => 'required|integer',
-        'physical_address'  => 'nullable|string|max:255',
-        'mode_of_education' => 'required|string|in:Physical,Online,Hybrid',
+        'program' => 'required|integer',
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'email' => 'required|email|unique:applications,email,' . $application->id,
+        'phone' => 'required|string|max:30',
+        'gender' => 'required|in:1,2,3',
+        'dob' => 'required|date',
+        'kcse_index_no' => 'required|string|max:50',
+        'kcse_year' => 'required|string|max:10',
+        'kcse_grade' => 'required|string|max:10',
+        'county' => 'required|integer',
+        'sub_county' => 'required|integer',
     ]);
 
     try {
         DB::beginTransaction();
 
-        $student = Application::findOrFail($application->id);
+        // Updating application status to approved
+        $application->status = 2; // Approved
+        $application->save();
 
-        $student->program_id        = $request->program;
-        $student->first_name        = $request->first_name;
-        $student->last_name         = $request->last_name;
-        $student->dob               = $request->dob;
-        $student->phone             = $request->phone;
-        $student->email             = $request->email;
-        $student->national_id       = $request->national_id;
-        $student->gender            = $request->gender;
-
-        $student->kcse_index_no     = $request->kcse_index_no;
-        $student->kcse_year         = $request->kcse_year;
-        $student->kcse_grade        = $request->kcse_grade;
-
-        $student->county_id         = $request->county;
-        $student->sub_county_id     = $request->sub_county;
-        $student->present_address   = $request->physical_address;
-        $student->mode_of_study     = $request->mode_of_education;
-
-        if ($request->hasFile('kcse_certificate')) {
-            $student->kcse_certificate = $request->file('kcse_certificate')->store('certificates', 'public');
-        }
-        if ($request->hasFile('kcse_result_slip')) {
-            $student->kcse_result_slip = $request->file('kcse_result_slip')->store('result_slips', 'public');
-        }
-
-        $student->status = 2;
-        $student->registration_no = '100-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
-
-        $student->save();
-
+        // Commit the transaction
         DB::commit();
 
-    //  return redirect()->route('application.index')->with('success', 'Approved successfully!');
-return redirect()->route('admin.application.index')->with('success', 'Approved successfully!');
+        // Store success message
+        session()->flash('success', 'Application has been approved successfully!');
 
-
-
+        return redirect()->route('admin.application.index');
     } catch (\Exception $e) {
         DB::rollBack();
-        return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
+
+        // Store error message
+        session()->flash('error', 'An error occurred: ' . $e->getMessage());
+
+        return redirect()->back()->withInput();
     }
 }
 

@@ -18,14 +18,12 @@
             <div class="col-lg-6 col-md-12" data-aos="fade-left">
                 <article class="about-content s-about-content ps-lg-4">
                     <header class="about-title second-title pb-3" data-aos="fade-up">
-                        <h1 class="h5 mb-2" style="color: #000;"> {{-- Removed text-primary, set color to black --}}
+                        <h1 class="h5 mb-2" style="color: #666;"> {{-- Lighter dark shade --}}
                             <i class="fal fa-graduation-cap me-2"></i>{{ $about->label }}
                         </h1>
-                        <h2 class="display-6 mb-3" style="color: #000;">{{ $about->title }}</h2> {{-- Set color to black --}}
+                        <h2 class="display-6 mb-3" style="color: #666;">{{ $about->title }}</h2> {{-- Lighter dark shade --}}
                     </header>
 
-                    {{-- Removed text-dark and fs-5 lh-base as these might override. Controlled by CSS below. --}}
-                    {{-- Removed 'strong' from strip_tags to eliminate bold effect --}}
                     <div class="about-description mb-4" data-aos="fade-up" data-aos-delay="100">
                         {!! strip_tags($about->description, '<a><i><u>') !!}
                     </div>
@@ -34,9 +32,7 @@
                     <div class="bg-white rounded shadow-sm p-4" itemscope itemtype="https://schema.org/Organization" data-aos="fade-up" data-aos-delay="200">
                         @isset($about->mission_title)
                         <div class="mb-3">
-                            <h3 class="mb-2" style="color: #000;" itemprop="mission">{{ $about->mission_title }}</h3> {{-- Set color to black --}}
-                            {{-- Removed text-muted, controlled by CSS below --}}
-                            {{-- Removed 'strong' from strip_tags --}}
+                            <h3 class="mb-2" style="color: #666;" itemprop="mission">{{ $about->mission_title }}</h3> {{-- Lighter dark shade --}}
                             <p class="mb-0">{!! strip_tags($about->mission_desc, '<a><i><u>') !!}</p>
                         </div>
                         @endisset
@@ -44,9 +40,7 @@
                         @isset($about->vision_title)
                         <hr>
                         <div class="mt-3">
-                            <h3 class="mb-2" style="color: #000;" itemprop="vision">{{ $about->vision_title }}</h3> {{-- Set color to black --}}
-                            {{-- Removed text-muted, controlled by CSS below --}}
-                            {{-- Removed 'strong' from strip_tags --}}
+                            <h3 class="mb-2" style="color: #666;" itemprop="vision">{{ $about->vision_title }}</h3> {{-- Lighter dark shade --}}
                             <p class="mb-0">{!! strip_tags($about->vision_desc, '<a><i><u>') !!}</p>
                         </div>
                         @endisset
@@ -61,20 +55,21 @@
 @endisset
 
 <style>
-/* Global text color for this section to ensure uniform black */
+/* Set default text color to a lighter dark gray */
 .about-area {
-    color: #000; /* Default text color for the entire section */
+    color: #666; /* Lighter dark shade of black */
 }
 
+/* Ensuring all text in this section uses the lighter dark color */
 .about-area h1,
 .about-area h2,
 .about-area h3,
 .about-area p {
-    color: #000 !important; /* Force all headings and paragraphs to black */
+    color: #666 !important; /* Force all headings and paragraphs to lighter dark shade */
     font-weight: normal !important; /* Ensure no bold effect */
 }
 
-/* Remove strong tag from allowed tags in description content */
+/* Removing bold effect for description paragraphs */
 .about-description,
 .about-description p {
     font-weight: normal !important; /* Explicitly ensure no bold */
@@ -83,15 +78,14 @@
 
 /* Specific adjustments for mission/vision descriptions */
 .bg-white p {
-    color: #000 !important; /* Ensure these paragraphs are also black */
+    color: #666 !important; /* Ensure these paragraphs are lighter dark shade */
     font-weight: normal !important; /* No bold */
 }
-
 
 .parallax-section {
     position: relative;
     overflow: hidden;
-    background-color: #eff7ff; /* Consistent with previous modern styles */
+    background-color: #eff7ff; /* Light background to keep contrast */
 }
 
 .parallax-bg {
@@ -113,7 +107,7 @@
     z-index: 1;
 }
 
-/* Ensure no default bolding from Bootstrap classes if any */
+/* Removing any default bolding from Bootstrap classes */
 .about-title .h5 {
     font-weight: normal !important;
 }
@@ -121,9 +115,8 @@
     font-weight: normal !important;
 }
 
-
 @media (max-width: 767.98px) {
-    /* Reduce bottom margin of feature services */
+    /* Adjust margins and padding for smaller devices */
     .service-details-two {
         margin-bottom: 10px !important;
         padding-bottom: 10px !important;

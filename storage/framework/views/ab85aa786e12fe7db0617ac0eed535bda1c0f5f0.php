@@ -13,19 +13,23 @@
         <div class="alert alert-success"><?php echo e(session('success')); ?></div>
     <?php endif; ?>
 
-    <table class="table table-bordered">
+   <table class="table table-bordered">
         <thead>
             <tr>
+                <th>Icon</th>
                 <th>Type</th>
                 <th>Count</th>
+                <th>Color</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             <?php $__currentLoopData = $statistics; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $statistic): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <tr>
+                    <td><i class="fas <?php echo e($statistic->icon); ?> text-<?php echo e($statistic->icon_color); ?>"></i></td>
                     <td><?php echo e($statistic->type); ?></td>
-                    <td><?php echo e($statistic->count); ?></td>
+                    <td><?php echo e(number_format($statistic->count)); ?></td>
+                    <td><span class="badge bg-<?php echo e($statistic->icon_color); ?>"><?php echo e($statistic->icon_color); ?></span></td>
                     <td>
                         <a href="<?php echo e(route('admin.statistics.edit', $statistic->id)); ?>" class="btn btn-warning btn-sm">Edit</a>
                         <form action="<?php echo e(route('admin.statistics.destroy', $statistic->id)); ?>" method="POST" style="display:inline;">

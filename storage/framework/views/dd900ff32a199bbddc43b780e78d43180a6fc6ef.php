@@ -102,15 +102,20 @@
     <h3><?php echo e(__('Location')); ?></h3>
     <content class="form-step">
         <div class="row">
-            <div class="form-group col-md-6">
-                <label for="county"><?php echo e(__('County')); ?> <span>*</span></label>
-                <select class="form-control" name="county" id="county" required>
-                    <option value=""><?php echo e(__('Select County')); ?></option>
-                    <?php $__currentLoopData = $counties; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $county): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <option value="<?php echo e($county->CountyID); ?>" <?php if($row->county_id == $county->CountyID): ?> selected <?php endif; ?>><?php echo e($county->CountyName); ?></option>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </select>
-            </div>
+           <div class="form-group col-md-6">
+    <label for="county"><?php echo e(__('County')); ?> <span>*</span></label>
+    <select class="form-control" name="county" id="county" required>
+        <option value=""><?php echo e(__('Select County')); ?></option>
+        <?php $__currentLoopData = $counties; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $county): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <option value="<?php echo e($county->CountyID); ?>" <?php if($row->county_id == $county->CountyID): ?> selected <?php endif; ?>><?php echo e($county->CountyName); ?></option>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    </select>
+    <div class="invalid-feedback">
+        <?php echo e(__('required_field')); ?> <?php echo e(__('field_county')); ?>
+
+    </div>
+</div>
+
 
            <div class="form-group col-md-6">
             <label for="sub_county"><?php echo e(__('Sub-County')); ?> <span>*</span></label>

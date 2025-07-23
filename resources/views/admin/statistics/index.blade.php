@@ -13,19 +13,23 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <table class="table table-bordered">
+   <table class="table table-bordered">
         <thead>
             <tr>
+                <th>Icon</th>
                 <th>Type</th>
                 <th>Count</th>
+                <th>Color</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @foreach($statistics as $statistic)
                 <tr>
+                    <td><i class="fas {{ $statistic->icon }} text-{{ $statistic->icon_color }}"></i></td>
                     <td>{{ $statistic->type }}</td>
-                    <td>{{ $statistic->count }}</td>
+                    <td>{{ number_format($statistic->count) }}</td>
+                    <td><span class="badge bg-{{ $statistic->icon_color }}">{{ $statistic->icon_color }}</span></td>
                     <td>
                         <a href="{{ route('admin.statistics.edit', $statistic->id) }}" class="btn btn-warning btn-sm">Edit</a>
                         <form action="{{ route('admin.statistics.destroy', $statistic->id) }}" method="POST" style="display:inline;">

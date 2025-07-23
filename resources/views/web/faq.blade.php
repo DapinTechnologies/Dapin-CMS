@@ -47,7 +47,7 @@
                                         </h2>
                                     </div>
                                     <div id="collapse-{{ $key }}" class="collapse @if($key == 0) show @endif" data-bs-parent="#accordionExample">
-                                        <div class="card-body">
+                                        <div class="card-body" style="color: #666;"> <!-- Lighter dark text -->
                                             {!! $faq->description !!}
                                         </div>
                                     </div>
@@ -66,3 +66,18 @@
     <!-- main-area-end -->
 
 @endsection
+
+<!-- Styles for Light Dark Text -->
+<style>
+    .card-body {
+        color: #666; /* Apply lighter dark color to FAQ descriptions */
+    }
+
+    .card-header button {
+        color: #666; /* Apply lighter dark color to FAQ titles */
+    }
+
+    .card-header button.collapsed {
+        color: #4A5568; /* Darker text on collapse */
+    }
+</style>

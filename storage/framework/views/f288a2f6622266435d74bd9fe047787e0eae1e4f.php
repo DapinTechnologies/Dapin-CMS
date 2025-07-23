@@ -1,6 +1,11 @@
 
 <?php $__env->startSection('title', $title); ?>
-<?php $__env->startSection('content'); ?>
+<?php $__env->startSection('content'); ?> 
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <!-- Start Content-->
 <div class="main-body">
@@ -10,25 +15,24 @@
             <div class="col-sm-12">
                 <div class="card">
                     
-                    <!-- Bootstrap Toast Notification -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Notification</strong>
-            <small>Just now</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            <?php if(session('success')): ?>
-                <span class="text-success"><?php echo e(session('success')); ?></span>
-            <?php endif; ?>
-            <?php if(session('error')): ?>
-                <span class="text-danger"><?php echo e(session('error')); ?></span>
-            <?php endif; ?>
-        </div>
-    </div>
-</div>
-
+                    <!-- Success or Error Alert -->
+                    <?php if(session('success')): ?>
+                        <script>
+                            toastr.success("<?php echo e(session('success')); ?>", "Success", {
+                                "positionClass": "toast-top-right",
+                                "closeButton": true,
+                                "progressBar": true
+                            });
+                        </script>
+                    <?php elseif(session('error')): ?>
+                        <script>
+                            toastr.error("<?php echo e(session('error')); ?>", "Error", {
+                                "positionClass": "toast-top-right",
+                                "closeButton": true,
+                                "progressBar": true
+                            });
+                        </script>
+                    <?php endif; ?>
 
                     <div class="card-header">
                         <h5><?php echo e($title); ?> <?php echo e(__('list')); ?></h5>
@@ -41,14 +45,9 @@
                                     <select class="form-control" name="program" id="program">
                                         <option value="0"><?php echo e(__('all')); ?></option>
                                         <?php $__currentLoopData = $programs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $program): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($program->id); ?>" <?php if( $selected_program == $program->id): ?> selected <?php endif; ?>><?php echo e($program->title); ?></option>
+                                            <option value="<?php echo e($program->id); ?>" <?php if( $selected_program == $program->id): ?> selected <?php endif; ?>><?php echo e($program->title); ?></option>
                                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </select>
-
-                                    <div class="invalid-feedback">
-                                      <?php echo e(__('required_field')); ?> <?php echo e(__('field_program')); ?>
-
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="status"><?php echo e(__('field_status')); ?></label>
@@ -58,38 +57,18 @@
                                         <option value="2" <?php if( $selected_status == 2 ): ?> selected <?php endif; ?>><?php echo e(__('status_approved')); ?></option>
                                         <option value="0" <?php if( $selected_status == 0 ): ?> selected <?php endif; ?>><?php echo e(__('status_rejected')); ?></option>
                                     </select>
-
-                                    <div class="invalid-feedback">
-                                      <?php echo e(__('required_field')); ?> <?php echo e(__('field_status')); ?>
-
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="start_date"><?php echo e(__('field_from_date')); ?></label>
                                     <input type="date" class="form-control date" name="start_date" id="start_date" value="<?php echo e($selected_start_date); ?>" required>
-
-                                    <div class="invalid-feedback">
-                                      <?php echo e(__('required_field')); ?> <?php echo e(__('field_from_date')); ?>
-
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="end_date"><?php echo e(__('field_to_date')); ?></label>
                                     <input type="date" class="form-control date" name="end_date" id="end_date" value="<?php echo e($selected_end_date); ?>" required>
-
-                                    <div class="invalid-feedback">
-                                      <?php echo e(__('required_field')); ?> <?php echo e(__('field_to_date')); ?>
-
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="registration_no"><?php echo e(__('field_registration_no')); ?></label>
                                     <input type="text" class="form-control" name="registration_no" id="registration_no" value="<?php echo e($selected_registration_no); ?>">
-
-                                    <div class="invalid-feedback">
-                                      <?php echo e(__('required_field')); ?> <?php echo e(__('field_registration_no')); ?>
-
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-search"></i> <?php echo e(__('btn_search')); ?></button>
@@ -120,38 +99,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  <?php $__currentLoopData = $rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php $__currentLoopData = $rows; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <tr>
                                         <td><?php echo e($key + 1); ?></td>
                                         <td>
-                                            <a href="<?php echo e(route($route.'.show', $row->id)); ?>">
-                                            #<?php echo e($row->registration_no); ?>
-
-                                            </a>
+                                            <a href="<?php echo e(route($route.'.show', $row->id)); ?>">#<?php echo e($row->registration_no); ?></a>
                                         </td>
                                         <td><?php echo e($row->first_name); ?> <?php echo e($row->last_name); ?></td>
-                                        <td>
-                                            <?php if( $row->gender == 1 ): ?>
-                                            <?php echo e(__('gender_male')); ?>
-
-                                            <?php elseif( $row->gender == 2 ): ?>
-                                            <?php echo e(__('gender_female')); ?>
-
-                                            <?php elseif( $row->gender == 3 ): ?>
-                                            <?php echo e(__('gender_other')); ?>
-
-                                            <?php endif; ?>
-                                        </td>
+                                        <td><?php echo e($row->gender == 1 ? __('gender_male') : ($row->gender == 2 ? __('gender_female') : __('gender_other'))); ?></td>
                                         <td><?php echo e($row->program->title ?? ''); ?></td>
-                                        <td>
-                                            <?php if(isset($setting->date_format)): ?>
-                                            <?php echo e(date($setting->date_format, strtotime($row->apply_date))); ?>
-
-                                            <?php else: ?>
-                                            <?php echo e(date("Y-m-d", strtotime($row->apply_date))); ?>
-
-                                            <?php endif; ?>
-                                        </td>
+                                        <td><?php echo e(date("Y-m-d", strtotime($row->apply_date))); ?></td>
                                         <td>
                                             <?php if( $row->status == 1 ): ?>
                                             <span class="badge badge-pill badge-primary"><?php echo e(__('status_pending')); ?></span>
@@ -209,40 +166,28 @@
                 </div>
             </div>
             <?php endif; ?>
-            
         </div>
         <!-- [ Main Content ] end -->
     </div>
 </div>
 <!-- End Content-->
 
-<style>
-    .toast {
-        background-color: white;
-        border-left: 4px solid;
-    }
-    
+<script type="text/javascript">
     <?php if(session('success')): ?>
-        .toast {
-            border-left-color: #198754; /* Bootstrap success color */
-        }
+        toastr.success("<?php echo e(session('success')); ?>", "Success", {
+            "positionClass": "toast-top-right",
+            "closeButton": true,
+            "progressBar": true
+        });
+    <?php elseif(session('error')): ?>
+        toastr.error("<?php echo e(session('error')); ?>", "Error", {
+            "positionClass": "toast-top-right",
+            "closeButton": true,
+            "progressBar": true
+        });
     <?php endif; ?>
-    
-    <?php if(session('error')): ?>
-        .toast {
-            border-left-color: #dc3545; /* Bootstrap danger color */
-        }
-    <?php endif; ?>
-</style>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toastEl = document.getElementById('liveToast');
-        
-        <?php if(session('success') || session('error')): ?>
-            const toast = new bootstrap.Toast(toastEl);
-            toast.show();
-        <?php endif; ?>
-    });
 </script>
+
 <?php $__env->stopSection(); ?>
+
 <?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/admin/application/index.blade.php ENDPATH**/ ?>

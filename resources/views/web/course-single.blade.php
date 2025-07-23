@@ -10,7 +10,6 @@
     <meta property='og:url' content="{{ route('course.single', ['slug' => $course->slug]) }}"/>
     <meta property='og:image' content="{{ asset('uploads/course/'.$course->attach) }}"/>
 
-
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="{!! '@'.str_replace(' ', '', $setting->title) !!}" />
     <meta name="twitter:creator" content="@HiTechParks" />
@@ -57,7 +56,7 @@
                 <div class="lower-content">
                     <div class="row">
                         <div class="text-column col-lg-9 col-md-9 col-sm-12">
-                            <h2>{{ $course->title }}</h2>
+                            <h2 style="color: #666;">{{ $course->title }}</h2>  <!-- Light dark color for title -->
                             
                             <div class="upper-box">
                                 <div class="single-item-carousel owl-carousel owl-theme">
@@ -65,29 +64,26 @@
                                 </div>
                             </div>
                             <div class="inner-column">
-                                <p>{!! $course->description !!}</p>
+                                <p style="color: #666;">{!! $course->description !!}</p>  <!-- Light dark color for description -->
                             </div>
                         </div>
-                        
 
-                        
-<div class="col-lg-3">
-    <aside class="sidebar-widget info-column">
-        <div class="inner-column3">
-            <h3>Course Info</h3>
-            <ul class="project-info clearfix">
-                <li><strong>Faculty:</strong> {{ $course->faculty }}</li>
-                <li><strong>Semesters:</strong> {{ $course->semesters }}</li>
-                <li><strong>Credits:</strong> {{ $course->credits }}</li>
-                <li><strong>Subjects:</strong> {{ $course->courses }}</li>
-                <li><strong>Duration:</strong> {{ $course->duration }}</li>
-                <li><strong>Fee:</strong> KSH {{ number_format($course->fee, 2) }}</li>
-            </ul>
-        </div>
-    </aside>
-</div>
-
-
+                        <!-- Sidebar Section -->
+                        <div class="col-lg-3">
+                            <aside class="sidebar-widget info-column">
+                                <div class="inner-column3">
+                                    <h3 style="color: #666;">Course Info</h3>  <!-- Light dark color for "Course Info" title -->
+                                    <ul class="project-info clearfix">
+                                        <li><strong>Faculty:</strong> <span style="color: #666;">{{ $course->faculty }}</span></li>
+                                        <li><strong>Semesters:</strong> <span style="color: #666;">{{ $course->semesters }}</span></li>
+                                        <li><strong>Credits:</strong> <span style="color: #666;">{{ $course->credits }}</span></li>
+                                        <li><strong>Subjects:</strong> <span style="color: #666;">{{ $course->courses }}</span></li>
+                                        <li><strong>Duration:</strong> <span style="color: #666;">{{ $course->duration }}</span></li>
+                                        <li><strong>Fee:</strong> <span style="color: #666;">KSH {{ number_format($course->fee, 2) }}</span></li>
+                                    </ul>
+                                </div>
+                            </aside>
+                        </div>
 
                     </div>
                 </div>
@@ -99,3 +95,14 @@
     <!-- main-area-end -->
 
 @endsection
+
+<!-- Additional Custom Styles for Color -->
+<style>
+    .project-detail p, .project-info li span {
+        color: #666 !important; /* Apply lighter dark color to all descriptions and list items */
+    }
+
+    .project-detail h2, .sidebar-widget h3 {
+        color: #666 !important; /* Apply lighter dark color to headings */
+    }
+</style>

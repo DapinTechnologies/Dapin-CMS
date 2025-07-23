@@ -102,15 +102,19 @@
     <h3>{{ __('Location') }}</h3>
     <content class="form-step">
         <div class="row">
-            <div class="form-group col-md-6">
-                <label for="county">{{ __('County') }} <span>*</span></label>
-                <select class="form-control" name="county" id="county" required>
-                    <option value="">{{ __('Select County') }}</option>
-                    @foreach($counties as $county)
-                        <option value="{{ $county->CountyID }}" @if($row->county_id == $county->CountyID) selected @endif>{{ $county->CountyName }}</option>
-                    @endforeach
-                </select>
-            </div>
+           <div class="form-group col-md-6">
+    <label for="county">{{ __('County') }} <span>*</span></label>
+    <select class="form-control" name="county" id="county" required>
+        <option value="">{{ __('Select County') }}</option>
+        @foreach($counties as $county)
+            <option value="{{ $county->CountyID }}" @if($row->county_id == $county->CountyID) selected @endif>{{ $county->CountyName }}</option>
+        @endforeach
+    </select>
+    <div class="invalid-feedback">
+        {{ __('required_field') }} {{ __('field_county') }}
+    </div>
+</div>
+
 
            <div class="form-group col-md-6">
             <label for="sub_county">{{ __('Sub-County') }} <span>*</span></label>

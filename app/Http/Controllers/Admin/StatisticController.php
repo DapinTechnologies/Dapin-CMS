@@ -26,6 +26,8 @@ class StatisticController extends Controller
         $request->validate([
             'type' => 'required|string|max:255',
             'count' => 'required|integer',
+            'icon' => 'required|string|max:255',
+        'icon_color' => 'required|string|in:primary,success,warning,danger,secondary'
         ]);
 
         Statistic::create($request->all());
@@ -46,6 +48,8 @@ class StatisticController extends Controller
         $request->validate([
             'type' => 'required|string|max:255',
             'count' => 'required|integer',
+               'icon' => 'required|string|max:255',
+        'icon_color' => 'required|string|in:primary,success,warning,danger,secondary'
         ]);
 
         $statistic = Statistic::findOrFail($id);

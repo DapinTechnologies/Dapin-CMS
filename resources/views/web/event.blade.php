@@ -38,22 +38,29 @@
                     <div class="col-lg-4 col-md-6  wow fadeInUp animated" data-animation="fadeInUp" data-delay=".4s">
                         <div class="event-item mb-30 hover-zoomin">
                             <div class="thumb">
-                                <a href="{{ route('event.single', ['id' => $event->id, 'slug' => $event->slug]) }}"><img src="{{ asset('uploads/web-event/'.$event->attach) }}" alt="Event"></a>
+                                <a href="{{ route('event.single', ['id' => $event->id, 'slug' => $event->slug]) }}">
+                                    <img src="{{ asset('uploads/web-event/'.$event->attach) }}" alt="Event">
+                                </a>
                             </div>
-                            <div class="event-content">                                    
+                            <div class="event-content" style="color: #666;"> <!-- Lighter dark text color for event content -->
+                                
                                 <div class="date"><strong>{{ date("d", strtotime($event->date)) }}</strong> {{ date("M, Y", strtotime($event->date)) }}</div>
                                 
-                                <h3><a href="{{ route('event.single', ['id' => $event->id, 'slug' => $event->slug]) }}">{{ $event->title }}</a></h3>
+                                <h3>
+                                    <a href="{{ route('event.single', ['id' => $event->id, 'slug' => $event->slug]) }}" style="color: #666;"> <!-- Lighter dark color for title -->
+                                        {{ $event->title }}
+                                    </a>
+                                </h3>
 
                                 <p>{!! str_limit(strip_tags($event->description), 100, ' ...') !!}</p>
 
-                                <div class="time">
+                                <div class="time" style="color: #666;"> <!-- Lighter dark color for time and address -->
                                     <span>
-                                    @if(isset($setting->time_format))
-                                    {{ date($setting->time_format, strtotime($event->time)) }}
-                                    @else
-                                    {{ date("h:i A", strtotime($event->time)) }}
-                                    @endif
+                                        @if(isset($setting->time_format))
+                                            {{ date($setting->time_format, strtotime($event->time)) }}
+                                        @else
+                                            {{ date("h:i A", strtotime($event->time)) }}
+                                        @endif
                                     </span>
                                     <i class="fal fa-long-arrow-right"></i> 
                                     <strong>{{ $event->address }}</strong>
@@ -83,3 +90,18 @@
     <!-- main-area-end -->
 
 @endsection
+
+<!-- Additional Custom Styles for Color -->
+<style>
+    .event-content {
+        color: #666 !important; /* Apply lighter dark color to event descriptions */
+    }
+
+    .event-content h3 a {
+        color: #666 !important; /* Apply lighter dark color to event titles */
+    }
+
+    .time {
+        color: #666 !important; /* Apply lighter dark color to time and address */
+    }
+</style>

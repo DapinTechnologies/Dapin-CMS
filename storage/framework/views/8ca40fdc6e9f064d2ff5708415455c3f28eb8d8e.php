@@ -38,24 +38,32 @@
                     <div class="col-lg-4 col-md-6  wow fadeInUp animated" data-animation="fadeInUp" data-delay=".4s">
                         <div class="event-item mb-30 hover-zoomin">
                             <div class="thumb">
-                                <a href="<?php echo e(route('event.single', ['id' => $event->id, 'slug' => $event->slug])); ?>"><img src="<?php echo e(asset('uploads/web-event/'.$event->attach)); ?>" alt="Event"></a>
+                                <a href="<?php echo e(route('event.single', ['id' => $event->id, 'slug' => $event->slug])); ?>">
+                                    <img src="<?php echo e(asset('uploads/web-event/'.$event->attach)); ?>" alt="Event">
+                                </a>
                             </div>
-                            <div class="event-content">                                    
+                            <div class="event-content" style="color: #666;"> <!-- Lighter dark text color for event content -->
+                                
                                 <div class="date"><strong><?php echo e(date("d", strtotime($event->date))); ?></strong> <?php echo e(date("M, Y", strtotime($event->date))); ?></div>
                                 
-                                <h3><a href="<?php echo e(route('event.single', ['id' => $event->id, 'slug' => $event->slug])); ?>"><?php echo e($event->title); ?></a></h3>
+                                <h3>
+                                    <a href="<?php echo e(route('event.single', ['id' => $event->id, 'slug' => $event->slug])); ?>" style="color: #666;"> <!-- Lighter dark color for title -->
+                                        <?php echo e($event->title); ?>
+
+                                    </a>
+                                </h3>
 
                                 <p><?php echo str_limit(strip_tags($event->description), 100, ' ...'); ?></p>
 
-                                <div class="time">
+                                <div class="time" style="color: #666;"> <!-- Lighter dark color for time and address -->
                                     <span>
-                                    <?php if(isset($setting->time_format)): ?>
-                                    <?php echo e(date($setting->time_format, strtotime($event->time))); ?>
+                                        <?php if(isset($setting->time_format)): ?>
+                                            <?php echo e(date($setting->time_format, strtotime($event->time))); ?>
 
-                                    <?php else: ?>
-                                    <?php echo e(date("h:i A", strtotime($event->time))); ?>
+                                        <?php else: ?>
+                                            <?php echo e(date("h:i A", strtotime($event->time))); ?>
 
-                                    <?php endif; ?>
+                                        <?php endif; ?>
                                     </span>
                                     <i class="fal fa-long-arrow-right"></i> 
                                     <strong><?php echo e($event->address); ?></strong>
@@ -86,4 +94,20 @@
     <!-- main-area-end -->
 
 <?php $__env->stopSection(); ?>
+
+<!-- Additional Custom Styles for Color -->
+<style>
+    .event-content {
+        color: #666 !important; /* Apply lighter dark color to event descriptions */
+    }
+
+    .event-content h3 a {
+        color: #666 !important; /* Apply lighter dark color to event titles */
+    }
+
+    .time {
+        color: #666 !important; /* Apply lighter dark color to time and address */
+    }
+</style>
+
 <?php echo $__env->make('web.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/event.blade.php ENDPATH**/ ?>
