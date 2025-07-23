@@ -119,7 +119,7 @@ class ApplicationController extends Controller
 public function store(Request $request)
 {
    
-    dd($request->all());
+    //dd($request->all());
 
     $request->validate([
         'first_name'         => 'required|string|max:255',
@@ -158,7 +158,7 @@ public function store(Request $request)
     $application->sub_county_id      = $request->sub_county;
     $application->present_address    = $request->physical_address;
     $application->mode_of_study      = $request->mode_of_education;
-    $application->status             = 1; // or whatever you want
+    $application->status             = 2; // or whatever you want
 
     // Save files if present
     if ($request->hasFile('kcse_certificate')) {
@@ -208,14 +208,7 @@ public function edit(Application $application)
     $data['path'] = $this->path;
 
     // Existing data
-    $data['provinces'] = Province::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
-    $data['present_districts'] = District::where('status', '1')
-                            ->where('province_id', $application->present_province)
-                            ->orderBy('title', 'asc')->get();
-    $data['permanent_districts'] = District::where('status', '1')
-                            ->where('province_id', $application->permanent_province)
-                            ->orderBy('title', 'asc')->get();
+   
     $data['statuses'] = StatusType::where('status', '1')->get();
     $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
     
@@ -231,7 +224,7 @@ public function edit(Application $application)
     $data['row'] = $application; // Pass the application data
 
     
-    dd($application);
+   //dd($application);
     return view($this->view.'.edit', $data);
 }
 
@@ -243,22 +236,76 @@ public function edit(Application $application)
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Application $application)
-    {
-        //
-        if($application->status == 0){
-        $application->status = '1';
-        }else{
-        $application->status = '0';
+public function update(Request $request, Application $application)
+{
+    $request->validate([
+        'program'           => 'required|integer',
+        'first_name'        => 'required|string|max:255',
+        'last_name'         => 'required|string|max:255',
+        'email'             => 'required|email|unique:applications,email,' . $application->id,
+        'phone'             => 'required|string|max:30',
+        'gender'            => 'required|in:1,2,3',
+        'dob'               => 'required|date',
+        'kcse_index_no'     => 'required|string|max:50',
+        'kcse_year'         => 'required|string|max:10',
+        'kcse_grade'        => 'required|string|max:10',
+        'kcse_certificate'  => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+        'kcse_result_slip'  => 'nullable|file|mimes:pdf,jpg,jpeg,png',
+        'county'            => 'required|integer',
+        'sub_county'        => 'required|integer',
+        'physical_address'  => 'nullable|string|max:255',
+        'mode_of_education' => 'required|string|in:Physical,Online,Hybrid',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $student = Application::findOrFail($application->id);
+
+        $student->program_id        = $request->program;
+        $student->first_name        = $request->first_name;
+        $student->last_name         = $request->last_name;
+        $student->dob               = $request->dob;
+        $student->phone             = $request->phone;
+        $student->email             = $request->email;
+        $student->national_id       = $request->national_id;
+        $student->gender            = $request->gender;
+
+        $student->kcse_index_no     = $request->kcse_index_no;
+        $student->kcse_year         = $request->kcse_year;
+        $student->kcse_grade        = $request->kcse_grade;
+
+        $student->county_id         = $request->county;
+        $student->sub_county_id     = $request->sub_county;
+        $student->present_address   = $request->physical_address;
+        $student->mode_of_study     = $request->mode_of_education;
+
+        if ($request->hasFile('kcse_certificate')) {
+            $student->kcse_certificate = $request->file('kcse_certificate')->store('certificates', 'public');
         }
-        $application->updated_by = Auth::guard('web')->user()->id;
-        $application->save();
+        if ($request->hasFile('kcse_result_slip')) {
+            $student->kcse_result_slip = $request->file('kcse_result_slip')->store('result_slips', 'public');
+        }
 
-        
-        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
+        $student->status = 2;
+        $student->registration_no = '100-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
 
-        return redirect()->back();
+        $student->save();
+
+        DB::commit();
+
+    //  return redirect()->route('application.index')->with('success', 'Approved successfully!');
+return redirect()->route('admin.application.index')->with('success', 'Approved successfully!');
+
+
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
     }
+}
+
+
 
     /**
      * Remove the specified resource from storage.

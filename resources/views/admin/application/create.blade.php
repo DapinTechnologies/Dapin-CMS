@@ -6,6 +6,7 @@
     <title>{{ $applicationSetting->title ?? $title }}</title>
     @include('admin.layouts.common.header_script')
     <link rel="stylesheet" href="{{ asset('dashboard/css/pages/wizard.css') }}">
+     <link rel="stylesheet" href="{{ asset('dashboard/plugins/toastr/css/toastr.min.css') }}">
 </head>
 <body>
 
@@ -210,6 +211,21 @@
 @include('admin.layouts.common.footer_script')
 <script src="{{ asset('dashboard/plugins/jquery-validation/js/jquery.validate.min.js') }}"></script>
 <script src="{{ asset('dashboard/js/pages/jquery.steps.js') }}"></script>
+
+    <!-- toastr Js -->
+    <script src="{{ asset('dashboard/plugins/toastr/js/toastr.min.js') }}"></script>
+    <!-- Toastr message display -->
+    @toastr_render
+
+    <script type="text/javascript">
+        @if($errors->any())
+            @foreach($errors->all() as $error)
+                toastr["error"]("{{ $error }}");
+            @endforeach
+        @endif
+    </script>
+
+
 
 <script>
     "use strict";

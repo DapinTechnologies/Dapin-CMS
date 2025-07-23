@@ -59,8 +59,9 @@ class ApplicationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-  public function store(Request $request)
+public function store(Request $request)
 {
+   // dd($request->all());
     // Field Validation (add more rules as needed)
     $request->validate([
         'program'           => 'required|integer',
@@ -116,24 +117,32 @@ class ApplicationController extends Controller
             $student->kcse_result_slip = $request->file('kcse_result_slip')->store('result_slips', 'public');
         }
 
-        $student->status = '1'; // Pending or default status
+        // Set status to "Pending"
+        $student->status = 1; // or '1' if you prefer numeric
+
+        // Save the student data
         $student->save();
 
         // Set registration number (custom logic)
-        $student->registration_no = intval(10000000) + $student->id;
+        // Assuming the registration number should be 100- + student ID
+        $registrationNumber = '100-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
+        $student->registration_no = $registrationNumber;
         $student->save();
 
         DB::commit();
 
         Toastr::success(__('msg_sent_successfully'), __('msg_success'));
 
-        return redirect()->route($this->route . '.index')->with('success', __('msg_sent_successfully'));
+             
+       return redirect('/')->with('success', 'Application was submitted successfully!');
+
     } catch (\Exception $e) {
         DB::rollBack();
         Toastr::error(__('msg_created_error'), __('msg_error'));
         return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
     }
 }
+
 
 
 }

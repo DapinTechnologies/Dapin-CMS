@@ -32,6 +32,10 @@
                 <label for="phone">{{ __('Phone Number') }} <span>*</span></label>
                 <input type="text" class="form-control" name="phone" id="phone" value="{{ $row->phone }}" required>
             </div>
+<div class="form-group col-md-6">
+    <label for="email">{{ __('Email') }} <span>*</span></label>
+    <input type="email" class="form-control" name="email" id="email" value="{{ $row->email }}" required>
+</div>
 
             <!-- Gender Field -->
             <div class="form-group col-md-6">
@@ -118,6 +122,17 @@
             </select>
         </div>
         </div>
+
+        <div class="form-group col-md-6">
+    <label for="mode_of_education">{{ __('Mode of Study') }} <span>*</span></label>
+    <select class="form-control" name="mode_of_education" id="mode_of_education" required>
+        <option value="">{{ __('Select Mode of Study') }}</option>
+        <option value="Physical" @if($row->mode_of_study == 'Physical') selected @endif>Physical</option>
+        <option value="Online" @if($row->mode_of_study == 'Online') selected @endif>Online</option>
+        <option value="Hybrid" @if($row->mode_of_study == 'Hybrid') selected @endif>Hybrid</option>
+    </select>
+</div>
+
     </content>
 
     <button type="submit" class="btn btn-success">{{ __('Update') }}</button>

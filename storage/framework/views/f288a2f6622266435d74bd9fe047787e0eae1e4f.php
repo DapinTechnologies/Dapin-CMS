@@ -9,6 +9,27 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
+                    
+                    <!-- Bootstrap Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+            <small>Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <?php if(session('success')): ?>
+                <span class="text-success"><?php echo e(session('success')); ?></span>
+            <?php endif; ?>
+            <?php if(session('error')): ?>
+                <span class="text-danger"><?php echo e(session('error')); ?></span>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
+
+
                     <div class="card-header">
                         <h5><?php echo e($title); ?> <?php echo e(__('list')); ?></h5>
                     </div>
@@ -195,5 +216,33 @@
 </div>
 <!-- End Content-->
 
+<style>
+    .toast {
+        background-color: white;
+        border-left: 4px solid;
+    }
+    
+    <?php if(session('success')): ?>
+        .toast {
+            border-left-color: #198754; /* Bootstrap success color */
+        }
+    <?php endif; ?>
+    
+    <?php if(session('error')): ?>
+        .toast {
+            border-left-color: #dc3545; /* Bootstrap danger color */
+        }
+    <?php endif; ?>
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toastEl = document.getElementById('liveToast');
+        
+        <?php if(session('success') || session('error')): ?>
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        <?php endif; ?>
+    });
+</script>
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/admin/application/index.blade.php ENDPATH**/ ?>

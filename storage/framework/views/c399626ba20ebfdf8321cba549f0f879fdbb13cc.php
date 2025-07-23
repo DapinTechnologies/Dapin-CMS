@@ -6,6 +6,7 @@
     <title><?php echo e($applicationSetting->title ?? $title); ?></title>
     <?php echo $__env->make('admin.layouts.common.header_script', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
     <link rel="stylesheet" href="<?php echo e(asset('dashboard/css/pages/wizard.css')); ?>">
+     <link rel="stylesheet" href="<?php echo e(asset('dashboard/plugins/toastr/css/toastr.min.css')); ?>">
 </head>
 <body>
 
@@ -211,6 +212,21 @@
 <?php echo $__env->make('admin.layouts.common.footer_script', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 <script src="<?php echo e(asset('dashboard/plugins/jquery-validation/js/jquery.validate.min.js')); ?>"></script>
 <script src="<?php echo e(asset('dashboard/js/pages/jquery.steps.js')); ?>"></script>
+
+    <!-- toastr Js -->
+    <script src="<?php echo e(asset('dashboard/plugins/toastr/js/toastr.min.js')); ?>"></script>
+    <!-- Toastr message display -->
+    @toastr_render
+
+    <script type="text/javascript">
+        <?php if($errors->any()): ?>
+            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                toastr["error"]("<?php echo e($error); ?>");
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        <?php endif; ?>
+    </script>
+
+
 
 <script>
     "use strict";
