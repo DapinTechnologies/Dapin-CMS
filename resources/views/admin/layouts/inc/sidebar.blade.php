@@ -1015,6 +1015,12 @@
                 <li class="{{ Request::is('admin/reasons*') ? 'active' : '' }}"><a href="{{ route('admin.admin.reasons.index') }}" class="">{{ trans_choice('Reasons', 2) }}</a></li>
                 @endcanany
 
+                @canany(['admission'])
+                <li class="{{ Request::is('admin/admission/process/index*') ? 'active' : '' }}"><a href="{{ route('admin.admission.process.index') }}" class="">{{ trans_choice('Admission Process', 2) }}</a></li>
+                @endcanany
+
+
+
                 @canany(['course-view', 'course-create'])
                 <li class="{{ Request::is('admin/web/course*') ? 'active' : '' }}"><a href="{{ route('admin.course.index') }}" class="">{{ trans_choice('module_course', 2) }}</a></li>
                 @endcanany

@@ -1015,6 +1015,12 @@
                 <li class="<?php echo e(Request::is('admin/reasons*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.admin.reasons.index')); ?>" class=""><?php echo e(trans_choice('Reasons', 2)); ?></a></li>
                 <?php endif; ?>
 
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['admission'])): ?>
+                <li class="<?php echo e(Request::is('admin/admission/process/index*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.admission.process.index')); ?>" class=""><?php echo e(trans_choice('Admission Process', 2)); ?></a></li>
+                <?php endif; ?>
+
+
+
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['course-view', 'course-create'])): ?>
                 <li class="<?php echo e(Request::is('admin/web/course*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.course.index')); ?>" class=""><?php echo e(trans_choice('module_course', 2)); ?></a></li>
                 <?php endif; ?>

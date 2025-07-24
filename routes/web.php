@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\Web\CoreValueController;
 use App\Http\Controllers\Admin\StatisticController;
 use App\Http\Controllers\Admin\ReasonController;
 use App\Http\Controllers\Web\AdmissionController;
+use App\Http\Controllers\Admin\AdmissionProcessController;
 
 Route::get('/admission', [AdmissionController::class, 'index'])->name('web.admission');
 Route::get('/test-email', action: function() {
@@ -196,7 +197,14 @@ Route::post('/store/reasons', [ReasonController::class, 'store'])->name('admin.r
 Route::get('/edit/reason/{id}', [ReasonController::class, 'edit'])->name('admin.reasons.edit');
 Route::post('/update/reasons/{id}', [ReasonController::class, 'update'])->name('admin.reasons.update');
 Route::delete('/delete/reason/{id}', [ReasonController::class, 'destroy'])->name('admin.reasons.destroy');
-//admin.reasons.update
+
+Route::get('/admission-process', [AdmissionProcessController::class, 'index'])->name('admission.process.index');
+Route::get('/admission-process/create', [AdmissionProcessController::class, 'create'])->name('admission.process.create');
+Route::post('/admission-process', [AdmissionProcessController::class, 'store'])->name('admission.process.store');
+Route::get('/admission-process/{id}/edit', [AdmissionProcessController::class, 'edit'])->name('admission.process.edit');
+Route::put('/admission-process/{id}', [AdmissionProcessController::class, 'update'])->name('admission.process.update');
+Route::delete('/admission-process/{id}', [AdmissionProcessController::class, 'destroy'])->name('admission.process.destroy');
+
 
 
 
@@ -904,6 +912,7 @@ Route::prefix('student')->name('student.')->namespace('Student')->group(function
 Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')->namespace('Student')->group(function () {
 
     // Dashboard Route
+    
     Route::get('/', 'DashboardController@index')->name('dashboard.index');
     Route::get('dashboard', 'DashboardController@index')->name('dashboard.index');
 
@@ -959,10 +968,5 @@ Route::resource('subject', 'App\Http\Controllers\Student\StudentSubjectControlle
     // Route::post('profile/changemail', 'ProfileController@changeMail')->name('profile.changemail');
     // Route::post('profile/changepass', 'ProfileController@changePass')->name('profile.changepass');
 
-    Route::get('/material/{id}', [FileController::class, 'DigitalFilestudent'])->name('student.digital.viewFile');
-Route::get('/digita/book/home', [FileController::class, 'Home'])->name('studentlibrary');
-Route::get('/all/digital/file/student',[FileController::class, 'AllDigitalBook'])->name('admin.studentlibrarydigital');
-Route::get('/view/student/single/student/{id}',[FileController::class, 'viewdigitalSingle'])->name('viewshow');
-Route::get('/library', [FileController::class, 'searchdigitalbook'])->name('library.index');
-
+    
 });

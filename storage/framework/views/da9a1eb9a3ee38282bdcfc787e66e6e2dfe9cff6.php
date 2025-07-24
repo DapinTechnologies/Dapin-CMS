@@ -282,6 +282,22 @@
             padding: 1.25rem;
         }
     }
+
+    .modern-heading {
+    font-size: 2.2rem; /* Larger font size */
+    font-weight: 700;  /* Bold text */
+    letter-spacing: 1px; /* Slight spacing between letters */
+    text-transform: uppercase; /* All uppercase letters */
+    color: #1c1c1c; /* Darker text color */
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for emphasis */
+    transition: color 0.3s ease-in-out;
+}
+
+.modern-heading:hover {
+    color: var(--primary); /* Change color on hover */
+    text-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Darker shadow on hover */
+}
+
 </style>
 <?php $__env->stopPush(); ?>
 
@@ -338,201 +354,30 @@
             <h2 class="fw-bold">Admission Process</h2>
             <p class="lead text-muted mx-auto" style="max-width: 700px;">Follow these simple steps to join our institution and begin your journey to success</p>
         </div>
-        
+
         <div class="row g-4">
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="process-step">
-                    <div class="step-number">1</div>
-                    <h3 class="h4">Application</h3>
-                    <p class="text-muted">Complete our online application form or download and submit a physical copy to our admissions office.</p>
-                    <ul class="requirement-list mt-3">
-                        <li><i class="fas fa-check"></i> Personal details</li>
-                        <li><i class="fas fa-check"></i> Academic history</li>
-                        <li><i class="fas fa-check"></i> Course selection</li>
-                    </ul>
+            <?php $__currentLoopData = $steps; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $step): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="<?php echo e(($index + 1) * 100); ?>">
+                    <div class="process-step">
+                        <div class="step-number"><?php echo e($index + 1); ?></div>
+                        <h3 class="h4"><?php echo e($step->title); ?></h3>
+                        <p class="text-muted"><?php echo e($step->description); ?></p>
+
+                        <?php if($step->requirements): ?>
+                           <ul class="requirement-list mt-3">
+    <?php $__currentLoopData = json_decode($step->requirements); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $requirement): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <li style="color: #212529;"> <i class="fas fa-check"></i> <?php echo e($requirement); ?></li>  <!-- Added dark color -->
+    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+</ul>
+
+                        <?php endif; ?>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="process-step">
-                    <div class="step-number">2</div>
-                    <h3 class="h4">Document Submission</h3>
-                    <p class="text-muted">Submit all required documents either online or in person at our admissions office.</p>
-                    <ul class="requirement-list mt-3">
-                        <li><i class="fas fa-check"></i> KCSE certificate/transcript</li>
-                        <li><i class="fas fa-check"></i> National ID/Birth certificate</li>
-                        <li><i class="fas fa-check"></i> Passport photos</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="process-step">
-                    <div class="step-number">3</div>
-                    <h3 class="h4">Admission & Enrollment</h3>
-                    <p class="text-muted">Receive your admission letter and complete the enrollment process.</p>
-                    <ul class="requirement-list mt-3">
-                        <li><i class="fas fa-check"></i> Pay registration fee</li>
-                        <li><i class="fas fa-check"></i> Receive student ID</li>
-                        <li><i class="fas fa-check"></i> Orientation program</li>
-                    </ul>
-                </div>
-            </div>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
 </section>
 
-<!-- Courses and Requirements -->
-<section id="courses" class="py-6 bg-light">
-    <div class="container">
-        <div class="text-center mb-6" data-aos="fade-up">
-            <span class="badge bg-primary-soft text-primary mb-3">Our Course Requirements</span>
-            <h2 class="fw-bold">Courses & Requirements</h2>
-            <p class="lead text-muted mx-auto" style="max-width: 700px;">Explore our programs and their entry requirements to find the perfect fit for your educational goals</p>
-        </div>
-
-        
-       <div class="row g-4">
-    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="100">
-        <div class="course-card">
-            <div class="course-header">
-                <h3 class="h4 mb-0 text-white">Diploma in Business Management</h3>
-            </div>
-            <div class="course-body bg-white">
-                <h5 class="text-dark fw-bold mb-3">KCSE Requirements:</h5>
-                <div class="grades-container bg-light rounded-3 p-3">
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">Mean Grade C- (Minus)</span>
-                    </div>
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">C- in English</span>
-                    </div>
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">D+ in Mathematics</span>
-                    </div>
-                </div>
-                <h5 class="text-dark fw-bold mt-4 mb-3">Modes of Study:</h5>
-                <div class="d-flex flex-wrap">
-                    <span class="mode-badge bg-primary-soft text-primary">
-                        <i class="fas fa-sun"></i> Full-time
-                    </span>
-                    <span class="mode-badge bg-success-soft text-success">
-                        <i class="fas fa-moon"></i> Part-time
-                    </span>
-                    <span class="mode-badge bg-warning-soft text-warning">
-                        <i class="fas fa-clock"></i> Evening
-                    </span>
-                    <span class="mode-badge bg-info-soft text-info">
-                        <i class="fas fa-calendar-weekend"></i> Weekend
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="200">
-        <div class="course-card">
-            <div class="course-header">
-                <h3 class="h4 mb-0 text-white">Certificate in IT</h3>
-            </div>
-            <div class="course-body bg-white">
-                <h5 class="text-dark fw-bold mb-3">KCSE Requirements:</h5>
-                <div class="grades-container bg-light rounded-3 p-3">
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">Mean Grade D+ (Plus)</span>
-                    </div>
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">D in English</span>
-                    </div>
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">D in Mathematics</span>
-                    </div>
-                </div>
-                <h5 class="text-dark fw-bold mt-4 mb-3">Modes of Study:</h5>
-                <div class="d-flex flex-wrap">
-                    <span class="mode-badge bg-primary-soft text-primary">
-                        <i class="fas fa-sun"></i> Full-time
-                    </span>
-                    <span class="mode-badge bg-success-soft text-success">
-                        <i class="fas fa-moon"></i> Part-time
-                    </span>
-                    <span class="mode-badge bg-danger-soft text-danger">
-                        <i class="fas fa-laptop"></i> Online
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="300">
-        <div class="course-card">
-            <div class="course-header">
-                <h3 class="h4 mb-0 text-white">Degree in Education</h3>
-            </div>
-            <div class="course-body bg-white">
-                <h5 class="text-dark fw-bold mb-3">KCSE Requirements:</h5>
-                <div class="grades-container bg-light rounded-3 p-3">
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">Mean Grade C+ (Plus)</span>
-                    </div>
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">C+ in English</span>
-                    </div>
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">C in Mathematics</span>
-                    </div>
-                    <div class="grade-item">
-                        <div class="grade-icon">
-                            <i class="fas fa-star text-primary"></i>
-                        </div>
-                        <span class="text-dark">C+ in 2 teaching subjects</span>
-                    </div>
-                </div>
-                <h5 class="text-dark fw-bold mt-4 mb-3">Modes of Study:</h5>
-                <div class="d-flex flex-wrap">
-                    <span class="mode-badge bg-primary-soft text-primary">
-                        <i class="fas fa-sun"></i> Full-time
-                    </span>
-                    <span class="mode-badge bg-warning-soft text-warning">
-                        <i class="fas fa-clock"></i> Evening
-                    </span>
-                    <span class="mode-badge bg-info-soft text-info">
-                        <i class="fas fa-calendar-weekend"></i> Weekend
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-    </div>
-</section>
 
 <!-- CTA Section -->
 <section class="cta-section py-6 position-relative overflow-hidden" style="background: linear-gradient(135deg, #32519a 0%, #1e3a8a 100%);">
