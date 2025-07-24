@@ -1,6 +1,20 @@
 
 <?php $__env->startSection('title', __('navbar_news')); ?>
 
+<style>
+    .dark-text p {
+        color: black; 
+    }
+</style>
+
+
+
+
+
+
+
+
+
 <?php $__env->startSection('social_meta_tags'); ?>
     <?php if(isset($setting)): ?>
     <meta property="og:type" content="website">
@@ -9,7 +23,6 @@
     <meta property='og:description' content="<?php echo str_limit(strip_tags($news->description), 160, ' ...'); ?>"/>
     <meta property='og:url' content="<?php echo e(route('news.single', ['id' => $news->id, 'slug' => $news->slug])); ?>"/>
     <meta property='og:image' content="<?php echo e(asset('uploads/news/'.$news->attach)); ?>"/>
-
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="<?php echo '@'.str_replace(' ', '', $setting->title); ?>" />
@@ -27,7 +40,7 @@
     <main>
 
         <!-- breadcrumb-area -->
-        <section class="breadcrumb-area d-flex  p-relative align-items-center">
+        <section class="breadcrumb-area d-flex p-relative align-items-center">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-xl-12 col-lg-12">
@@ -57,7 +70,7 @@
                     <div class="col-lg-8">
                         <div class="blog-details-wrap">
                             <div class="details__content pb-30">
-                                <h2><?php echo e($news->title); ?></h2>
+                                <h2 class="dark-white-text"><?php echo e($news->title); ?></h2>
 
                                 <div class="meta-info">
                                     <ul>
@@ -71,8 +84,10 @@
                                 <div class="details__content-img">
                                     <img src="<?php echo e(asset('uploads/news/'.$news->attach)); ?>" alt="News">
                                 </div>
-
-                                <p><?php echo $news->description; ?></p>
+                                    <div class="dark-text">
+                                        <p><?php echo $news->description; ?></p>
+                                    </div>
+                                
                             </div>
 
                         </div>
@@ -86,4 +101,7 @@
     <!-- main-area-end -->
 
 <?php $__env->stopSection(); ?>
+
+
+
 <?php echo $__env->make('web.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/news-single.blade.php ENDPATH**/ ?>

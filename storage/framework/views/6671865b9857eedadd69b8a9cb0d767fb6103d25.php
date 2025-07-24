@@ -6,7 +6,7 @@
     <main>
 
         <!-- breadcrumb-area -->
-        <section class="breadcrumb-area d-flex  p-relative align-items-center">
+        <section class="breadcrumb-area d-flex p-relative align-items-center">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-xl-12 col-lg-12">
@@ -47,9 +47,9 @@
                                 </div>
                             </div>                    
                             <div class="blog-content2">
-                                <h4><a href="<?php echo e(route('news.single', ['id' => $news->id, 'slug' => $news->slug])); ?>"><?php echo e($news->title); ?></a></h4> 
+                                <h4 class="dark-white-text"><a href="<?php echo e(route('news.single', ['id' => $news->id, 'slug' => $news->slug])); ?>"><?php echo e($news->title); ?></a></h4> 
 
-                                <p><?php echo str_limit(strip_tags($news->description), 120, ' ...'); ?></p>
+                                <p class="dark-white-text"><?php echo str_limit(strip_tags($news->description), 120, ' ...'); ?></p>
 
                                 <div class="blog-btn"><a href="<?php echo e(route('news.single', ['id' => $news->id, 'slug' => $news->slug])); ?>"><?php echo e(__('btn_read_more')); ?> <i class="fal fa-long-arrow-right"></i></a></div>
                             </div>
@@ -79,4 +79,11 @@
     <!-- main-area-end -->
 
 <?php $__env->stopSection(); ?>
+
+<style>
+    .dark-white-text {
+        color: #1b1a1a;  /* Light grayish white color */
+    }
+</style>
+
 <?php echo $__env->make('web.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/news.blade.php ENDPATH**/ ?>

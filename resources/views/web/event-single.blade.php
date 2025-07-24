@@ -10,7 +10,6 @@
     <meta property='og:url' content="{{ route('event.single', ['id' => $event->id, 'slug' => $event->slug]) }}"/>
     <meta property='og:image' content="{{ asset('uploads/web-event/'.$event->attach) }}"/>
 
-
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="{!! '@'.str_replace(' ', '', $setting->title) !!}" />
     <meta name="twitter:creator" content="@HiTechParks" />
@@ -66,9 +65,8 @@
                         <div class="text-column col-lg-9 col-md-12 col-sm-12">
                             <div class="s-about-content wow fadeInRight" data-animation="fadeInRight" data-delay=".2s">  
 
-                                <h2>{{ $event->title }}</h2>
-                                <p>{!! $event->description !!}</p>
-
+                                <h2 class="dark-white-text">{{ $event->title }}</h2>
+                                <p class="dark-white-text">{!! $event->description !!}</p>
 
                                 {{-- <div countdown class="conterdown wow fadeInDown animated" data-animation="fadeInDown animated" data-delay=".2s" data-date="{{ date("M d Y", strtotime($event->date)) }} {{ date("h:i:s", strtotime($event->time)) }}">
                                      <div class="timer">                                         
@@ -161,3 +159,9 @@
     <!-- main-area-end -->
 
 @endsection
+
+<style>
+    .dark-white-text {
+        color: #f0f0f0;  /* Light grayish white color */
+    }
+</style>

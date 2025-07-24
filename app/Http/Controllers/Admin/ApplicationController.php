@@ -17,6 +17,9 @@ use App\Models\Document;
 use App\Models\Program;
 use App\Models\Student;
 use App\Models\Batch;
+use App\Models\Session;
+use App\Models\Semester;
+use App\Models\Section;
 use Carbon\Carbon;
 use Toastr;
 use Auth;
@@ -32,6 +35,7 @@ use App\Services\ApplicationSmsService;
 use Illuminate\Support\Facades\Http;
 use Flasher\Laravel\FlashServiceProvider; // Ensure this is imported
 use Flasher\Laravel\Flasher;
+use Illuminate\Support\Str;
 
 class ApplicationController extends Controller
 {
@@ -210,23 +214,19 @@ public function edit(Application $application)
     $data['path'] = $this->path;
 
     // Existing data
-   
     $data['statuses'] = StatusType::where('status', '1')->get();
     $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
-    
-    // Fetch programs and pass to the view
     $data['programs'] = Program::all();
+    $data['counties'] = County::all();
+    $data['sub_counties'] = SubCounty::where('CountyID', $application->county_id)->get();
     
-    // Counties and SubCounties
-    $data['counties'] = County::all(); // Retrieve all counties
-    
-    // Fetch sub-counties based on the selected county ID from $application
-    $data['sub_counties'] = SubCounty::where('CountyID', $application->county_id)->get(); 
+    // Add these new variables
+    $data['sessions'] = Session::where('status', '1')->orderBy('id', 'desc')->get();
+    $data['semesters'] = Semester::where('status', '1')->orderBy('id', 'desc')->get();
+    $data['sections'] = Section::where('status', '1')->orderBy('id', 'desc')->get();
 
-    $data['row'] = $application; // Pass the application data
+    $data['row'] = $application;
 
-    
-   //dd($application);
     return view($this->view.'.edit', $data);
 }
 
@@ -240,8 +240,10 @@ public function edit(Application $application)
      */
 public function update(Request $request, Application $application)
 {
+      \Log::info('Update Request Data:', $request->all());
+    \Log::info('Application Being Updated:', $application->toArray());
     // Validate the incoming request
-    $request->validate([
+    $validated = $request->validate([
         'program' => 'required|integer',
         'first_name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
@@ -254,31 +256,160 @@ public function update(Request $request, Application $application)
         'kcse_grade' => 'required|string|max:10',
         'county' => 'required|integer',
         'sub_county' => 'required|integer',
+        'session' => 'required|integer',
+        'semester' => 'required|integer',
+        'section' => 'required|integer',
+        'student_id' => 'required|unique:students,student_id,' . ($application->student ? $application->student->id : 'NULL'),
+        'mode_of_education' => 'required|string',
+        'kcse_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+        'kcse_result_slip' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
     ]);
 
     try {
         DB::beginTransaction();
 
-        // Updating application status to approved
-        $application->status = 2; // Approved
-        $application->save();
+        // Handle file uploads
+        $certificatePath = $application->kcse_certificate;
+        $resultSlipPath = $application->kcse_result_slip;
+        
+        if ($request->hasFile('kcse_certificate')) {
+            $certificatePath = $this->moveDocument(
+                $request->file('kcse_certificate')->store('public/students/documents'),
+                $application
+            );
+        }
+        
+        if ($request->hasFile('kcse_result_slip')) {
+            $resultSlipPath = $this->moveDocument(
+                $request->file('kcse_result_slip')->store('public/students/documents'),
+                $application
+            );
+        }
 
-        // Commit the transaction
+        // Update the application
+        $application->update([
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'gender' => $validated['gender'],
+            'dob' => $validated['dob'],
+            'kcse_index_no' => $validated['kcse_index_no'],
+            'kcse_year' => $validated['kcse_year'],
+            'kcse_grade' => $validated['kcse_grade'],
+            'kcse_certificate' => $certificatePath,
+            'kcse_result_slip' => $resultSlipPath,
+            'county_id' => $validated['county'],
+            'sub_county_id' => $validated['sub_county'],
+            'program_id' => $validated['program'],
+            'session_id' => $validated['session'],
+            'semester_id' => $validated['semester'],
+            'section_id' => $validated['section'],
+            'status' => 2, // Approved
+        ]);
+
+        // Generate random password
+        $password = Str::random(8);
+
+        // Create or update student record
+        $studentData = [
+            'student_id' => $validated['student_id'],
+            'registration_no' => $application->registration_no,
+            'batch_id' => $application->batch_id,
+            'program_id' => $application->program_id,
+            'admission_date' => $validated['admission_date'] ?? now(),
+            'first_name' => $application->first_name,
+            'last_name' => $application->last_name,
+            'email' => $application->email,
+            'phone' => $application->phone,
+            'gender' => $application->gender,
+            'dob' => $application->dob,
+            'kcse_index_no' => $application->kcse_index_no,
+            'kcse_year' => $application->kcse_year,
+            'kcse_grade' => $application->kcse_grade,
+            'kcse_certificate' => $certificatePath,
+            'kcse_result_slip' => $resultSlipPath,
+            'password' => Hash::make($password),
+            'password_text' => Crypt::encryptString($password),
+            'status' => 1, // Active
+            'created_by' => auth()->id(),
+            'county_id' => $application->county_id,
+            'sub_county_id' => $application->sub_county_id,
+            'mode_of_education' => $validated['mode_of_education'],
+        ];
+
+        $student = Student::updateOrCreate(
+            ['email' => $application->email],
+            $studentData
+        );
+
+        // Create or update student enrollment
+        $enroll = StudentEnroll::updateOrCreate(
+            ['student_id' => $student->id, 'session_id' => $validated['session']],
+            [
+                'semester_id' => $validated['semester'],
+                'program_id' => $validated['program'],
+                'section_id' => $validated['section'],
+                'created_by' => auth()->id(),
+            ]
+        );
+
+        // Assign subjects
+        $enrollSubject = EnrollSubject::where('program_id', $validated['program'])
+                                    ->where('semester_id', $validated['semester'])
+                                    ->where('section_id', $validated['section'])
+                                    ->first();
+
+        if ($enrollSubject) {
+            $enroll->subjects()->sync($enrollSubject->subjects->pluck('id'));
+        }
+
+        // Send welcome SMS
+        try {
+            $this->sendWelcomeSMS($student);
+        } catch (\Exception $e) {
+            \Log::error('SMS sending failed: ' . $e->getMessage());
+        }
+
         DB::commit();
 
-        // Store success message
-        session()->flash('success', 'Application has been approved successfully!');
-
-        return redirect()->route('admin.application.index');
+        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
+        return redirect()->route($this->route . '.index');
     } catch (\Exception $e) {
         DB::rollBack();
-
-        // Store error message
-        session()->flash('error', 'An error occurred: ' . $e->getMessage());
-
+        \Log::error('Application update error: ' . $e->getMessage());
+        Toastr::error(__('msg_updated_error') . ': ' . $e->getMessage(), __('msg_error'));
         return redirect()->back()->withInput();
     }
 }
+
+
+private function formatPhoneNumber($phoneNumber)
+{
+    if (substr($phoneNumber, 0, 1) === '0') {
+        return '+254' . substr($phoneNumber, 1);
+    }
+    return $phoneNumber;
+}
+private function generateStudentId($application)
+{
+    return 'STD-' . date('Y') . '-' . str_pad($application->id, 5, '0', STR_PAD_LEFT);
+}
+
+private function moveDocument($filename, $student)
+{
+    $oldPath = public_path('uploads/applications/' . $filename);
+    $newPath = public_path('uploads/students/' . $filename);
+    
+    if (file_exists($oldPath)) {
+        rename($oldPath, $newPath);
+        return $filename; // Return the filename to store in the database
+    }
+    return null;
+}
+
+
+
 
 
 

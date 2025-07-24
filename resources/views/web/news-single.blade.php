@@ -1,6 +1,20 @@
 @extends('web.layouts.master')
 @section('title', __('navbar_news'))
 
+<style>
+    .dark-text p {
+        color: black; 
+    }
+</style>
+
+
+
+
+
+
+
+
+
 @section('social_meta_tags')
     @if(isset($setting))
     <meta property="og:type" content="website">
@@ -9,7 +23,6 @@
     <meta property='og:description' content="{!! str_limit(strip_tags($news->description), 160, ' ...') !!}"/>
     <meta property='og:url' content="{{ route('news.single', ['id' => $news->id, 'slug' => $news->slug]) }}"/>
     <meta property='og:image' content="{{ asset('uploads/news/'.$news->attach) }}"/>
-
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="{!! '@'.str_replace(' ', '', $setting->title) !!}" />
@@ -27,7 +40,7 @@
     <main>
 
         <!-- breadcrumb-area -->
-        <section class="breadcrumb-area d-flex  p-relative align-items-center">
+        <section class="breadcrumb-area d-flex p-relative align-items-center">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-xl-12 col-lg-12">
@@ -57,7 +70,7 @@
                     <div class="col-lg-8">
                         <div class="blog-details-wrap">
                             <div class="details__content pb-30">
-                                <h2>{{ $news->title }}</h2>
+                                <h2 class="dark-white-text">{{ $news->title }}</h2>
 
                                 <div class="meta-info">
                                     <ul>
@@ -70,8 +83,10 @@
                                 <div class="details__content-img">
                                     <img src="{{ asset('uploads/news/'.$news->attach) }}" alt="News">
                                 </div>
-
-                                <p>{!! $news->description !!}</p>
+                                    <div class="dark-text">
+                                        <p>{!! $news->description !!}</p>
+                                    </div>
+                                
                             </div>
 
                         </div>
@@ -85,3 +100,5 @@
     <!-- main-area-end -->
 
 @endsection
+
+

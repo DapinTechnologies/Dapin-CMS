@@ -6,7 +6,7 @@
     <main>
 
         <!-- breadcrumb-area -->
-        <section class="breadcrumb-area d-flex  p-relative align-items-center">
+        <section class="breadcrumb-area d-flex p-relative align-items-center">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-xl-12 col-lg-12">
@@ -46,9 +46,9 @@
                                 </div>
                             </div>                    
                             <div class="blog-content2">
-                                <h4><a href="{{ route('news.single', ['id' => $news->id, 'slug' => $news->slug]) }}">{{ $news->title }}</a></h4> 
+                                <h4 class="dark-white-text"><a href="{{ route('news.single', ['id' => $news->id, 'slug' => $news->slug]) }}">{{ $news->title }}</a></h4> 
 
-                                <p>{!! str_limit(strip_tags($news->description), 120, ' ...') !!}</p>
+                                <p class="dark-white-text">{!! str_limit(strip_tags($news->description), 120, ' ...') !!}</p>
 
                                 <div class="blog-btn"><a href="{{ route('news.single', ['id' => $news->id, 'slug' => $news->slug]) }}">{{ __('btn_read_more') }} <i class="fal fa-long-arrow-right"></i></a></div>
                             </div>
@@ -77,3 +77,9 @@
     <!-- main-area-end -->
 
 @endsection
+
+<style>
+    .dark-white-text {
+        color: #1b1a1a;  /* Light grayish white color */
+    }
+</style>
