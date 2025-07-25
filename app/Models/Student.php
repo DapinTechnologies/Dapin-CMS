@@ -135,6 +135,15 @@ class Student extends Authenticatable
         return $this->belongsToMany(StatusType::class, 'status_type_student', 'student_id', 'status_type_id');
     }
 
+public function statusTypes()
+{
+    return $this->belongsToMany(
+        StatusType::class,
+        'status_type_student',
+        'student_id',
+        'status_type_id'
+    )->withTimestamps();
+}
     public function studentTransfer()
     {
         return $this->hasOne(StudentTransfer::class, 'student_id');

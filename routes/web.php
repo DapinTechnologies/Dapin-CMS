@@ -53,7 +53,7 @@ Route::get('/test-db', function() {
 
 
 
-Route::get('/student/test/', [StudentFileController::class, 'testFile'])->name('testfile');
+
 
 
 
@@ -292,7 +292,7 @@ Route::get('/home/view/home/{id}', [FileController::class, 'ViewHome'])->name('v
 Route::get('/download-material/{id}', [FileController::class, 'download'])->name('download');
 
 
-//Route::get('/all/ditigal/file/student', [FileController::class, 'DigitalFilestudent'])->name('studentlibrarydigital');
+
 
 // Route for viewing material (accessible by logged-in students)
 
@@ -967,6 +967,10 @@ Route::resource('subject', 'App\Http\Controllers\Student\StudentSubjectControlle
     Route::get('profile/account', 'ProfileController@account')->name('profile.account');
     // Route::post('profile/changemail', 'ProfileController@changeMail')->name('profile.changemail');
     // Route::post('profile/changepass', 'ProfileController@changePass')->name('profile.changepass');
+Route::get('/all/ditigal/file/student', [FileController::class, 'DigitalFilestudent'])->name('studentlibrarydigital');
 
-    
+Route::get('/student/test/', [StudentFileController::class, 'testFile'])->name('testfile');
+
+    Route::get('/student/all/ditigal/file/student', [\App\Http\Controllers\Student\FileController::class, 'DigitalFilestudent'])
+    ->name('student.studentlibrarydigital');
 });

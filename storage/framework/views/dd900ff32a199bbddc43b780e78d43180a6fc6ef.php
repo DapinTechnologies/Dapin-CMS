@@ -287,6 +287,36 @@ $sections = Section::where('status', 1)->get();
                                     </div>
                                 </div>
 
+<?php
+    // Initialize selected statuses safely
+    $selectedStatuses = [];
+    
+    // Check if student exists and has statusTypes relationship
+    if (isset($student) && $student) {
+        // Load statusTypes if not already loaded
+        if (!$student->relationLoaded('statusTypes')) {
+            $student->load('statusTypes');
+        }
+        $selectedStatuses = $student->statusTypes->pluck('id')->toArray();
+    }
+?>
+
+<div class="form-group col-md-6">
+    <label for="status_types"><?php echo e(__('field_status')); ?></label>
+    <select class="form-control select2" name="status_types[]" id="status_types" multiple>
+        <?php $__currentLoopData = $statusTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <option value="<?php echo e($status->id); ?>" 
+                <?php if(in_array($status->id, $selectedStatuses)): ?> selected <?php endif; ?>>
+                <?php echo e($status->title); ?>
+
+            </option>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    </select>
+    
+    <?php if($statusTypes->isEmpty()): ?>
+        <small class="text-danger">No status types available. Please add status types first.</small>
+    <?php endif; ?>
+</div>
                                 <div class="form-group col-md-6">
                                     <label for="mode_of_education"><?php echo e(__('Mode of Study')); ?> <span>*</span></label>
                                     <select class="form-control" name="mode_of_education" id="mode_of_education" required>

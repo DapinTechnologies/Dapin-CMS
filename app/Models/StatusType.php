@@ -15,11 +15,18 @@ class StatusType extends Model
         'title', 'slug', 'description', 'status',
     ];
 
-    public function students()
-    {
-        return $this->belongsToMany(Student::class, 'status_type_student', 'status_type_id', 'student_id');
-    }
 
+
+    // In app/Models/StatusType.php
+public function students()
+{
+    return $this->belongsToMany(
+        Student::class,
+        'status_type_student',
+        'status_type_id',
+        'student_id'
+    )->withTimestamps();
+}
     public function discounts()
     {
         return $this->belongsToMany(FeesDiscount::class, 'fees_discount_status_type', 'status_type_id', 'fees_discount_id');

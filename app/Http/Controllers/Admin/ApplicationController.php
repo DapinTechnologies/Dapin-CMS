@@ -214,7 +214,7 @@ public function edit(Application $application)
     $data['path'] = $this->path;
 
     // Existing data
-    $data['statuses'] = StatusType::where('status', '1')->get();
+   $data['statusTypes'] = StatusType::active()->get();
     $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
     $data['programs'] = Program::all();
     $data['counties'] = County::all();
@@ -226,7 +226,7 @@ public function edit(Application $application)
     $data['sections'] = Section::where('status', '1')->orderBy('id', 'desc')->get();
 
     $data['row'] = $application;
-
+$data['student'] = $application->student;
     return view($this->view.'.edit', $data);
 }
 
@@ -240,8 +240,9 @@ public function edit(Application $application)
      */
 public function update(Request $request, Application $application)
 {
-      \Log::info('Update Request Data:', $request->all());
+    \Log::info('Update Request Data:', $request->all());
     \Log::info('Application Being Updated:', $application->toArray());
+    
     // Validate the incoming request
     $validated = $request->validate([
         'program' => 'required|integer',
@@ -263,6 +264,9 @@ public function update(Request $request, Application $application)
         'mode_of_education' => 'required|string',
         'kcse_certificate' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
         'kcse_result_slip' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+        'status_types' => 'nullable|array', // Updated to status_types
+        'status_types.*' => 'exists:status_types,id', // Updated to status_types
+        
     ]);
 
     try {
@@ -343,6 +347,17 @@ public function update(Request $request, Application $application)
             $studentData
         );
 
+if ($request->has('status_types')) {
+    try {
+      
+        $student->statusTypes()->sync($request->status_types);
+    } catch (\Exception $e) {
+        \Log::error('Status types sync failed: ' . $e->getMessage());
+        // Optionally add a Toastr message to inform the user
+        Toastr::warning(__('Status update partially failed'), __('Warning'));
+    }
+}
+
         // Create or update student enrollment
         $enroll = StudentEnroll::updateOrCreate(
             ['student_id' => $student->id, 'session_id' => $validated['session']],
@@ -382,7 +397,6 @@ public function update(Request $request, Application $application)
         return redirect()->back()->withInput();
     }
 }
-
 
 private function formatPhoneNumber($phoneNumber)
 {

@@ -269,6 +269,35 @@ $sections = Section::where('status', 1)->get();
                                     </div>
                                 </div>
 
+@php
+    // Initialize selected statuses safely
+    $selectedStatuses = [];
+    
+    // Check if student exists and has statusTypes relationship
+    if (isset($student) && $student) {
+        // Load statusTypes if not already loaded
+        if (!$student->relationLoaded('statusTypes')) {
+            $student->load('statusTypes');
+        }
+        $selectedStatuses = $student->statusTypes->pluck('id')->toArray();
+    }
+@endphp
+
+<div class="form-group col-md-6">
+    <label for="status_types">{{ __('field_status') }}</label>
+    <select class="form-control select2" name="status_types[]" id="status_types" multiple>
+        @foreach($statusTypes as $status)
+            <option value="{{ $status->id }}" 
+                @if(in_array($status->id, $selectedStatuses)) selected @endif>
+                {{ $status->title }}
+            </option>
+        @endforeach
+    </select>
+    
+    @if($statusTypes->isEmpty())
+        <small class="text-danger">No status types available. Please add status types first.</small>
+    @endif
+</div>
                                 <div class="form-group col-md-6">
                                     <label for="mode_of_education">{{ __('Mode of Study') }} <span>*</span></label>
                                     <select class="form-control" name="mode_of_education" id="mode_of_education" required>

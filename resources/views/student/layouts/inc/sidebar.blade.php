@@ -36,7 +36,7 @@
 
   @if(($panel = panel('testfile')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/test*') ? 'active' : '' }}">
-            <a href="{{ route('testfile') }}" class="nav-link">
+            <a href="{{ route('student.testfile') }}" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-align-left"></i></span>
                 <span class="pcoded-mtext">{{ trans_choice('Test', 2) }}</span>
             </a>
@@ -89,14 +89,14 @@
         </li>
         @endif
     
-   @if(($panel = panel('panel_digital')) && $panel->status == 1)
-<li class="nav-item {{ Request::is('student/all/digital/file/student*') ? 'active' : '' }}">
-    <a href="{{ route('studentlibrarydigital') }}" class="nav-link">
+
+{{-- <li class="nav-item {{ Request::is('student/all/digital/file/student*') ? 'active' : '' }}">
+    <a href="{{ route('student.studentlibrarydigital') }}" class="nav-link">
         <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
         <span class="pcoded-mtext">{{ trans_choice('Digital Library', 2) }}</span>
     </a>
-</li>
-@endif
+</li> --}}
+
 
 
 

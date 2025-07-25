@@ -36,7 +36,7 @@
 
   <?php if(($panel = panel('testfile')) && $panel->status == 1): ?>
         <li class="nav-item <?php echo e(Request::is('student/test*') ? 'active' : ''); ?>">
-            <a href="<?php echo e(route('testfile')); ?>" class="nav-link">
+            <a href="<?php echo e(route('student.testfile')); ?>" class="nav-link">
                 <span class="pcoded-micon"><i class="fas fa-align-left"></i></span>
                 <span class="pcoded-mtext"><?php echo e(trans_choice('Test', 2)); ?></span>
             </a>
@@ -89,14 +89,9 @@
         </li>
         <?php endif; ?>
     
-   <?php if(($panel = panel('panel_digital')) && $panel->status == 1): ?>
-<li class="nav-item <?php echo e(Request::is('student/all/digital/file/student*') ? 'active' : ''); ?>">
-    <a href="<?php echo e(route('studentlibrarydigital')); ?>" class="nav-link">
-        <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
-        <span class="pcoded-mtext"><?php echo e(trans_choice('Digital Library', 2)); ?></span>
-    </a>
-</li>
-<?php endif; ?>
+
+
+
 
 
 

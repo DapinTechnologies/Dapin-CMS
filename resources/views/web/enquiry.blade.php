@@ -80,6 +80,28 @@
   .form-control.is-invalid {
     border-color: #dc3545;
   }
+  /* Update these button styles in your CSS */
+.btn-submit-inquiry {
+  background-color: var(--primary-color);
+  color: #fff !important; /* Force white text */
+  border: none;
+}
+
+.btn-submit-inquiry:hover {
+  background-color: var(--secondary-color);
+  color: #fff !important; /* Keep text white on hover */
+}
+
+.btn-subscribe-newsletter {
+  background-color: var(--secondary-color);
+  color: #fff !important; /* Force white text */
+  border: none;
+}
+
+.btn-subscribe-newsletter:hover {
+  background-color: #e45757;
+  color: #fff !important; /* Keep text white on hover */
+}
 </style>
 
 <!-- Floating Button - Now separate from footer -->
@@ -130,7 +152,7 @@
                 <textarea name="message" rows="3" class="form-control" placeholder="Ask us anything..." required></textarea>
                 <div class="invalid-feedback" id="message-error"></div>
               </div>
-              <button type="submit" class="btn w-100 mt-2 btn-submit-inquiry">Submit</button>
+              <button type="submit" class="btn w-100 mt-2 btn-submit-inquiry">Send Your Inquiry</button>
               <div class="alert alert-success mt-2 d-none" id="inquiry-success-message" role="alert"></div>
               <div class="alert alert-danger mt-2 d-none" id="inquiry-error-message" role="alert"></div>
             </form>
