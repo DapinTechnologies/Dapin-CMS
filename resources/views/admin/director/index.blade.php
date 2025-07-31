@@ -10,7 +10,7 @@
             @can('director-create')
             <div class="col-md-4">
                 <form class="needs-validation" novalidate 
-                    action="{{ isset($director) ? route('admin.directors.update', $director->id) : route('directors.store') }}" 
+                    action="{{ isset($director) ? route('admin.directors.update', $director->id) : route('admin.directors.store') }}"
                     method="post" enctype="multipart/form-data">
                 @csrf
                 @if(isset($director))
