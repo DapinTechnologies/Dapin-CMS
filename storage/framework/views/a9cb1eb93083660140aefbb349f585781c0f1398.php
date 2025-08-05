@@ -865,7 +865,7 @@
 
 
 <?php
-use App\Models\web\Testimonial;
+use App\Models\Web\Testimonial;
 $testimonials = Testimonial::where('status', 1)->latest()->take(3)->get();
 ?>
 
