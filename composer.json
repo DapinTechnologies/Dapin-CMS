@@ -26,6 +26,7 @@
         "namshi/smscountry": "^1.0",
         "obydul/laraskrill": "^1.2",
         "php-flasher/flasher-toastr-laravel": "*",
+        "predis/predis": "^3.2",
         "rahulreghunath/textlocal": "^1.0",
         "razorpay/razorpay": "^2.9",
         "simplesoftwareio/simple-qrcode": "^4.2",
