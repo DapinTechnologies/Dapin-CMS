@@ -1,30 +1,194 @@
-<!-- Examination Bodies Section -->
-<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/css/glide.core.min.css" rel="stylesheet">
+<!-- Required Styles -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<section class="exam-bodies-section py-5" style="background: #f1f3f5;" aria-labelledby="exam-bodies-heading">
+<style>
+    .exam-bodies-section {
+        background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+        padding: 4rem 0;
+    }
+
+    /* Grid Layout */
+    .exam-bodies-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    /* Carousel Layout */
+    .exam-bodies-carousel-container {
+        position: relative;
+    }
+
+    .exam-bodies-carousel-inner {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        gap: 24px;
+        padding-bottom: 1rem;
+    }
+
+    /* Desktop - show 3 cards */
+    .exam-bodies-carousel-inner > div {
+        flex: 0 0 calc(33.333% - 16px);
+        scroll-snap-align: start;
+        min-width: calc(33.333% - 16px);
+    }
+
+    /* Card Styles */
+    .exam-body-card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        height: 100%;
+        border: none;
+    }
+
+    .exam-body-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .exam-body-card .card-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .exam-body-card img {
+        height: 80px;
+        width: auto;
+        object-fit: contain;
+        margin-bottom: 1rem;
+    }
+
+    .exam-body-card h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 0.75rem;
+    }
+
+    .exam-body-card p {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+
+    /* Arrows */
+    .exam-bodies-carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        color: #007bff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        border: none;
+        z-index: 10;
+        opacity: 0.9;
+    }
+
+    .exam-bodies-carousel-btn:hover {
+        opacity: 1;
+        background: #f8f9fa;
+    }
+
+    .exam-bodies-carousel-btn i {
+        font-size: 16px;
+    }
+
+    .prev-btn { left: -20px; }
+    .next-btn { right: -20px; }
+
+    /* Mobile Styles */
+    @media (max-width: 767px) {
+        .exam-bodies-grid {
+            display: none;
+        }
+        
+        .exam-bodies-carousel-inner > div {
+            flex: 0 0 calc(100% - 24px);
+            min-width: calc(100% - 24px);
+        }
+        
+        .exam-bodies-carousel-container {
+            padding: 0 20px;
+        }
+    }
+
+    /* Hide scrollbar */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<!-- Examination Bodies Section -->
+<section class="exam-bodies-section py-5" aria-labelledby="exam-bodies-heading">
     <div class="container">
-        <header class="text-center mb-5" data-aos="fade-up" data-aos-duration="800">
-            <h2 id="exam-bodies-heading" class="fw-bold h2">Accredited Examination Bodies in Kenya</h2>
+        <header class="text-center mb-5">
+            <h2 id="exam-bodies-heading" class="fw-bold">Accredited Examination Bodies in Kenya</h2>
             <p class="text-muted">Our institution is officially recognized and accredited by top national and international examination authorities.</p>
         </header>
+
         @php
             use App\Models\Web\AboutUsPartner;
             $examBodies = AboutUsPartner::all();
         @endphp
 
-        <section class="exam-bodies-section py-5 bg-light">
-            <div class="container">
-                <h2 class="text-center mb-5">Our Examination Bodies</h2>
-                
-                <div id="examBodiesCarousel" class="glide exam-bodies-glide">
-                    <div class="glide__track" data-glide-el="track">
-                        <ul class="glide__slides">
+        @if($examBodies->count())
+            <!-- Desktop View - Grid or Carousel -->
+            <div class="d-none d-md-block">
+                @if($examBodies->count() <= 3)
+                    <!-- Grid Layout for 3 or fewer exam bodies -->
+                    <div class="exam-bodies-grid">
+                        @foreach($examBodies as $examBody)
+                            <div class="exam-body-card card">
+                                <div class="card-body">
+                                    @php
+                                        $logoPath = 'uploads/about-us/partners/' . $examBody->logo;
+                                        $defaultLogo = 'images/default-logo.png';
+                                        $logoExists = !empty($examBody->logo) && file_exists(public_path($logoPath));
+                                    @endphp
+                                    
+                                    <img src="{{ $logoExists ? asset($logoPath) : asset($defaultLogo) }}" 
+                                         alt="{{ $examBody->name }} Logo"
+                                         loading="lazy"
+                                         onerror="this.onerror=null;this.src='{{ asset($defaultLogo) }}'">
+                                    
+                                    <h3>{{ $examBody->name }}</h3>
+                                    <p class="text-muted">
+                                        {{ \Illuminate\Support\Str::words($examBody->description, 15, '...') }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <!-- Carousel Layout for more than 3 exam bodies -->
+                    <div class="exam-bodies-carousel-container">
+                        <button class="exam-bodies-carousel-btn prev-btn" onclick="slideExamBodiesCarousel(-1, 'desktop')">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        
+                        <div class="exam-bodies-carousel-inner hide-scrollbar" id="exam-bodies-carousel-desktop">
                             @foreach($examBodies as $examBody)
-                                <li class="glide__slide px-2">
-                                    <div class="card border-0 h-100 shadow-sm">
-                                        <div class="card-body text-center p-4">
-                                            <!-- Logo with proper path and fallback -->
+                                <div>
+                                    <div class="exam-body-card card">
+                                        <div class="card-body">
                                             @php
                                                 $logoPath = 'uploads/about-us/partners/' . $examBody->logo;
                                                 $defaultLogo = 'images/default-logo.png';
@@ -33,192 +197,129 @@
                                             
                                             <img src="{{ $logoExists ? asset($logoPath) : asset($defaultLogo) }}" 
                                                  alt="{{ $examBody->name }} Logo"
-                                                 class="img-fluid mb-3 mx-auto d-block"
-                                                 style="height: 80px; width: auto; object-fit: contain;"
                                                  loading="lazy"
                                                  onerror="this.onerror=null;this.src='{{ asset($defaultLogo) }}'">
                                             
-                                            <h3 class="h5 mb-3">{{ $examBody->name }}</h3>
-                                            <p class="text-muted small mb-0">
+                                            <h3>{{ $examBody->name }}</h3>
+                                            <p class="text-muted">
                                                 {{ \Illuminate\Support\Str::words($examBody->description, 15, '...') }}
                                             </p>
                                         </div>
                                     </div>
-                                </li>
+                                </div>
                             @endforeach
-                        </ul>
+                        </div>
+
+                        <button class="exam-bodies-carousel-btn next-btn" onclick="slideExamBodiesCarousel(1, 'desktop')">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Mobile View - Always Carousel -->
+            <div class="d-md-none">
+                <div class="exam-bodies-carousel-container">
+                    <button class="exam-bodies-carousel-btn prev-btn" onclick="slideExamBodiesCarousel(-1, 'mobile')">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <div class="exam-bodies-carousel-inner hide-scrollbar" id="exam-bodies-carousel-mobile">
+                        @foreach($examBodies as $examBody)
+                            <div>
+                                <div class="exam-body-card card">
+                                    <div class="card-body">
+                                        @php
+                                            $logoPath = 'uploads/about-us/partners/' . $examBody->logo;
+                                            $defaultLogo = 'images/default-logo.png';
+                                            $logoExists = !empty($examBody->logo) && file_exists(public_path($logoPath));
+                                        @endphp
+                                        
+                                        <img src="{{ $logoExists ? asset($logoPath) : asset($defaultLogo) }}" 
+                                             alt="{{ $examBody->name }} Logo"
+                                             loading="lazy"
+                                             onerror="this.onerror=null;this.src='{{ asset($defaultLogo) }}'">
+                                        
+                                        <h3>{{ $examBody->name }}</h3>
+                                        <p class="text-muted">
+                                            {{ \Illuminate\Support\Str::words($examBody->description, 15, '...') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
 
-                    <!-- Navigation arrows -->
-                    <div class="glide__arrows d-md-none" data-glide-el="controls">
-                        <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
-                            <i class="fas fa-chevron-left fa-lg"></i>
-                        </button>
-                        <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
-                            <i class="fas fa-chevron-right fa-lg"></i>
-                        </button>
-                    </div>
+                    <button class="exam-bodies-carousel-btn next-btn" onclick="slideExamBodiesCarousel(1, 'mobile')">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
                 </div>
             </div>
-        </section>
+        @else
+            <p class="text-center text-muted">No examination bodies available at the moment.</p>
+        @endif
     </div>
 </section>
 
-<style>
-.exam-bodies-section {
-    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
-}
-
-.glide__slide {
-    padding: 0 10px;
-}
-
-.card {
-    transition: all 0.3s ease;
-    border-radius: 10px;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.glide__arrow {
-    background: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    opacity: 0.9;
-}
-
-.glide__arrow:hover {
-    background: #f8f9fa;
-}
-
-.glide__arrow i {
-    color: #495057;
-}
-</style>
-
-@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    new Glide('#examBodiesCarousel', {
-        type: 'carousel',
-        perView: 4,
-        gap: 20,
-        breakpoints: {
-            992: { perView: 3 },
-            768: { perView: 2 },
-            576: { perView: 1 }
-        }
-    }).mount();
-});
-</script>
-@endpush
-
-<style>
-.exam-bodies-section {
-    background-color: #f8f9fa;
-}
-
-.exam-body-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 100%;
-}
-
-.exam-body-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.glide__arrow {
-    background: rgba(255,255,255,0.7);
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.glide__arrow i {
-    color: #333;
-}
-</style>
-
-    </div>
-</section>
-
-<style>
-.exam-body-card {
-    transition: all 0.3s ease;
-}
-
-.exam-body-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-.exam-bodies-glide .glide__slide {
-    padding: 0 12px;
-}
-
-@media (max-width: 768px) {
-    .exam-bodies-glide {
-        position: relative;
-        padding: 0 20px;
+function slideExamBodiesCarousel(direction, type) {
+    const carouselId = `exam-bodies-carousel-${type}`;
+    const carousel = document.getElementById(carouselId);
+    const slides = carousel.querySelectorAll('div');
+    
+    if (slides.length === 0) return;
+    
+    // Calculate slide width based on viewport
+    let slideWidth = slides[0].offsetWidth;
+    if (type === 'desktop') {
+        // For desktop carousel, scroll by 3 slides at a time
+        slideWidth = slides[0].offsetWidth * 3;
     }
-
-    .exam-bodies-glide .glide__arrows {
-        display: flex;
-        justify-content: space-between;
-        position: absolute;
-        top: 40%;
-        left: 0;
-        right: 0;
-        padding: 0 10px;
-        pointer-events: none;
-    }
-
-    .exam-bodies-glide .glide__arrow {
-        width: 36px;
-        height: 36px;
-        background: #fff;
-        border: none;
-        border-radius: 50%;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        font-size: 1rem;
-        color: #007bff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: auto;
-    }
-
-    .exam-bodies-glide .glide__arrow:hover {
-        background: #007bff;
-        color: #fff;
-    }
-}
-</style>
-
-<!-- JS Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        new Glide('#examBodiesCarousel', {
-            type: 'carousel',
-            perView: 3,
-            gap: 24,
-            breakpoints: {
-                992: { perView: 2 },
-                768: { perView: 1 }
-            }
-        }).mount();
-
-        AOS.init({ once: true });
+    
+    // Add gap between slides (24px)
+    const gap = 24;
+    slideWidth += gap;
+    
+    carousel.scrollBy({ 
+        left: direction * slideWidth, 
+        behavior: 'smooth' 
     });
+}
+
+// Hide arrows when at the start/end of carousel
+document.addEventListener('DOMContentLoaded', function() {
+    const checkCarouselPosition = (carouselId, prevBtn, nextBtn) => {
+        const carousel = document.getElementById(carouselId);
+        if (!carousel) return;
+        
+        const updateButtons = () => {
+            const scrollLeft = carousel.scrollLeft;
+            const scrollWidth = carousel.scrollWidth;
+            const clientWidth = carousel.clientWidth;
+            
+            if (prevBtn) {
+                prevBtn.style.display = scrollLeft <= 0 ? 'none' : 'flex';
+            }
+            if (nextBtn) {
+                nextBtn.style.display = scrollLeft + clientWidth >= scrollWidth - 1 ? 'none' : 'flex';
+            }
+        };
+        
+        carousel.addEventListener('scroll', updateButtons);
+        updateButtons();
+    };
+    
+    // Initialize for both carousels
+    checkCarouselPosition(
+        'exam-bodies-carousel-desktop',
+        document.querySelector('#exam-bodies-carousel-desktop').parentElement.querySelector('.prev-btn'),
+        document.querySelector('#exam-bodies-carousel-desktop').parentElement.querySelector('.next-btn')
+    );
+    
+    checkCarouselPosition(
+        'exam-bodies-carousel-mobile',
+        document.querySelector('#exam-bodies-carousel-mobile').parentElement.querySelector('.prev-btn'),
+        document.querySelector('#exam-bodies-carousel-mobile').parentElement.querySelector('.next-btn')
+    );
+});
 </script>
