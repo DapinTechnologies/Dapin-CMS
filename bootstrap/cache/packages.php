@@ -20,6 +20,7 @@
     array (
       0 => 'Intervention\\Image\\ImageServiceProvider',
     ),
+<<<<<<< Updated upstream
   ),
   'jenssegers/agent' => 
   array (
@@ -31,6 +32,8 @@
     array (
       0 => 'Jenssegers\\Agent\\AgentServiceProvider',
     ),
+=======
+>>>>>>> Stashed changes
   ),
   'kingflamez/laravelrave' => 
   array (
@@ -197,6 +200,7 @@
     array (
       0 => 'Srmklive\\PayPal\\Providers\\PayPalServiceProvider',
     ),
+<<<<<<< Updated upstream
   ),
   'stevebauman/purify' => 
   array (
@@ -219,6 +223,8 @@
     array (
       0 => 'Torann\\GeoIP\\GeoIPServiceProvider',
     ),
+=======
+>>>>>>> Stashed changes
   ),
   'unicodeveloper/laravel-paystack' => 
   array (

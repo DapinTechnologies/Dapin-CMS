@@ -3446,6 +3446,7 @@
             "time": "2022-06-28T11:18:28+00:00"
         },
         {
+<<<<<<< Updated upstream
             "name": "mobiledetect/mobiledetectlib",
             "version": "2.8.45",
             "source": {
@@ -3517,6 +3518,17 @@
             },
             "dist": {
                 "type": "zip",
+=======
+            "name": "monolog/monolog",
+            "version": "2.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Seldaek/monolog.git",
+                "reference": "5cf826f2991858b54d5c3809bee745560a1042a7"
+            },
+            "dist": {
+                "type": "zip",
+>>>>>>> Stashed changes
                 "url": "https://api.github.com/repos/Seldaek/monolog/zipball/5cf826f2991858b54d5c3809bee745560a1042a7",
                 "reference": "5cf826f2991858b54d5c3809bee745560a1042a7",
                 "shasum": ""
@@ -8456,6 +8468,7 @@
             "time": "2024-12-21T16:25:41+00:00"
         },
         {
+<<<<<<< Updated upstream
             "name": "torann/geoip",
             "version": "3.0.9",
             "source": {
@@ -8545,6 +8558,17 @@
             },
             "dist": {
                 "type": "zip",
+=======
+            "name": "twilio/sdk",
+            "version": "8.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/twilio/twilio-php",
+                "reference": "88b8c4e82943267106424f903ffa881b0fd9074b"
+            },
+            "dist": {
+                "type": "zip",
+>>>>>>> Stashed changes
                 "url": "https://api.github.com/repos/twilio/twilio-php/zipball/88b8c4e82943267106424f903ffa881b0fd9074b",
                 "reference": "88b8c4e82943267106424f903ffa881b0fd9074b",
                 "shasum": ""
