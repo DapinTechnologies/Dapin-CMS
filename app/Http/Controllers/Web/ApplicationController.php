@@ -12,7 +12,8 @@ use App\Models\Program;
 use Carbon\Carbon;
 use Toastr;
 use DB;
-
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 class ApplicationController extends Controller
 {
     use FileUploader;
@@ -61,8 +62,7 @@ class ApplicationController extends Controller
      */
 public function store(Request $request)
 {
-   // dd($request->all());
-    // Field Validation (add more rules as needed)
+    // Field Validation
     $request->validate([
         'program'           => 'required|integer',
         'first_name'        => 'required|string|max:255',
@@ -87,7 +87,7 @@ public function store(Request $request)
 
         $student = new Application;
 
-        // Directly map form fields to DB columns
+        // Student data mapping
         $student->program_id        = $request->program;
         $student->apply_date        = now();
         $student->first_name        = $request->first_name;
@@ -97,13 +97,9 @@ public function store(Request $request)
         $student->email             = $request->email;
         $student->national_id       = $request->national_id;
         $student->gender            = $request->gender;
-
-        // KCSE fields
         $student->kcse_index_no     = $request->kcse_index_no;
         $student->kcse_year         = $request->kcse_year;
         $student->kcse_grade        = $request->kcse_grade;
-
-        // County/Sub-County/Address/Mode
         $student->county_id         = $request->county;
         $student->sub_county_id     = $request->sub_county;
         $student->present_address   = $request->physical_address;
@@ -117,32 +113,117 @@ public function store(Request $request)
             $student->kcse_result_slip = $request->file('kcse_result_slip')->store('result_slips', 'public');
         }
 
-        // Set status to "Pending"
-        $student->status = 1; // or '1' if you prefer numeric
-
-        // Save the student data
+        $student->status = 1; // Pending status
         $student->save();
 
-        // Set registration number (custom logic)
-        // Assuming the registration number should be 100- + student ID
+        // Generate registration number
         $registrationNumber = '100-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
         $student->registration_no = $registrationNumber;
         $student->save();
 
         DB::commit();
 
-        Toastr::success(__('msg_sent_successfully'), __('msg_success'));
+        // Send SMS Notification
+        $this->sendRegistrationConfirmationSMS($student);
 
-             
-       return redirect('/')->with('success', 'Application was submitted successfully!');
+        return redirect('/')->with('toastr', [
+            'type' => 'success',
+            'message' => 'Application was submitted successfully!',
+            'title' => 'Success'
+        ]);
 
     } catch (\Exception $e) {
         DB::rollBack();
-        Toastr::error(__('msg_created_error'), __('msg_error'));
-        return redirect()->back()->withInput()->withErrors(['error' => $e->getMessage()]);
+        return redirect()->back()
+               ->withInput()
+               ->with('toastr', [
+                   'type' => 'error',
+                   'message' => 'There was an error submitting your application. Please try again.',
+                   'title' => 'Error'
+               ]);
     }
 }
 
+/**
+ * Send registration confirmation SMS to student
+ */
+/**
+ * Send registration confirmation SMS to student
+ */
+protected function sendRegistrationConfirmationSMS($student)
+{
+    $apiUrl = 'https://smsportal.dapintechnologies.com/sms/v3/sendsms';
+    $apiKey = '0CHxwhLRQ78MEFablqnsAtkgBNDjrJWou569KYpUd3eySPXT4ZOzv1cIiVG2mf';
+    $serviceId = 0;
+    $from = 'Dapin';
+
+    $name = $student->first_name . ' ' . $student->last_name;
+    $message = "Dear {$name}, your application has been received. Your registration number is {$student->registration_no}. We'll contact you soon.";
+
+    $payload = [
+        'api_key' => $apiKey,
+        'service_id' => $serviceId,
+        'mobile' => $this->formatPhoneNumberForSms($student->phone),
+        'response_type' => 'json',
+        'shortcode' => $from,
+        'message' => $message,
+        'date_send' => now()->format('Y-m-d H:i:s'),
+    ];
+
+    try {
+        $response = Http::withOptions(['verify' => false])
+            ->post($apiUrl, $payload);
+
+        if ($response->successful()) {
+            Log::info('Registration SMS sent successfully', [
+                'student_id' => $student->id,
+                'phone' => $student->phone,
+                'response' => $response->json()
+            ]);
+        } else {
+            Log::error('Failed to send registration SMS', [
+                'student_id' => $student->id,
+                'phone' => $student->phone,
+                'status' => $response->status(),
+                'response' => $response->body()
+            ]);
+        }
+    } catch (\Exception $e) {
+        Log::error('Exception while sending registration SMS', [
+            'student_id' => $student->id,
+            'phone' => $student->phone,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+}
+
+/**
+ * Format phone number for SMS API
+ */
+protected function formatPhoneNumberForSms($phone)
+{
+    // Remove all non-digit characters
+    $phone = preg_replace('/[^0-9]/', '', $phone);
+    
+    // If starts with 0, replace with 254
+    if (strlen($phone) == 9 && $phone[0] == '0') {
+        return '254' . substr($phone, 1);
+    }
+    
+    // If starts with 7 or 1 and has 9 digits, add 254
+    if (strlen($phone) == 9 && in_array($phone[0], ['7', '1'])) {
+        return '254' . $phone;
+    }
+    
+    // If already in 254 format, return as is
+    if (strlen($phone) == 12 && strpos($phone, '254') === 0) {
+        return $phone;
+    }
+    
+    // Return original if no pattern matches
+    return $phone;
+}
 
 
 }

@@ -26,6 +26,14 @@
         </div>
     </div>
 
+    @if(session('toastr'))
+    <script>
+        toastr.{{ session('toastr')['type'] }}(
+            "{{ session('toastr')['message'] }}",
+            "{{ session('toastr')['title'] }}"
+        );
+    </script>
+@endif
     <!-- MAIN HEADER -->
     <header class="header-area header-three" id="main-header">
         <div class="menu-area">
