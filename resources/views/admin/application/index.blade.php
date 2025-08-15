@@ -2,6 +2,10 @@
 @section('title', $title)
 @section('content')
 @flasher_render 
+
+
+
+
 <!-- Toastr CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 

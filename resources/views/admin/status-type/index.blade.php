@@ -2,6 +2,9 @@
 @section('title', $title)
 @section('content')
 
+
+
+
 <!-- Start Content-->
 <div class="main-body">
     <div class="page-wrapper">
