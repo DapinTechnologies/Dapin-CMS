@@ -26,7 +26,7 @@
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="{!! '@'.str_replace(' ', '', $setting->title) !!}" />
-    <meta name="twitter:creator" content="@HiTechParks" />
+    <meta name="twitter:creator" content="@Unimediaafrica" />
     <meta name="twitter:url" content="{{ route('news.single', ['id' => $news->id, 'slug' => $news->slug]) }}" />
     <meta name="twitter:title" content="{{ $news->title }}" />
     <meta name="twitter:description" content="{!! str_limit(strip_tags($news->description), 160, ' ...') !!}" />
@@ -84,7 +84,7 @@
                                     <img src="{{ asset('uploads/news/'.$news->attach) }}" alt="News">
                                 </div>
                                     <div class="dark-text">
-                                        <p>{!! $news->description !!}</p>
+                                        <h4>{!! $news->description !!}</h4>
                                     </div>
                                 
                             </div>
