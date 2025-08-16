@@ -12,7 +12,7 @@
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="{!! '@'.str_replace(' ', '', $setting->title) !!}" />
-    <meta name="twitter:creator" content="@HiTechParks" />
+    <meta name="twitter:creator" content="@Unimedia_Africa" />
     <meta name="twitter:url" content="{{ route('course.single', ['slug' => $course->slug]) }}" />
     <meta name="twitter:title" content="{{ $course->title }}" />
     <meta name="twitter:description" content="{!! str_limit(strip_tags($course->description), 160, ' ...') !!}" />
@@ -64,7 +64,7 @@
                                 </div>
                             </div>
                             <div class="inner-column">
-                                <p style="color: #666;">{!! $course->description !!}</p>  <!-- Light dark color for description -->
+                                <h4 style="color: #666;">{!! $course->description !!}</h4>  <!-- Light dark color for description -->
                             </div>
                         </div>
 
