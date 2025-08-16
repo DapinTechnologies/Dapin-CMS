@@ -66,7 +66,7 @@
                             <div class="s-about-content wow fadeInRight" data-animation="fadeInRight" data-delay=".2s">  
 
                                 <h2 class="dark-white-text">{{ $event->title }}</h2>
-                                <p class="dark-white-text">{!! $event->description !!}</p>
+                                <h4 class="dark-white-text">{!! $event->description !!}</h4>
 
                                 {{-- <div countdown class="conterdown wow fadeInDown animated" data-animation="fadeInDown animated" data-delay=".2s" data-date="{{ date("M d Y", strtotime($event->date)) }} {{ date("h:i:s", strtotime($event->time)) }}">
                                      <div class="timer">                                         
@@ -162,6 +162,6 @@
 
 <style>
     .dark-white-text {
-        color: #f0f0f0;  /* Light grayish white color */
+        color: #666;  /* Light grayish white color */
     }
 </style>
