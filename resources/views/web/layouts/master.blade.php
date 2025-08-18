@@ -28,6 +28,31 @@
     <!-- Social Meta Tags -->
     <link rel="canonical" href="{{ route('home') }}">
     
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="{{ asset('dashboard/plugins/toastr/css/toastr.min.css') }}">
+    <style>
+        /* Custom toastr styling */
+        #toast-container > .toast {
+            background-color: #333;
+            color: #fff;
+        }
+        #toast-container > .toast-success {
+            background-color: #333;
+        }
+        #toast-container > .toast-success .toast-message {
+            color: #fff;
+        }
+        #toast-container > .toast-error {
+            background-color: #d9534f;
+        }
+        #toast-container > .toast-warning {
+            background-color: #f0ad4e;
+        }
+        #toast-container > .toast-info {
+            background-color: #5bc0de;
+        }
+    </style>
+    
     @yield('social_meta_tags')
 
 
@@ -214,7 +239,8 @@ body {
 
 
  	<!-- Script JS -->
- 	<script src="{{ asset('web/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+    <script src="{{ asset('web/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+    <!-- Load jQuery first -->
     <script src="{{ asset('web/js/vendor/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('web/js/popper.min.js') }}"></script>
     <script src="{{ asset('web/js/bootstrap.min.js') }}"></script>
@@ -232,6 +258,40 @@ body {
     <script src="{{ asset('web/js/jquery.magnific-popup.min.js') }}"></script>
     <script src="{{ asset('web/js/element-in-view.js') }}"></script>
     <script src="{{ asset('web/js/main.js') }}"></script>
+    
+    <!-- Toastr JS -->
+    <script src="{{ asset('dashboard/plugins/toastr/js/toastr.min.js') }}"></script>
+    
+    <!-- Initialize Toastr -->
+    <script>
+        $(document).ready(function() {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": 300,
+                "hideDuration": 1000,
+                "timeOut": 5000,
+                "extendedTimeOut": 1000,
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut",
+                "tapToDismiss": true
+            };
+            
+            // Set toastr container style
+            $('body').append('<style>#toast-container > div { opacity: 1; }</style>');
+            
+            @if(session('toastr'))
+                toastr.{{ session('toastr.type') }}('{{ session("toastr.message") }}', '{{ session("toastr.title") }}');
+            @endif
+        });
+    </script>
 
  </body>
 </html>

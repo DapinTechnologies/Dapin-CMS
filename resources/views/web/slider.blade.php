@@ -21,8 +21,8 @@
 
                                         @if(!empty($slider->button_link))
                                             <div class="slider-btn mt-30">
-                                                <a href="{{ $slider->button_link }}" target="_blank" class="btn ss-btn mr-15" data-animation="fadeInLeft" data-delay=".4s">
-                                                    {{ $slider->button_text ?? 'Learn More' }} <i class="fas fa-long-arrow-alt-right"></i>
+                                                <a href="{{ $slider->button_link }}" target="_blank" class="btn btn-slider-cta" data-animation="fadeInLeft" data-delay=".4s">
+                                                    {{ $slider->button_text ?? 'Learn More' }} <i class="fas fa-arrow-right ms-2"></i>
                                                 </a>
                                             </div>
                                         @endif
@@ -48,6 +48,58 @@
 </section>
 
 <style>
+    /* Modern Slider Button */
+    .btn-slider-cta {
+        background: linear-gradient(45deg,rgb(245, 77, 10), #f9c74f);
+        color: white !important;
+        font-weight: 600;
+        border: none;
+        border-radius: 50px;
+        padding: 0.85rem 2rem;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(248, 150, 30, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .btn-slider-cta:hover, 
+    .btn-slider-cta:focus {
+        color: white !important;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(248, 150, 30, 0.4);
+    }
+    
+    .btn-slider-cta:active {
+        transform: translateY(1px);
+    }
+    
+    .btn-slider-cta::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .btn-slider-cta:hover::before {
+        left: 100%;
+    }
+    
+    .btn-slider-cta i {
+        transition: transform 0.3s ease;
+    }
+    
+    .btn-slider-cta:hover i {
+        transform: translateX(5px);
+    }
 /* Clean everything globally for title and all children */
 .animated-title, .animated-title * {
     text-decoration: none !important;

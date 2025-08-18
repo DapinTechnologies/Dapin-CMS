@@ -126,10 +126,12 @@ public function store(Request $request)
         // Send SMS Notification
         $this->sendRegistrationConfirmationSMS($student);
 
-        return redirect('/')->with('toastr', [
-            'type' => 'success',
-            'message' => 'Application was submitted successfully!',
-            'title' => 'Success'
+        return redirect('/')->with([
+            'toastr' => [
+                'type' => 'success',
+                'message' => 'Application was submitted successfully! Your registration number is ' . $registrationNumber,
+                'title' => 'Success'
+            ]
         ]);
 
     } catch (\Exception $e) {

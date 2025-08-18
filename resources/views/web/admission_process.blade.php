@@ -199,6 +199,49 @@
         padding: calc(0.75rem - 2px) 2rem;
     }
     
+    /* Modern Application Button */
+    .btn-apply-now {
+        background: linear-gradient(45deg, #f8961e, #f9c74f);
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 50px;
+        padding: 0.85rem 2.5rem;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(248, 150, 30, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-apply-now:hover, 
+    .btn-apply-now:focus {
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(248, 150, 30, 0.4);
+    }
+    
+    .btn-apply-now:active {
+        transform: translateY(1px);
+    }
+    
+    .btn-apply-now::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .btn-apply-now:hover::before {
+        left: 100%;
+    }
+    
     .breadcrumb-area {
         background: linear-gradient(135deg, var(--secondary), var(--primary));
         padding: 3rem 0;
@@ -407,8 +450,8 @@
             </div>
             
             <div class="col-lg-4 text-lg-end">
-                <a href="{{ route('application.index') }}" class="btn btn-light btn-lg px-4 py-3 fw-bold hover-lift">
-                    Start Application
+                <a href="{{ route('application.index') }}" class="btn btn-apply-now btn-lg px-5 py-3 fw-bold">
+                    Start Application Now
                     <i class="fas fa-arrow-right ms-2"></i>
                 </a>
                 <div class="mt-3 text-white-60 small">
