@@ -31,13 +31,36 @@
         .traffic-light.low { background-color: #10b981; }
         
         .device-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
+            border-radius: 12px;
             margin-right: 12px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+        }
+        
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 8px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
         }
         
         .page-url {
@@ -161,7 +184,7 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($pageStats->take(10) as $item)
+                            @foreach($pageStats as $item)
                             @php
                                 $trafficLevel = $item->total > ($totalVisits * 0.2) ? 'high' : 
                                               ($item->total > ($totalVisits * 0.1) ? 'medium' : 'low');
@@ -236,25 +259,27 @@
                                 @endphp
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            @if($item->device_type == 'mobile')
-                                                <div class="device-icon bg-blue-100 text-blue-500">
-                                                    <i class="fas fa-mobile-alt"></i>
-                                                </div>
-                                            @elseif($item->device_type == 'desktop')
-                                                <div class="device-icon bg-purple-100 text-purple-500">
-                                                    <i class="fas fa-desktop"></i>
-                                                </div>
-                                            @elseif($item->device_type == 'tablet')
-                                                <div class="device-icon bg-green-100 text-green-500">
-                                                    <i class="fas fa-tablet-alt"></i>
-                                                </div>
-                                            @else
-                                                <div class="device-icon bg-gray-100 text-gray-500">
-                                                    <i class="fas fa-question"></i>
-                                                </div>
-                                            @endif
-                                            <span class="capitalize text-gray-800">{{ $item->device_type }}</span>
+                                        <div class="flex items-center group relative">
+                                            @php
+                                                $deviceInfo = [
+                                                    'mobile' => ['icon' => 'mobile-alt', 'color' => 'blue', 'label' => 'Smartphone'],
+                                                    'desktop' => ['icon' => 'desktop', 'color' => 'purple', 'label' => 'Computer'],
+                                                    'tablet' => ['icon' => 'tablet-alt', 'color' => 'green', 'label' => 'Tablet'],
+                                                    'default' => ['icon' => 'question', 'color' => 'gray', 'label' => 'Other Device']
+                                                ];
+                                                
+                                                $device = $deviceInfo[$item->device_type] ?? $deviceInfo['default'];
+                                                $bgColor = "bg-{$device['color']}-100";
+                                                $textColor = "text-{$device['color']}-500";
+                                            @endphp
+                                            <div class="device-icon {{ $bgColor }} {{ $textColor }} group-hover:scale-110 transition-transform duration-200" 
+                                                 data-tooltip="{{ $device['label'] }}">
+                                                <i class="fas fa-{{ $device['icon'] }}"></i>
+                                            </div>
+                                            <div class="ml-2">
+                                                <div class="font-medium text-gray-800">{{ $device['label'] }}</div>
+                                                <div class="text-xs text-gray-500">{{ number_format($item->total) }} visits</div>
+                                            </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
@@ -281,37 +306,111 @@
                         </table>
                     </div>
                     
-                    <!-- Device Breakdown Chart -->
-                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-800 mb-4">Device Distribution</h3>
-                        <div class="flex flex-col space-y-4">
-                            @foreach($deviceStats as $item)
-                            @php
-                                $percentage = $totalVisits > 0 ? round(($item->total/$totalVisits)*100) : 0;
-                            @endphp
-                            <div>
-                                <div class="flex justify-between mb-1">
-                                    <span class="text-sm font-medium text-gray-700 capitalize">
-                                        <i class="fas 
-                                            @if($item->device_type == 'mobile') fa-mobile-alt text-blue-500
-                                            @elseif($item->device_type == 'desktop') fa-desktop text-purple-500
-                                            @elseif($item->device_type == 'tablet') fa-tablet-alt text-green-500
-                                            @else fa-question text-gray-500 @endif
-                                            mr-2"></i>
-                                        {{ $item->device_type }}
-                                    </span>
-                                    <span class="text-sm font-medium text-gray-700">{{ $percentage }}%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div class="h-2.5 rounded-full progress-bar
-                                        @if($item->device_type == 'mobile') bg-blue-500
-                                        @elseif($item->device_type == 'desktop') bg-purple-500
-                                        @elseif($item->device_type == 'tablet') bg-green-500
-                                        @else bg-gray-500 @endif" 
-                                        style="width: {{ $percentage }}%"></div>
+                    <!-- Enhanced Device Breakdown Chart -->
+                    <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Device Distribution</h3>
+                            <span class="text-sm text-gray-500">{{ $totalVisits }} total visits</span>
+                        </div>
+                        
+                        <!-- Pie Chart Container -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="flex items-center justify-center">
+                                <div class="relative w-48 h-48">
+                                    @php
+                                        $colors = [
+                                            'mobile' => ['from' => 'from-blue-400', 'to' => 'to-blue-600', 'bg' => 'bg-blue-500'],
+                                            'desktop' => ['from' => 'from-purple-400', 'to' => 'to-purple-600', 'bg' => 'bg-purple-500'],
+                                            'tablet' => ['from' => 'from-green-400', 'to' => 'to-green-600', 'bg' => 'bg-green-500'],
+                                            'default' => ['from' => 'from-gray-400', 'to' => 'to-gray-600', 'bg' => 'bg-gray-500']
+                                        ];
+                                        $totalDeg = 0;
+                                    @endphp
+                                    
+                                    @foreach($deviceStats as $item)
+                                        @php
+                                            $device = $deviceInfo[$item->device_type] ?? $deviceInfo['default'];
+                                            $color = $colors[$item->device_type] ?? $colors['default'];
+                                            $percentage = $totalVisits > 0 ? ($item->total/$totalVisits) * 100 : 0;
+                                            $deg = ($percentage/100) * 360;
+                                            $rotation = $totalDeg;
+                                            $totalDeg += $deg;
+                                        @endphp
+                                        <div class="absolute inset-0 rounded-full overflow-hidden" 
+                                             style="background: conic-gradient(
+                                                 {{ $color['bg'] }} {{$rotation}}deg, 
+                                                 {{ $color['bg'] }} {{$rotation + $deg}}deg, 
+                                                 transparent {{$rotation + $deg}}deg, 
+                                                 transparent 360deg
+                                             );">
+                                        </div>
+                                    @endforeach
+                                    
+                                    <div class="absolute inset-4 bg-white rounded-full flex items-center justify-center shadow-inner">
+                                        <span class="text-2xl font-bold text-gray-700">{{ $deviceStats->count() }}</span>
+                                        <span class="text-xs text-gray-500 block mt-1">Device Types</span>
+                                    </div>
                                 </div>
                             </div>
-                            @endforeach
+                            
+                            <!-- Device Details -->
+                            <div class="space-y-4">
+                                @foreach($deviceStats as $item)
+                                @php
+                                    $device = $deviceInfo[$item->device_type] ?? $deviceInfo['default'];
+                                    $color = $colors[$item->device_type] ?? $colors['default'];
+                                    $percentage = $totalVisits > 0 ? round(($item->total/$totalVisits)*100, 1) : 0;
+                                    $bgGradient = "bg-gradient-to-r {$color['from']} {$color['to']}";
+                                @endphp
+                                <div class="group">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <div class="flex items-center">
+                                            <span class="w-3 h-3 rounded-full {{ $bgGradient }} mr-2"></span>
+                                            <span class="text-sm font-medium text-gray-800">{{ $device['label'] }}</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="text-sm font-semibold text-gray-900">{{ number_format($item->total) }}</span>
+                                            <span class="text-xs text-gray-500 ml-1">({{ $percentage }}%)</span>
+                                        </div>
+                                    </div>
+                                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                                        <div class="h-full rounded-full transition-all duration-700 ease-out {{ $bgGradient }}" 
+                                             style="width: {{ $percentage }}%"
+                                             data-tooltip="{{ $percentage }}% of visits from {{ strtolower($device['label']) }} devices">
+                                        </div>
+                                    </div>
+                                    <div class="mt-1 text-xs text-gray-500 flex justify-between">
+                                        <span>0%</span>
+                                        <span>100%</span>
+                                    </div>
+                                </div>
+                                @endforeach
+                                
+                                <!-- Additional Metrics -->
+                                <div class="mt-6 pt-4 border-t border-gray-100">
+                                    <h4 class="text-sm font-medium text-gray-700 mb-3">Device Insights</h4>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        @php
+                                            $mostPopular = $deviceStats->sortByDesc('total')->first();
+                                            $mostPopularDevice = $deviceInfo[$mostPopular->device_type] ?? $deviceInfo['default'];
+                                            $mobileVsDesktop = $deviceStats->firstWhere('device_type', 'mobile')?->total ?? 0;
+                                            $desktopVsMobile = $deviceStats->firstWhere('device_type', 'desktop')?->total ?? 0;
+                                            $totalMobileDesktop = $mobileVsDesktop + $desktopVsMobile;
+                                            $mobileVsDesktopPct = $totalMobileDesktop > 0 ? round(($mobileVsDesktop / $totalMobileDesktop) * 100) : 0;
+                                        @endphp
+                                        <div class="bg-gray-50 p-3 rounded-lg">
+                                            <div class="text-xs text-gray-500">Most Popular</div>
+                                            <div class="font-medium text-gray-900">{{ $mostPopularDevice['label'] }}</div>
+                                            <div class="text-xs text-gray-500">{{ $mostPopular->total }} visits</div>
+                                        </div>
+                                        <div class="bg-gray-50 p-3 rounded-lg">
+                                            <div class="text-xs text-gray-500">Mobile vs Desktop</div>
+                                            <div class="font-medium text-gray-900">{{ $mobileVsDesktopPct }}% Mobile</div>
+                                            <div class="text-xs text-gray-500">{{ 100 - $mobileVsDesktopPct }}% Desktop</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

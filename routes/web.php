@@ -248,7 +248,7 @@ Route::get('fees/invoice/{invoice}', [InvoiceController::class, 'show'])->name('
 
 
 // Web Routes
-Route::middleware(['XSS'])->namespace('Web')->group(function () {
+Route::middleware(['XSS', 'track.visits'])->namespace('Web')->group(function () {
 
     // Home Route
     Route::get('/', 'HomeController@index')->name('home');
