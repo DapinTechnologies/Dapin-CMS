@@ -62,6 +62,8 @@ class ApplicationController extends Controller
      */
 public function store(Request $request)
 {
+// logs to to confirm data has been received
+
     // Field Validation
     $request->validate([
         'program'           => 'required|integer',
@@ -82,7 +84,9 @@ public function store(Request $request)
         'mode_of_education' => 'required|string|in:Physical,Online,Hybrid',
     ]);
 
+    //log to daa fields have been validated
     try {
+        //log to confirm data has been saved
         DB::beginTransaction();
 
         $student = new Application;
@@ -114,8 +118,10 @@ public function store(Request $request)
         }
 
         $student->status = 1; // Pending status
+        //log student data within the student data array
+        
         $student->save();
-
+// log to the data has been saved in the database
         // Generate registration number
         $registrationNumber = '100-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
         $student->registration_no = $registrationNumber;
@@ -125,6 +131,7 @@ public function store(Request $request)
 
         // Send SMS Notification
         $this->sendRegistrationConfirmationSMS($student);
+        // log to test whether sms was sent successfully
 
         return redirect('/')->with([
             'toastr' => [
@@ -135,7 +142,10 @@ public function store(Request $request)
         ]);
 
     } catch (\Exception $e) {
+//log the error for variable e
+
         DB::rollBack();
+
         return redirect()->back()
                ->withInput()
                ->with('toastr', [

@@ -118,10 +118,10 @@
     font-size: 20rem; /* Increased from 15.8rem to make the title even bigger */
     font-weight: 800;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 2px;
     line-height: 1.2;
-    white-space: pre-wrap;
+    white-space: nowrap;
     transform: none;
 }
 
