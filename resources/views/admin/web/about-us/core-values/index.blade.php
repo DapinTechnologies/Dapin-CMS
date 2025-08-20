@@ -4,8 +4,26 @@
 
 @section('content')
 <div class="container mt-5">
+     <div class="float-right">
+    <a href="{{ route('admin.histories.index') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-history"></i> Manage History
+</a>
+    <a href="{{ route('admin.admin.about-us.partners') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-handshake"></i> Manage Partners
+</a>
+
+    <a href="{{route('admin.admin.about-us.accreditations')}}" class="btn btn-primary btn-sm">
+        <i class="fas fa-certificate"></i> Manage Accreditations
+    </a>
+      <a href="{{ route('admin.about-us.index') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-history"></i> Manage About
+</a>
+</div>
     <h2 class="text-center">Core Values</h2>
+
+     
     <div class="mb-4 text-right">
+       
         <a href="{{ route('admin.core-values.create') }}" class="btn btn-success">Add New Core Value</a>
     </div>
 

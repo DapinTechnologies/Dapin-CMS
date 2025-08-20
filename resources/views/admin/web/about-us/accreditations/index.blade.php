@@ -138,6 +138,21 @@
 <div class="main-body">
     <div class="page-wrapper">
         <div class="row">
+             <div class="float-right">
+    <a href="{{ route('admin.histories.index') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-history"></i> Manage History
+</a>
+    <a href="{{ route('admin.admin.about-us.partners') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-handshake"></i> Manage Partners
+</a>
+
+    <a href="{{route('admin.about-us.index')}}" class="btn btn-primary btn-sm">
+        <i class="fas fa-certificate"></i> Manage About
+    </a>
+      <a href="{{route('admin.core-values.index')}}" class="btn btn-primary btn-sm">
+        <i class="fas fa-certificate"></i> Manage Core Values
+    </a>
+</div>
             <div class="col-sm-12">
                 <div class="card modern-card">
                     <div class="card-header d-flex justify-content-between align-items-center">

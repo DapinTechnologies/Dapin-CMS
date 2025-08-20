@@ -8,8 +8,25 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
+                     <div class="float-right">
+    <a href="{{ route('admin.histories.index') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-history"></i> Manage History
+</a>
+    <a href="{{ route('admin.core-values.index') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-handshake"></i> Manage Core Values
+</a>
+
+    <a href="{{route('admin.admin.about-us.accreditations')}}" class="btn btn-primary btn-sm">
+        <i class="fas fa-certificate"></i> Manage Accreditations
+    </a>
+      <a href="{{ route('admin.about-us.index') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-history"></i> Manage About
+</a>
+</div>
                     <div class="card-header">
+                        
                         <h5>Manage Partners</h5>
+                        
                         <div class="float-right">
                             <a href="{{ route('admin.admin.about-us.partners.create') }}" class="btn btn-primary btn-sm">
                                 <i class="fas fa-plus"></i> Add New Partner

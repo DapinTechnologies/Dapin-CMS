@@ -7,8 +7,24 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
+                     <div class="float-right">
+    <a href="{{ route('admin.about-us.index') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-history"></i> Manage About
+</a>
+    <a href="{{ route('admin.admin.about-us.partners') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-handshake"></i> Manage Partners
+</a>
+
+    <a href="{{route('admin.admin.about-us.accreditations')}}" class="btn btn-primary btn-sm">
+        <i class="fas fa-certificate"></i> Manage Accreditations
+    </a>
+      <a href="{{route('admin.core-values.index')}}" class="btn btn-primary btn-sm">
+        <i class="fas fa-certificate"></i> Manage Core Values
+    </a>
+</div>
                     <div class="card-header">
                         <h5>Manage History Timeline</h5>
+                        
                         <div class="float-right">
                             <a href="{{ route('admin.histories.create') }}" class="btn btn-primary btn-sm">
                                 <i class="fas fa-plus"></i> Add New
