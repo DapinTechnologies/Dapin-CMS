@@ -358,10 +358,10 @@
                 <h1 class="display-4 fw-bold mb-4">Begin Your Educational Journey</h1>
                 <p class="lead mb-4">Join our vibrant community of learners and start shaping your future today with our simple admission process.</p>
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="#application-process" class="btn btn-light btn-lg hover-lift">
-                        <i class="fas fa-list-check me-2"></i> Admission Process
+                    <a href="{{route('application.index')}}" class="btn btn-light btn-lg hover-lift">
+                        <i class="fas fa-list-check me-2"></i> Admission 
                     </a>
-                    <a href="#courses" class="btn btn-outline-light btn-lg hover-lift">
+                    <a href="{{route('course')}}" class="btn btn-outline-light btn-lg hover-lift">
                         <i class="fas fa-graduation-cap me-2"></i> Our Courses
                     </a>
                 </div>
