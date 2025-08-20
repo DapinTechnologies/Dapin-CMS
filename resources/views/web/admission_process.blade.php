@@ -431,7 +431,7 @@
     <div class="container position-relative z-index-1">
         <div class="row align-items-center">
             <div class="col-lg-8 mb-4 mb-lg-0">
-               <h3 class="display-5 fw-bold mb-3 text-white">Ready to Transform Your Future?</h3>
+               <h5 class="display-5 fw-bold mb-3 text-white">Ready to Transform Your Future?</h5>
                <p class="lead mb-0 text-white-80">Join our community of ambitious learners and take the first step toward your dream career</p>
                <div class="d-flex flex-wrap gap-3 mt-4">
                    <div class="d-flex align-items-center text-white">

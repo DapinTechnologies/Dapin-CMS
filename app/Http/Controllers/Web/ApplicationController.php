@@ -60,109 +60,164 @@ class ApplicationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-public function store(Request $request)
-{
-// logs to to confirm data has been received
-
-    // Field Validation
-    $request->validate([
-        'program'           => 'required|integer',
-        'first_name'        => 'required|string|max:255',
-        'last_name'         => 'required|string|max:255',
-        'email'             => 'required|email|unique:applications,email',
-        'phone'             => 'required|string|max:30',
-        'gender'            => 'required|in:1,2,3',
-        'dob'               => 'required|date',
-        'kcse_index_no'     => 'required|string|max:50',
-        'kcse_year'         => 'required|string|max:10',
-        'kcse_grade'        => 'required|string|max:10',
-        'kcse_certificate'  => 'required|file|mimes:pdf,jpg,jpeg,png',
-        'kcse_result_slip'  => 'required|file|mimes:pdf,jpg,jpeg,png',
-        'county'            => 'required|integer',
-        'sub_county'        => 'required|integer',
-        'physical_address'  => 'nullable|string|max:255',
-        'mode_of_education' => 'required|string|in:Physical,Online,Hybrid',
-    ]);
-
-    //log to daa fields have been validated
-    try {
-        //log to confirm data has been saved
-        DB::beginTransaction();
-
-        $student = new Application;
-
-        // Student data mapping
-        $student->program_id        = $request->program;
-        $student->apply_date        = now();
-        $student->first_name        = $request->first_name;
-        $student->last_name         = $request->last_name;
-        $student->dob               = $request->dob;
-        $student->phone             = $request->phone;
-        $student->email             = $request->email;
-        $student->national_id       = $request->national_id;
-        $student->gender            = $request->gender;
-        $student->kcse_index_no     = $request->kcse_index_no;
-        $student->kcse_year         = $request->kcse_year;
-        $student->kcse_grade        = $request->kcse_grade;
-        $student->county_id         = $request->county;
-        $student->sub_county_id     = $request->sub_county;
-        $student->present_address   = $request->physical_address;
-        $student->mode_of_study     = $request->mode_of_education;
-
-        // File uploads
-        if ($request->hasFile('kcse_certificate')) {
-            $student->kcse_certificate = $request->file('kcse_certificate')->store('certificates', 'public');
-        }
-        if ($request->hasFile('kcse_result_slip')) {
-            $student->kcse_result_slip = $request->file('kcse_result_slip')->store('result_slips', 'public');
-        }
-
-        $student->status = 1; // Pending status
-        //log student data within the student data array
-        
-        $student->save();
-// log to the data has been saved in the database
-        // Generate registration number
-        $registrationNumber = '100-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
-        $student->registration_no = $registrationNumber;
-        $student->save();
-
-        DB::commit();
-
-        // Send SMS Notification
-        $this->sendRegistrationConfirmationSMS($student);
-        // log to test whether sms was sent successfully
-
-        return redirect('/')->with([
-            'toastr' => [
-                'type' => 'success',
-                'message' => 'Application was submitted successfully! Your registration number is ' . $registrationNumber,
-                'title' => 'Success'
+    public function store(Request $request)
+    {
+        // Log incoming data
+        \Log::info('Application submission started', [
+            'request_data' => $request->except(['kcse_certificate', 'kcse_result_slip']),
+            'files' => [
+                'kcse_certificate' => $request->hasFile('kcse_certificate'),
+                'kcse_result_slip' => $request->hasFile('kcse_result_slip')
             ]
         ]);
 
-    } catch (\Exception $e) {
-//log the error for variable e
+        // Field Validation
+        \Log::info('Starting validation for application data');
+        $request->validate([
+            'program'           => 'required|integer',
+            'first_name'        => 'required|string|max:255',
+            'last_name'         => 'required|string|max:255',
+            'email'             => 'required|email|unique:applications,email',
+            'phone'             => 'required|string|max:30',
+            'gender'            => 'required|in:1,2,3',
+            'dob'               => 'required|date',
+            'kcse_index_no'     => 'required|string|max:50',
+            'kcse_year'         => 'required|string|max:10',
+            'kcse_grade'        => 'required|string|max:10',
+            'kcse_certificate'  => 'required|file|mimes:pdf,jpg,jpeg,png',
+            'kcse_result_slip'  => 'required|file|mimes:pdf,jpg,jpeg,png',
+            'county'            => 'required|integer',
+            'sub_county'        => 'required|integer',
+            'physical_address'  => 'nullable|string|max:255',
+            'mode_of_education' => 'required|string|in:Physical,Online,Hybrid',
+        ]);
 
-        DB::rollBack();
+        \Log::info('Validation passed successfully');
 
-        return redirect()->back()
-               ->withInput()
-               ->with('toastr', [
-                   'type' => 'error',
-                   'message' => 'There was an error submitting your application. Please try again.',
-                   'title' => 'Error'
-               ]);
+        try {
+            \Log::info('Starting database transaction');
+            DB::beginTransaction();
+
+            $student = new Application;
+
+            // Student data mapping
+            \Log::info('Mapping student data to Application model');
+            $student->program_id        = $request->program;
+            $student->apply_date        = now();
+            $student->first_name        = $request->first_name;
+            $student->last_name         = $request->last_name;
+            $student->dob               = $request->dob;
+            $student->phone             = $request->phone;
+            $student->email             = $request->email;
+            $student->national_id       = $request->national_id;
+            $student->gender            = $request->gender;
+            $student->kcse_index_no     = $request->kcse_index_no;
+            $student->kcse_year         = $request->kcse_year;
+            $student->kcse_grade        = $request->kcse_grade;
+            $student->county_id         = $request->county;
+            $student->sub_county_id     = $request->sub_county;
+            $student->present_address   = $request->physical_address;
+            $student->mode_of_study     = $request->mode_of_education;
+
+            // File uploads
+            \Log::info('Processing file uploads');
+            if ($request->hasFile('kcse_certificate')) {
+                $certificatePath = $request->file('kcse_certificate')->store('certificates', 'public');
+                $student->kcse_certificate = $certificatePath;
+                \Log::info('KCSE certificate uploaded', ['path' => $certificatePath]);
+            }
+            if ($request->hasFile('kcse_result_slip')) {
+                $resultSlipPath = $request->file('kcse_result_slip')->store('result_slips', 'public');
+                $student->kcse_result_slip = $resultSlipPath;
+                \Log::info('KCSE result slip uploaded', ['path' => $resultSlipPath]);
+            }
+
+            $student->status = 1; // Pending status
+            
+            \Log::info('Student data prepared', [
+                'student_data' => [
+                    'first_name' => $student->first_name,
+                    'last_name' => $student->last_name,
+                    'email' => $student->email,
+                    'phone' => $student->phone,
+                    'program_id' => $student->program_id,
+                    'status' => $student->status
+                ]
+            ]);
+            
+            $student->save();
+            \Log::info('Student application saved to database', ['student_id' => $student->id]);
+
+            // Generate registration number
+            $registrationNumber = '100-' . str_pad($student->id, 4, '0', STR_PAD_LEFT);
+            $student->registration_no = $registrationNumber;
+            $student->save();
+            
+            \Log::info('Registration number generated and saved', [
+                'registration_number' => $registrationNumber,
+                'student_id' => $student->id
+            ]);
+
+            DB::commit();
+            \Log::info('Database transaction committed successfully');
+
+            // Send SMS Notification
+            \Log::info('Attempting to send SMS notification', [
+                'student_name' => $student->first_name . ' ' . $student->last_name,
+                'phone' => $student->phone,
+                'registration_number' => $registrationNumber
+            ]);
+            
+            try {
+                $this->sendRegistrationConfirmationSMS($student);
+                \Log::info('SMS notification sent successfully');
+            } catch (\Exception $smsException) {
+                \Log::error('SMS sending failed', [
+                    'error' => $smsException->getMessage(),
+                    'student_id' => $student->id
+                ]);
+                // Continue execution even if SMS fails
+            }
+
+            \Log::info('Application submission completed successfully', [
+                'student_id' => $student->id,
+                'registration_number' => $registrationNumber
+            ]);
+
+            return redirect('/')->with([
+                'toastr' => [
+                    'type' => 'success',
+                    'message' => 'Application was submitted successfully! Your registration number is ' . $registrationNumber,
+                    'title' => 'Success'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Application submission failed', [
+                'error_message' => $e->getMessage(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'stack_trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['kcse_certificate', 'kcse_result_slip'])
+            ]);
+
+            DB::rollBack();
+            \Log::info('Database transaction rolled back due to error');
+
+            return redirect()->back()
+                   ->withInput()
+                   ->with('toastr', [
+                       'type' => 'error',
+                       'message' => 'There was an error submitting your application. Please try again.',
+                       'title' => 'Error'
+                   ]);
+        }
     }
-}
 
-/**
- * Send registration confirmation SMS to student
- */
-/**
- * Send registration confirmation SMS to student
- */
-protected function sendRegistrationConfirmationSMS($student)
+    /**
+     * Send registration confirmation SMS to student
+     */
+    protected function sendRegistrationConfirmationSMS($student)
 {
     $apiUrl = 'https://smsportal.dapintechnologies.com/sms/v3/sendsms';
     $apiKey = '0CHxwhLRQ78MEFablqnsAtkgBNDjrJWou569KYpUd3eySPXT4ZOzv1cIiVG2mf';
