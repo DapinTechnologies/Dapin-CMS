@@ -416,7 +416,7 @@
                                 <th>Due Date</th>
                                 <th>Status</th>
                                 <th>Created At</th>
-                                <th>Actions</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -457,11 +457,7 @@
                                     </span>
                                 </td>
                                 <td><?php echo e($invoice->created_at->format('d M Y, H:i')); ?></td>
-                                <td>
-                                    <a href="<?php echo e(route('fees.invoice.show', $invoice->id)); ?>" class="btn btn-sm btn-info" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
+                                
                             </tr>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </tbody>

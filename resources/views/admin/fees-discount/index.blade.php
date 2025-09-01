@@ -56,13 +56,13 @@
                             <div class="form-group d-inline">
                                 <div class="radio d-inline">
                                     <input type="radio" name="type" id="type_fixed" value="1" @if( old('type') == null ) checked @elseif( old('type') == 1 )  checked @endif>
-                                    <label for="type_fixed" class="cr">{{ __('amount_type_fixed') }}</label>
+                                    <label for="type_fixed" class="cr">{{ __('amount_type_percentage') }}</label>
                                 </div>
                             </div>
                             <div class="form-group d-inline">
                                 <div class="radio d-inline">
                                     <input type="radio" name="type" id="type_percentage" value="2" @if( old('type') == 2 ) checked @endif>
-                                    <label for="type_percentage" class="cr">{{ __('amount_type_percentage') }}</label>
+                                    <label for="type_percentage" class="cr">{{ __('amount_type_fixed') }}</label>
                                 </div>
                             </div>
 
@@ -146,10 +146,10 @@
                                           @else
                                           {{ number_format((float)$row->amount, 2, '.', '') }} 
                                           @endif
-                                          @if($row->type == 1)
-                                          {!! $setting->currency_symbol !!}
-                                          @elseif($row->type == 2)
+                                           @if($row->type == 1)
                                           %
+                                          @elseif($row->type == 2)
+                                          {!! $setting->currency_symbol !!}
                                           @endif
                                         </td>
                                         <td>

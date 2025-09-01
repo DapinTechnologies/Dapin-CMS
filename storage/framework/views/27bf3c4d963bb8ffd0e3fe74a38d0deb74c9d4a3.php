@@ -11,9 +11,7 @@
             <button type="button" class="btn btn-info mr-2" data-bs-toggle="modal" data-bs-target="#batchBursaryModal">
                 <i class="fas fa-users fa-sm text-white-100"></i> Batch / Single Allocation
             </button>
-            <a href="<?php echo e(route($route.'.create')); ?>" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                <i class="fas fa-plus-circle fa-sm text-white-100"></i> Category Allocation
-            </a>
+            
         </div>
     </div>
 

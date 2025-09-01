@@ -282,7 +282,7 @@
                 success: function(response) {
                     $('#invoice_id').empty().append('<option value=""><?php echo e(__('select')); ?></option>');
                     $.each(response, function(key, invoice) {
-                        $('#invoice_id').append('<option value="'+invoice.id+'">INV-'+invoice.invoice_no+' (Due: <?php echo e(config('app.currency_symbol')); ?>'+invoice.amount_due+')</option>');
+                        $('#invoice_id').append('<option value="'+invoice.id+'">'+invoice.invoice_no+' (Due: <?php echo e(config('app.currency_symbol')); ?>'+invoice.amount_due+')</option>');
                     });
                     $('#invoice_id').prop('disabled', false);
                 }

@@ -10,13 +10,13 @@
             <h5>Filter/Search Payments</h5>
         </div>
         <div class="card-body">
-            <form action="<?php echo e(route($route.'.index')); ?>" method="GET">
+            <form action="<?php echo e(route($route.'.index')); ?>" method="GET" id="filterForm">
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="faculty">Faculty</label>
                             <select name="faculty" id="faculty" class="form-control">
-                                <option value="0">All Faculties</option>
+                                <option value="">All Faculties</option>
                                 <?php $__currentLoopData = $faculties; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $faculty): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($faculty->id); ?>" <?php echo e($selected_faculty == $faculty->id ? 'selected' : ''); ?>>
                                         <?php echo e($faculty->title); ?>
@@ -30,10 +30,24 @@
                         <div class="form-group">
                             <label for="program">Program</label>
                             <select name="program" id="program" class="form-control">
-                                <option value="0">All Programs</option>
+                                <option value="">All Programs</option>
                                 <?php $__currentLoopData = $programs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $program): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($program->id); ?>" <?php echo e($selected_program == $program->id ? 'selected' : ''); ?>>
                                         <?php echo e($program->title); ?>
+
+                                    </option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="semester">Semester</label>
+                            <select name="semester" id="semester" class="form-control">
+                                <option value="">All Semesters</option>
+                                <?php $__currentLoopData = $semesters; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $semester): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($semester->id); ?>" <?php echo e($selected_semester == $semester->id ? 'selected' : ''); ?>>
+                                        <?php echo e($semester->title); ?>
 
                                     </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -75,13 +89,28 @@
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="search">Search (ID/Name/Reference)</label>
-                            <input type="text" name="search" id="search" class="form-control" value="<?php echo e($search_term); ?>" placeholder="Student ID/Name/Reference">
+                            <label for="start_date">Start Date</label>
+                            <input type="date" name="start_date" id="start_date" class="form-control" value="<?php echo e($start_date); ?>">
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="end_date">End Date</label>
+                            <input type="date" name="end_date" id="end_date" class="form-control" value="<?php echo e($end_date); ?>">
+                        </div>
+                    </div>
+                    <!-- 
+<div class="col-md-3">
+    <div class="form-group">
+        <label for="search">Search (ID/Name/Reference)</label>
+        <input type="text" name="search" id="search" class="form-control" value="<?php echo e($search_term); ?>" placeholder="Student ID/Name/Reference">
+    </div>
+</div>
+-->
+
                     <div class="col-md-12 d-flex justify-content-end mt-3">
-                        <button type="submit" class="btn btn-primary mr-2">
-                            <i class="fas fa-search"></i> Search
+                        <button type="submit" class="btn btn-primary mr-2" id="filterButton">
+                            <i class="fas fa-search"></i> Filter
                         </button>
                         <a href="<?php echo e(route($route.'.index')); ?>" class="btn btn-secondary">
                             <i class="fas fa-sync-alt"></i> Reset
@@ -127,6 +156,15 @@
                 </div>
             </div>
         </div>
+        <div class="mb-3 relative">
+    <input 
+        type="text" 
+        class="form-control search-input ps-5 rounded-pill shadow-sm border-0" 
+        placeholder="🔍 Quick Search..."
+        style="max-width: 300px;"
+    >
+</div>
+
             <div>
                 <button type="button" class="btn btn-primary btn-sm" id="batchReconcileBtn" data-bs-toggle="modal" data-bs-target="#batchReconcileModal">
                     <i class="fas fa-check-double"></i> Batch Reconcile
@@ -463,6 +501,7 @@
 </div>
 <?php $__env->stopSection(); ?>
 
+
 <?php $__env->startSection('scripts'); ?>
 <script>
 $(document).ready(function() {
@@ -476,7 +515,7 @@ $(document).ready(function() {
                 dataType: "json",
                 success:function(data) {
                     $('#program').empty();
-                    $('#program').append('<option value="0">All Programs</option>');
+                    $('#program').append('<option value="">All Programs</option>');
                     $.each(data, function(key, value) {
                         $('#program').append('<option value="'+ key +'">'+ value +'</option>');
                     });
@@ -484,8 +523,18 @@ $(document).ready(function() {
             });
         } else {
             $('#program').empty();
-            $('#program').append('<option value="0">All Programs</option>');
+            $('#program').append('<option value="">All Programs</option>');
         }
+    });
+
+    // Ensure filter form submits correctly
+    $('#filterForm').on('submit', function(e) {
+        // Remove empty values to keep URL clean
+        $(this).find('select, input').each(function() {
+            if (!$(this).val()) {
+                $(this).prop('disabled', true);
+            }
+        });
     });
 
     // Select all checkboxes
@@ -524,4 +573,35 @@ $(document).ready(function() {
 });
 </script>
 <?php $__env->stopSection(); ?>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.querySelector(".search-input");
+    const table = document.getElementById("paymentsTable");
+
+    if (searchInput && table) {
+        searchInput.addEventListener("keyup", function () {
+            const filter = this.value.toLowerCase();
+            const rows = table.querySelectorAll("tbody tr");
+
+            rows.forEach(row => {
+                // Only touch display property, nothing else
+                if (row.textContent.toLowerCase().includes(filter)) {
+                    row.style.display = ""; // show row
+                } else {
+                    row.style.display = "none"; // hide row
+                }
+            });
+        });
+    }
+});
+</script>
+<style>
+#paymentsTable {
+    font-size: 14px;  /* lock font size */
+    font-family: Arial, sans-serif; /* optional: lock font family */
+}
+</style>
+
+
 <?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\wamp64\www\Dapin-CMS-main\resources\views/admin/fee-reconciliation/index.blade.php ENDPATH**/ ?>

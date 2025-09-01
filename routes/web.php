@@ -303,10 +303,14 @@ Route::prefix('admin/fee-structures')->group(function () {
     Route::post('/{feeStructure}/items', [FeeStructureController::class, 'addItem'])->name('admin.fee-structures.items.store');
     Route::delete('/items/{item}', [FeeStructureController::class, 'removeItem'])->name('admin.fee-structures.items.destroy');
 
-    // Export routes
-    Route::get('/export', [FeeStructureController::class, 'export'])->name('admin.fee-structures.export');
+    
     Route::post('/import', [FeeStructureController::class, 'import'])->name('admin.fee-structures.import');
     
+ // Export routes
+    Route::get('/export', [FeeStructureController::class, 'export'])
+        ->name('admin.fee-structures.export');
+        
+
 });
 
 // Web Routes

@@ -60,13 +60,13 @@
                             <div class="form-group d-inline">
                                 <div class="radio d-inline">
                                     <input type="radio" name="type" id="type_fixed" value="1" <?php if( old('type') == null ): ?> checked <?php elseif( old('type') == 1 ): ?>  checked <?php endif; ?>>
-                                    <label for="type_fixed" class="cr"><?php echo e(__('amount_type_fixed')); ?></label>
+                                    <label for="type_fixed" class="cr"><?php echo e(__('amount_type_percentage')); ?></label>
                                 </div>
                             </div>
                             <div class="form-group d-inline">
                                 <div class="radio d-inline">
                                     <input type="radio" name="type" id="type_percentage" value="2" <?php if( old('type') == 2 ): ?> checked <?php endif; ?>>
-                                    <label for="type_percentage" class="cr"><?php echo e(__('amount_type_percentage')); ?></label>
+                                    <label for="type_percentage" class="cr"><?php echo e(__('amount_type_fixed')); ?></label>
                                 </div>
                             </div>
 
@@ -156,11 +156,11 @@
                                           <?php else: ?>
                                           <?php echo e(number_format((float)$row->amount, 2, '.', '')); ?> 
                                           <?php endif; ?>
-                                          <?php if($row->type == 1): ?>
+                                           <?php if($row->type == 1): ?>
+                                          %
+                                          <?php elseif($row->type == 2): ?>
                                           <?php echo $setting->currency_symbol; ?>
 
-                                          <?php elseif($row->type == 2): ?>
-                                          %
                                           <?php endif; ?>
                                         </td>
                                         <td>
