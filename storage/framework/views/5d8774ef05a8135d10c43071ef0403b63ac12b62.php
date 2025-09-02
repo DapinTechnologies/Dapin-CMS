@@ -953,6 +953,7 @@ document.addEventListener('DOMContentLoaded', function() {
         button.addEventListener('click', function() {
             const reminderData = {
                 student_enroll_id: this.dataset.studentEnrollId,
+                student_id: this.dataset.studentId, // Added student_id
                 invoice_id: this.dataset.invoiceId,
                 student_name: this.dataset.studentName,
                 invoice_no: this.dataset.invoiceNo,
@@ -961,7 +962,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 phone: this.dataset.phone
             };
             
-            const defaultMessage = `Dear ${reminderData.student_name} ( ${reminderData.student_enroll_id}), Please note that your school fees of KES ${reminderData.amount_due} is due by ${reminderData.due_date}. For any inquiries, contact finance office.`;
+            const defaultMessage = `Dear ${reminderData.student_name} (${reminderData.student_id}), Please note that your school fees of KES ${reminderData.amount_due} is due by ${reminderData.due_date}. For any inquiries, contact finance office.`;
             
             const originalContent = button.innerHTML;
             button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
