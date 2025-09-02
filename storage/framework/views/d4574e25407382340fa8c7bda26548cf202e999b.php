@@ -1,1 +1,0 @@
-<?php /**PATH C:\wamp64\www\Dapin-CMS-main\resources\views/admin/fees-student/show.blade.php ENDPATH**/ ?>

@@ -82,9 +82,11 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5>Fee Structures List</h5>
             <div>
-                <a href="{{ route($route.'.batch-assign') }}" class="btn btn-info btn-sm">
-                    <i class="fas fa-users"></i> Batch Assign Fee Structure
-                </a>
+                {{-- 
+<a href="{{ route($route.'.batch-assign') }}" class="btn btn-info btn-sm">
+    <i class="fas fa-users"></i> Batch Assign Fee Structure
+</a>
+--}}
 
                 @can('create fee structures')
                 <a href="{{ route($route.'.create') }}" class="btn btn-success btn-sm">
@@ -93,10 +95,10 @@
                 @endcan
                 
                 @can('export fee structures')
-                <a href="{{ route($route.'.export') }}" class="btn btn-info btn-sm ml-2">
-                    <i class="fas fa-file-export"></i> Export
-                </a>
-                @endcan
+    <a href="{{ route('admin.fee-structures.export') }}" class="btn btn-info btn-sm ml-2" download>
+        <i class="fas fa-file-export"></i> Export
+    </a>
+@endcan
                 
                 @can('import fee structures')
 <button class="btn btn-warning btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#importModal">
@@ -164,6 +166,103 @@
         data-bs-target="#sendInvoiceModal-{{ $feeStructure->id }}">
     <i class="fas fa-paper-plane"></i> Send Invoices
 </button>
+
+<!-- Send Invoice Modal -->
+<div class="modal fade" id="sendInvoiceModal-{{ $feeStructure->id }}" tabindex="-1" aria-labelledby="sendInvoiceModalLabel-{{ $feeStructure->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                
+                    <h5 class="modal-title" id="sendInvoiceModalLabel-{{ $feeStructure->id }}">
+                    <i class="fas fa-paper-plane me-2"></i> Send Invoices - {{ $feeStructure->program->title ?? 'N/A' }} (Semester {{ $feeStructure->semester }})
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.fee-structures.sendInvoice', $feeStructure->id) }}" method="POST" class="send-invoice-form">
+                @csrf
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> 
+                        This will create invoices for ALL students enrolled in:
+                        <strong>{{ $feeStructure->program->title ?? 'N/A' }}</strong> - 
+                        Semester <strong>{{ $feeStructure->semester }}</strong>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="due_date-{{ $feeStructure->id }}" class="form-label fw-bold">Due Date</label>
+                                <input type="date" 
+                                    class="form-control" 
+                                    id="due_date-{{ $feeStructure->id }}" 
+                                    name="due_date"
+                                    min="{{ date('Y-m-d') }}"
+                                    value="{{ date('Y-m-d', strtotime('+30 days')) }}"
+                                    required>
+                                <small class="form-text text-muted">Select the payment due date</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="fw-bold">Notification Options</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" 
+                                        type="checkbox" 
+                                        id="send_sms-{{ $feeStructure->id }}" 
+                                        name="send_sms" 
+                                        value="1"
+                                        checked>
+                                    <label class="form-check-label" for="send_sms-{{ $feeStructure->id }}">
+                                        Send SMS Notification
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" 
+                                        type="checkbox" 
+                                        id="send_email-{{ $feeStructure->id }}" 
+                                        name="send_email" 
+                                        value="1"
+                                        checked>
+                                    <label class="form-check-label" for="send_email-{{ $feeStructure->id }}">
+                                        Send Email Notification
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle me-2"></i> 
+    <strong>Warning:</strong> This action cannot be undone, students will receive invoices realtime.
+</div>
+                    
+                    <div class="alert alert-light">
+                        <h6 class="fw-bold">Fee Items Summary that will be sent:</h6>
+                        <ul class="mb-0">
+                            @foreach($feeStructure->items as $item)
+                                <li>
+                                    {{ $item->fee_category_title ?? 'Uncategorized' }}: 
+                                    {{ number_format($item->amount, 2) }}
+                                </li>
+                            @endforeach
+                            <li class="fw-bold mt-2">
+                                Total Amount: {{ number_format($feeStructure->items->sum('amount'), 2) }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-1"></i> Send Invoices
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endcan
                                     
                                     @can('delete fee structures')
@@ -345,11 +444,12 @@
 @endcan
 
 <!-- Send Invoice Modal -->
-<div class="modal fade" id="sendInvoiceModal-{{ $feeStructure->id }}" tabindex="-1" aria-labelledby="sendInvoiceModalLabel" aria-hidden="true">
+<div class="modal fade" id="sendInvoiceModal-{{ $feeStructure->id }}" tabindex="-1" aria-labelledby="sendInvoiceModalLabel-{{ $feeStructure->id }}" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="sendInvoiceModalLabel">
+                
+                    <h5 class="modal-title" id="sendInvoiceModalLabel-{{ $feeStructure->id }}">
                     <i class="fas fa-paper-plane me-2"></i> Send Invoices - {{ $feeStructure->program->title ?? 'N/A' }} (Semester {{ $feeStructure->semester }})
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>

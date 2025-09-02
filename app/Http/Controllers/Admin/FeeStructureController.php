@@ -19,6 +19,7 @@ use App\Models\Student;
 use App\Models\StudentEnroll;
 use App\Models\FeesCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 
 class FeeStructureController extends Controller
@@ -602,60 +603,55 @@ public function estimateStudents(Request $request)
     }
 }
 
-    public function export()
+   public function export()
 {
-    // Get the data to export (adjust this query as needed for your fee structures)
-    $data = FeeStructure::all(); // Or whatever your model is
-    
-    // Determine the file type (default to CSV)
-    $fileType = request()->get('file_type', 'csv');
-    
-    // Generate filename with timestamp
-    $fileName = 'fee_structures_' . now()->format('Ymd_His');
-    
-    if ($fileType === 'excel') {
-        $fileName .= '.xlsx';
-        return Excel::download(new FeeStructuresExport($data), $fileName);
-    } else {
-        // Default to CSV
-        $fileName .= '.csv';
-        
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$fileName\"",
-        ];
+    // Get filter parameters from request
+    $faculty = request()->get('faculty');
+    $program = request()->get('program');
+    $semester = request()->get('semester');
+    $category = request()->get('category');
 
-        $callback = function() use ($data) {
-            $file = fopen('php://output', 'w');
-            
-            // Add CSV headers
-            fputcsv($file, [
-                'ID', 
-                'Name', 
-                'Amount',
-                'Frequency',
-                'Description',
-                // Add other columns as needed
-            ]);
-            
-            // Add data rows
-            foreach ($data as $item) {
-                fputcsv($file, [
-                    $item->id,
-                    $item->name,
-                    $item->amount,
-                    $item->frequency,
-                    $item->description,
-                    // Add other fields as needed
-                ]);
-            }
-            
-            fclose($file);
-        };
+    // Build query with filters
+    $query = FeeStructure::with(['faculty', 'program', 'items.category'])
+        ->when($faculty, function($q) use ($faculty) {
+            $q->where('faculty_id', $faculty);
+        })
+        ->when($program, function($q) use ($program) {
+            $q->where('program_id', $program);
+        })
+        ->when($semester, function($q) use ($semester) {
+            $q->where('semester', $semester);
+        })
+        ->when($category, function($q) use ($category) {
+            $q->whereHas('items', function($query) use ($category) {
+                $query->where('fees_category_id', $category);
+            });
+        });
 
-        return response()->stream($callback, 200, $headers);
+    $data = $query->get();
+
+    // Generate filename with timestamp and filters
+    $filename = 'fee_structures_' . now()->format('Y_m_d_His');
+    
+    if ($faculty) {
+        $facultyName = Faculty::find($faculty)->title ?? '';
+        $filename .= '_' . Str::slug($facultyName);
     }
+    
+    if ($program) {
+        $programName = Program::find($program)->title ?? '';
+        $filename .= '_' . Str::slug($programName);
+    }
+    
+    if ($semester) {
+        $filename .= '_' . Str::slug($semester);
+    }
+
+    $filename .= '.xlsx';
+
+    return Excel::download(new FeeStructuresExport($data), $filename);
 }
+
     public function import(Request $request)
 {
     $request->validate([

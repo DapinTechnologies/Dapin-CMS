@@ -39,7 +39,11 @@ use App\Models\Item;
 use App\Models\Book;
 use App\Models\Fee;
 use Carbon\Carbon;
+use App\Models\FeeCategory; // Add this line with other use statements
 use App\User;
+use App\Models\Invoice;
+use App\Models\Payment;
+use DB;
 
 class ReportController extends Controller
 {
@@ -512,188 +516,307 @@ class ReportController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function fees(Request $request)
-    {
-        //
-        $data['title'] = trans_choice('module_collected_fees', 1).' '.trans_choice('module_report', 1);
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['access'] = $this->access;
+{
+    $data['title'] = 'Reconciled Payments Report';
+    $data['route'] = $this->route;
+    $data['view'] = $this->view;
+    $data['access'] = $this->access;
 
+    // Filter parameters
+    $data['selected_faculty'] = $faculty = $request->faculty ?? '0';
+    $data['selected_program'] = $program = $request->program ?? '0';
+    $data['selected_session'] = $session = $request->session ?? '0';
+    $data['selected_semester'] = $semester = $request->semester ?? '0';
+    $data['selected_section'] = $section = $request->section ?? '0';
+    $data['selected_payment_method'] = $payment_method = $request->payment_method ?? '0';
+    
+    // Date filters - default to current month if not provided
+    $data['selected_start_date'] = $start_date = $request->start_date ?? date('Y-m-01');
+    $data['selected_end_date'] = $end_date = $request->end_date ?? date('Y-m-t');
 
-        if(!empty($request->faculty) || $request->faculty != null){
-            $data['selected_faculty'] = $faculty = $request->faculty;
-        }
-        else{
-            $data['selected_faculty'] = $faculty = '0';
-        }
+    // Get filter options
+    $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
+    $data['payment_methods'] = [
+        'mpesa' => 'Mpesa',
+        'bank' => 'Bank',
+        'cash' => 'Cash',
+        'cheque' => 'Cheque',
+        'bursary' => 'Bursary'
+    ];
 
-        if(!empty($request->program) || $request->program != null){
-            $data['selected_program'] = $program = $request->program;
-        }
-        else{
-            $data['selected_program'] = $program = '0';
-        }
+    // Filter Programs based on Faculty
+    if(!empty($request->faculty) && $request->faculty != '0'){
+        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();
+    }
 
-        if(!empty($request->session) || $request->session != null){
-            $data['selected_session'] = $session = $request->session;
-        }
-        else{
-            $data['selected_session'] = $session = '0';
-        }
-
-        if(!empty($request->semester) || $request->semester != null){
-            $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
-            $data['selected_semester'] = $semester = '0';
-        }
-
-        if(!empty($request->section) || $request->section != null){
-            $data['selected_section'] = $section = $request->section;
-        }
-        else{
-            $data['selected_section'] = $section = '0';
-        }
-
-        if(!empty($request->category) || $request->category != null){
-            $data['selected_category'] = $category = $request->category;
-        }
-        else{
-            $data['selected_category'] = $category = '0';
-        }
-
-        if(!empty($request->start_date) || $request->start_date != null){
-            $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
-            $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subMonth()));
-        }
-
-        if(!empty($request->end_date) || $request->end_date != null){
-            $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
-            $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
-        }
-
-        
-        $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
-        $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
-
-
-        // Filter Search
-        if(!empty($request->faculty) && $request->faculty != '0'){
-        $data['programs'] = Program::where('faculty_id', $faculty)->where('status', '1')->orderBy('title', 'asc')->get();}
-
-        if(!empty($request->program) && $request->program != '0'){
+    // Filter Sessions based on Program
+    if(!empty($request->program) && $request->program != '0'){
         $sessions = Session::where('status', 1);
         $sessions->with('programs')->whereHas('programs', function ($query) use ($program){
             $query->where('program_id', $program);
         });
-        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();}
+        $data['sessions'] = $sessions->orderBy('id', 'desc')->get();
+    }
 
-        if(!empty($request->program) && $request->program != '0'){
+    // Filter Semesters based on Program
+    if(!empty($request->program) && $request->program != '0'){
         $semesters = Semester::where('status', 1);
         $semesters->with('programs')->whereHas('programs', function ($query) use ($program){
             $query->where('program_id', $program);
         });
-        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();}
+        $data['semesters'] = $semesters->orderBy('id', 'asc')->get();
+    }
 
-        if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
+    // Filter Sections based on Program and Semester
+    if(!empty($request->program) && $request->program != '0' && !empty($request->semester) && $request->semester != '0'){
         $sections = Section::where('status', 1);
         $sections->with('semesterPrograms')->whereHas('semesterPrograms', function ($query) use ($program, $semester){
             $query->where('program_id', $program);
             $query->where('semester_id', $semester);
         });
-        $data['sections'] = $sections->orderBy('title', 'asc')->get();}
-        
+        $data['sections'] = $sections->orderBy('title', 'asc')->get();
+    }
 
-        // Filter Fees
-        $fees = Fee::whereDate('pay_date', '>=', $start_date)
-                    ->whereDate('pay_date', '<=', $end_date);
+    // Query reconciled payments
+    $payments = Payment::where('is_reconciled', 1)
+                ->whereDate('paid_at', '>=', $start_date)
+                ->whereDate('paid_at', '<=', $end_date);
 
-        if(!empty($request->faculty) || !empty($request->program) || !empty($request->session) || !empty($request->semester) || !empty($request->section)){
-            $fees->whereHas('studentEnroll.program', function ($query) use ($faculty){
-                if($faculty != 0){
+    // Apply filters
+    if($faculty != '0' || $program != '0' || $session != '0' || $semester != '0' || $section != '0'){
+        $payments->whereHas('studentEnroll.program', function ($query) use ($faculty){
+            if($faculty != '0'){
                 $query->where('faculty_id', $faculty);
-                }
-            });
+            }
+        });
 
-            $fees->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section){
-                if($program != 0){
+        $payments->whereHas('studentEnroll', function ($query) use ($program, $session, $semester, $section){
+            if($program != '0'){
                 $query->where('program_id', $program);
-                }
-                if($session != 0){
+            }
+            if($session != '0'){
                 $query->where('session_id', $session);
-                }
-                if($semester != 0){
+            }
+            if($semester != '0'){
                 $query->where('semester_id', $semester);
-                }
-                if($section != 0){
+            }
+            if($section != '0'){
                 $query->where('section_id', $section);
-                }
-            });
-        }
-        if($category != 0){
-            $fees->where('category_id', $category);
-        }
-        
-        $fees->whereHas('studentEnroll.student', function ($query){
-            $query->orderBy('student_id', 'asc');
+            }
         });
-        
-        $data['rows'] = $fees->where('status', '1')->orderBy('updated_at', 'desc')->get();
-
-
-        return view($this->view.'.fees', $data);
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // Filter by payment method
+    if($payment_method != '0'){
+        $payments->where('payment_method', $payment_method);
+    }
+
+    // Get the results
+    $data['payments'] = $payments->with(['studentEnroll.student', 'studentEnroll.program.faculty', 'invoice'])
+                        ->orderBy('paid_at', 'desc')
+                        ->get();
+
+    // Prepare data for charts
+    $data['payment_method_distribution'] = $this->getPaymentMethodDistribution($payments->get());
+    $data['faculty_collections'] = $this->getFacultyCollections($payments->get());
+    $data['program_collections'] = $this->getProgramCollections($payments->get());
+
+    return view($this->view.'.fees', $data);
+}
+
+private function getPaymentMethodDistribution($payments)
+{
+    // Initialize with all known payment methods
+    $distribution = [
+        'mpesa' => 0,
+        'bank' => 0,
+        'cash' => 0,
+        'cheque' => 0,
+        'bursary' => 0
+    ];
+
+    foreach ($payments as $payment) {
+        $method = $payment->payment_method ?? 'bursary';
+        
+        // If the method exists in our distribution, add to it
+        if (array_key_exists($method, $distribution)) {
+            $distribution[$method] += $payment->amount;
+        } 
+        // Otherwise, add it as a new entry (if you want to track unknown methods)
+        else {
+            $distribution[$method] = $payment->amount;
+        }
+    }
+
+    return $distribution;
+}
+
+private function getFacultyCollections($payments)
+{
+    $collections = [];
+
+    foreach ($payments as $payment) {
+        if ($payment->studentEnroll && $payment->studentEnroll->program && $payment->studentEnroll->program->faculty) {
+            $facultyName = $payment->studentEnroll->program->faculty->title;
+            if (!isset($collections[$facultyName])) {
+                $collections[$facultyName] = 0;
+            }
+            $collections[$facultyName] += $payment->amount;
+        }
+    }
+
+    return $collections;
+}
+
+private function getProgramCollections($payments)
+{
+    $collections = [];
+
+    foreach ($payments as $payment) {
+        if ($payment->studentEnroll && $payment->studentEnroll->program) {
+            $programName = $payment->studentEnroll->program->title;
+            if (!isset($collections[$programName])) {
+                $collections[$programName] = 0;
+            }
+            $collections[$programName] += $payment->amount;
+        }
+    }
+
+    // Sort by amount in descending order and take top 10
+    arsort($collections);
+    $collections = array_slice($collections, 0, 10, true);
+
+    return $collections;
+}
+
     public function studentFees(Request $request)
-    {
-        //
-        $data['title']     = trans_choice('module_student_fees', 1).' '.trans_choice('module_report', 1);
-        $data['route']     = $this->route;
-        $data['view']      = $this->view;
-        $data['access']    = $this->access;
+{
+    $data['title'] = trans_choice('module_student_fees', 1).' '.trans_choice('module_report', 1);
+    $data['route'] = $this->route;
+    $data['view'] = $this->view;
+    $data['access'] = $this->access;
 
+    // Selected filters
+    $data['selected_faculty'] = $request->faculty ?? null;
+    $data['selected_program'] = $request->program ?? null;
+    $data['selected_semester'] = $request->semester ?? null;
+    $data['selected_fee_category'] = $request->fee_category ?? null;
+    $data['selected_status'] = $request->status ?? 'all';
+    $data['selected_start_date'] = $request->start_date ?? null;
+    $data['selected_end_date'] = $request->end_date ?? null;
 
-        if(!empty($request->student) || $request->student != null){
-            $data['selected_student'] = $student = $request->student;
-        }
-        else{
-            $data['selected_student'] = $student = null;
-        }
+    // Get filter options
+    $data['faculties'] = Faculty::where('status', '1')->orderBy('title', 'asc')->get();
+    $data['programs'] = Program::where('status', '1')->orderBy('title', 'asc')->get();
+    $data['semesters'] = Semester::where('status', '1')->orderBy('id', 'asc')->get();
+    $data['fee_categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
 
-        if(!empty($request->category) || $request->category != null){
-            $data['selected_category'] = $category = $request->category;
-        }
-        else{
-            $data['selected_category'] = '0';
-        }
-
-
-
-        $data['students'] = Student::where('status', '!=', '0')->orderBy('student_id', 'asc')->get();
-        $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
-
-
-        // Filter Fees
-        $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($student){
-                $query->where('student_id', $student);
+    // Query invoices with payments and student enroll
+    $query = Invoice::with([
+            'payments', 
+            'studentEnroll.student', 
+            'studentEnroll.program.faculty', // Changed to access faculty through program
+            'studentEnroll.session', 
+            'studentEnroll.semester', 
+            'fees.category'
+        ])
+        ->whereHas('studentEnroll', function($q) use ($request) {
+            if ($request->faculty) {
+                $q->whereHas('program', function($q2) use ($request) {
+                    $q2->where('faculty_id', $request->faculty);
+                });
+            }
+            if ($request->program) {
+                $q->where('program_id', $request->program);
+            }
+            if ($request->semester) {
+                $q->where('semester_id', $request->semester);
+            }
         });
-        if(!empty($request->category)){
-            $fees->where('category_id', $category);
-        }
-        $data['rows'] = $fees->where('status', '<=', '1')->orderBy('assign_date', 'asc')->get();
 
-        
-        return view($this->view.'.student-fees', $data);
+    // Filter by fee category
+    if ($request->fee_category) {
+        $query->whereHas('fees', function($q) use ($request) {
+            $q->where('category_id', $request->fee_category);
+        });
     }
+
+    // Filter by status
+    if ($request->status && $request->status != 'all') {
+        $query->where('payment_status', $request->status);
+    }
+
+    // Filter by date range
+    if ($request->start_date && $request->end_date) {
+        $query->whereBetween('assign_date', [$request->start_date, $request->end_date]);
+    } elseif ($request->start_date) {
+        $query->where('assign_date', '>=', $request->start_date);
+    } elseif ($request->end_date) {
+        $query->where('assign_date', '<=', $request->end_date);
+    }
+
+    $invoices = $query->orderBy('assign_date', 'asc')->get();
+
+    // Dashboard calculations
+    $totalBilled = $invoices->sum('total_fee');
+    $totalCollected = $invoices->sum('amount_paid');
+    $totalBursary = $invoices->sum('bursary_allocated');
+    $totalDiscount = $invoices->sum('discount_amount');
+    $totalFine = $invoices->sum('fine_amount');
+    
+    $totalOutstanding = $totalBilled - $totalCollected - $totalBursary - $totalDiscount + $totalFine;
+    $collectionRate = $totalBilled > 0 ? round(($totalCollected / $totalBilled) * 100, 2) : 0;
+    
+    $fullyPaidCount = $invoices->where('payment_status', 'paid')->count();
+    $fullyPaidPercent = $invoices->count() > 0 ? round(($fullyPaidCount / $invoices->count()) * 100, 2) : 0;
+    
+    $partialPaidCount = $invoices->where('payment_status', 'partial')->count();
+    $partialPaidPercent = $invoices->count() > 0 ? round(($partialPaidCount / $invoices->count()) * 100, 2) : 0;
+    
+    $bursaryCount = $invoices->where('bursary_allocated', '>', 0)->count();
+    $bursaryPercent = $invoices->count() > 0 ? round(($bursaryCount / $invoices->count()) * 100, 2) : 0;
+
+    $unpaidCount = $invoices->count() - $fullyPaidCount - $partialPaidCount;
+    $unpaidPercent = $invoices->count() > 0 ? round(($unpaidCount / $invoices->count()) * 100, 2) : 0;
+
+    // Monthly trends data
+    $monthlyTrends = $invoices->groupBy(function($item) {
+        return \Carbon\Carbon::parse($item->assign_date)->format('Y-m');
+    })->map(function($group) {
+        return [
+            'billed' => $group->sum('total_fee'),
+            'collected' => $group->sum('amount_paid'),
+            'bursary' => $group->sum('bursary_allocated'),
+            'outstanding' => $group->sum('total_fee') - $group->sum('amount_paid') - $group->sum('bursary_allocated') - $group->sum('discount_amount') + $group->sum('fine_amount')
+        ];
+    });
+
+    // Faculty distribution data - now accessed through program->faculty
+    $facultyDistribution = $invoices->groupBy('studentEnroll.program.faculty.title')->map(function($group) {
+        return $group->sum('total_fee') - $group->sum('amount_paid') - $group->sum('bursary_allocated') - $group->sum('discount_amount') + $group->sum('fine_amount');
+    });
+
+    // Prepare data for view
+    $data['rows'] = $invoices;
+    $data['dashboard'] = [
+        'total_billed' => $totalBilled,
+        'total_collected' => $totalCollected,
+        'total_outstanding' => $totalOutstanding,
+        'collection_rate' => $collectionRate,
+        'fully_paid_count' => $fullyPaidCount,
+        'fully_paid_percent' => $fullyPaidPercent,
+        'partial_paid_count' => $partialPaidCount,
+        'partial_paid_percent' => $partialPaidPercent,
+        'bursary_count' => $bursaryCount,
+        'bursary_percent' => $bursaryPercent,
+        'monthly_trends' => $monthlyTrends,
+        'faculty_distribution' => $facultyDistribution,
+        'unpaid_count' => $unpaidCount,
+        'unpaid_percent' => $unpaidPercent
+    ];
+
+    return view($this->view.'.student-fees', $data);
+}
 
     /**
      * Display a listing of the resource.

@@ -37,8 +37,8 @@ public function index(Request $request)
     $data['faculties'] = Faculty::active()->get();
     $data['semesters'] = Semester::active()->get();
 
-    // Apply filters
-    $query = Invoice::with(['studentEnroll.student', 'studentEnroll.program.faculty'])
+    // Apply filters to invoices
+    $query = Invoice::with(['studentEnroll.student', 'studentEnroll.program.faculty', 'payments'])
         ->select('invoices.*');
         
     if ($request->faculty) {
@@ -59,34 +59,106 @@ public function index(Request $request)
     
     $data['invoices'] = $query->get();
     
+    // Calculate actual student payments (excluding bursaries) for each invoice
+    $data['invoicePayments'] = $data['invoices']->mapWithKeys(function($invoice) {
+        $studentPaid = $invoice->payments
+            ->where('is_bursary', 0)
+            ->sum('amount');
+        return [$invoice->id => $studentPaid];
+    });
+    
+    // Get payments data with reconciliation status for summary calculations
+    $paymentsQuery = DB::table('payments')
+        ->select(
+            'payments.*',
+            'invoices.invoice_no',
+            'students.first_name',
+            'students.last_name',
+            'programs.title as program_title'
+        )
+        ->join('invoices', 'payments.invoice_id', '=', 'invoices.id')
+        ->join('student_enrolls', 'payments.student_enroll_id', '=', 'student_enrolls.id')
+        ->join('students', 'student_enrolls.student_id', '=', 'students.id')
+        ->join('programs', 'student_enrolls.program_id', '=', 'programs.id');
+    
+    if ($request->faculty) {
+        $paymentsQuery->where('programs.faculty_id', $request->faculty);
+    }
+    
+    if ($request->semester) {
+        $paymentsQuery->where('student_enrolls.semester_id', $request->semester);
+    }
+    
+    if ($request->start_date && $request->end_date) {
+        $paymentsQuery->whereBetween('payments.paid_at', [$request->start_date, $request->end_date]);
+    }
+    
     // Summary calculations
+    
+    // 1. Total fee collected from fully reconciled payments (status = 2)
+    $data['totalReconciledFees'] = (float) $paymentsQuery->clone()
+    ->where('payments.is_reconciled', '>', 0) // Include both partially (1) and fully (2) reconciled
+    ->sum('payments.amount');
+    
+    // 2. Bursaries only from reconciled bursary payments
+    $data['totalReconciledBursaries'] = (float) $paymentsQuery->clone()
+        ->where('payments.is_reconciled', '>', 0) // 1 or 2
+        ->where('payments.is_bursary', 1)
+        ->sum('payments.amount');
+    
+    // 3. Total paid fees (all payments except bursaries)
+    $data['totalPaidFees'] = (float) $paymentsQuery->clone()
+        ->where('payments.is_bursary', 0)
+        ->sum('payments.amount');
+
+        // Add these calculations
+    $data['totalDiscounts'] = (float) DB::table('invoices')
+        ->where('discount_amount', '>', 0)
+        ->sum('discount_amount');
+
+    $data['totalFines'] = (float) DB::table('invoices')
+        ->where('fine_amount', '>', 0)
+        ->sum('fine_amount');
+    
+    // Original invoice-based calculations
     $data['totalBilled'] = $data['invoices']->sum('total_fee');
-    $data['totalPaid'] = $data['invoices']->sum('amount_paid');
     $data['outstanding'] = $data['invoices']->sum('amount_due');
     
-    // Payment status data
-    $data['paymentStatus'] = $data['invoices']->groupBy('payment_status')
-        ->map(function($group) {
-            return [
-                'count' => $group->count(),
-                'total_amount' => $group->sum('total_fee')
-            ];
-        });
+    // Payment status data - now based on actual payments
+    $data['paymentStatus'] = $data['invoices']->groupBy(function($invoice) use ($data) {
+        $paid = $data['invoicePayments'][$invoice->id] ?? 0;
+        if ($paid >= $invoice->total_fee) {
+            return 'paid';
+        } elseif ($paid > 0) {
+            return 'partial';
+        } else {
+            return 'unpaid';
+        }
+    })->map(function($group) {
+        return [
+            'count' => $group->count(),
+            'total_amount' => $group->sum('total_fee')
+        ];
+    });
         
     $data['collectionTrend'] = $data['invoices']->groupBy(function($item) {
             return $item->assign_date;
         })
-        ->map(function($group, $key) {
+        ->map(function($group, $key) use ($data) {
+            $totalPaid = 0;
+            foreach ($group as $invoice) {
+                $totalPaid += $data['invoicePayments'][$invoice->id] ?? 0;
+            }
             return [
                 'month' => $key,
-                'total_paid' => $group->sum('amount_paid')
+                'total_paid' => $totalPaid
             ];
         })
         ->sortBy('month')
         ->values();
 
-    // Faculty invoices data - optimized query
-    $data['facultyInvoices'] = Faculty::with(['programs.invoices'])
+    // Faculty invoices data - now using actual payments
+    $data['facultyInvoices'] = Faculty::with(['programs.invoices.payments'])
         ->when($request->faculty, function($query) use ($request) {
             $query->where('id', $request->faculty);
         })
@@ -97,7 +169,9 @@ public function index(Request $request)
             
             foreach ($faculty->programs as $program) {
                 $totalBilled += $program->invoices->sum('total_fee');
-                $totalPaid += $program->invoices->sum('amount_paid');
+                $totalPaid += $program->invoices->sum(function($invoice) {
+                    return $invoice->payments->where('is_bursary', 0)->sum('amount');
+                });
             }
             
             return [

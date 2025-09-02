@@ -411,7 +411,7 @@
                                 <th>Due Date</th>
                                 <th>Status</th>
                                 <th>Created At</th>
-                                <th>Actions</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -448,11 +448,7 @@
                                     </span>
                                 </td>
                                 <td>{{ $invoice->created_at->format('d M Y, H:i') }}</td>
-                                <td>
-                                    <a href="{{ route('fees.invoice.show', $invoice->id) }}" class="btn btn-sm btn-info" title="View">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </td>
+                                
                             </tr>
                             @endforeach
                         </tbody>

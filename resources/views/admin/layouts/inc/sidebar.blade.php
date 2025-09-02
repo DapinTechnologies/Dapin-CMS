@@ -506,13 +506,39 @@
     <li class="{{ Request::is('admin/fees-master/create*') ? 'active' : '' }}"><a href="{{ route('admin.fees-master.create') }}" class="">{{ trans_choice('module_fees_master', 2) }}</a></li>
 @endcanany --}}
 
+{{--   @can('payments-create')
+    <li class="{{ Request::is('admin/payments/quick-receive*') ? 'active' : '' }}">
+        <a href="{{ route('admin.payments.quick-receive') }}" class="">
+            <i class=""></i> Quick Fees Receive 
+        </a>
+    </li>
+@endcan  --}}
+
+
                         @can('fees-student-due')
                         <li class="{{ Request::is('admin/fees-student') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.index') }}" class="">All {{ trans_choice('module_fees_due', 1) }}</a></li>
                         @endcan
 
-                        @can('fees-student-quick-received')
-                        <li class="{{ Request::is('admin/fees-student-quick-received*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.quick.received') }}" class="">Advance Payments</a></li>
-                        @endcan
+  @can('bursary-allocation-access')
+    <li class="{{ Request::is('admin/bursary-allocation*') ? 'active' : '' }}">
+        <a href="{{ route('admin.bursary-allocation.index') }}" class="">
+            <i class=""></i> Bursary Allocation
+        </a>
+    </li>
+@endcan
+
+                       {{-- @can('fees-student-quick-received')
+                        <li class="{{ Request::is('admin/fees-student-quick-received*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.quick.received') }}" class="">Discounts / Fines </a></li>
+                        @endcan --}}
+
+                        @can('fees-adjustment-create')
+<li class="{{ Request::is('admin/fees-adjustment*') ? 'active' : '' }}">
+    <a href="{{ route('admin.fees-adjustment.index') }}" class="">
+        <i class=""></i> Discounts / Fines
+    </a>
+</li>
+@endcan
+
  {{-- @canany(['fees-master-view'])
     <li class="{{ Request::is('admin/fees-master') ? 'active' : '' }}"><a href="{{ route('admin.fees-master.index') }}" class="">{{ trans_choice('module_fees_master_history', 2) }}</a></li>
 @endcanany --}}
@@ -526,6 +552,14 @@
                 @can('fee-structure-view')
     <li class="{{ Request::is('admin/fee-structures*') ? 'active' : '' }}">
         <a href="{{ route('admin.fee-structures.index') }}"><i class="fa fa-money"></i> Fee Structures</a>
+    </li>
+@endcan
+
+@can('view fee reconciliation')
+    <li class="{{ Request::is('admin/fee-reconciliation*') ? 'active' : '' }}">
+        <a href="{{ route('admin.fee-reconciliation.index') }}">
+            <i class=""></i> Fee Reconciliation
+        </a>
     </li>
 @endcan
 
@@ -557,45 +591,68 @@
     </li>
 @endcan
 
-                         @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">Outstanding Balance</a></li>
-                        @endcanany
+@can('report-student-fees')
+                <li class="{{ Request::is('admin/report/student-fees') ? 'active' : '' }}"><a href="{{ route('admin.report.student-fees') }}" class="">All {{ trans_choice('module_student_fees', 1) }}</a></li>
+                @endcan
 
-                         @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">Defaulters List</a></li>
-                        @endcanany
-
-                         @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">Partial Payment Report</a></li>
-                        @endcanany
-
-                         @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">Goverment Fees Report</a></li>
-                        @endcanany
-
-                    @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">{{ trans_choice('module_fees_report', 2) }}</a></li>
-                        @endcanany
-
-                         @can('report-collected-fees')
+                @can('report-collected-fees')
                 <li class="{{ Request::is('admin/report/fees') ? 'active' : '' }}"><a href="{{ route('admin.report.fees') }}" class="">Total {{ trans_choice('module_collected_fees', 1) }}</a></li>
                 @endcan
 
-                @can('report-student-fees')
-                <li class="{{ Request::is('admin/report/student-fees') ? 'active' : '' }}"><a href="{{ route('admin.report.student-fees') }}" class="">{{ trans_choice('module_student_fees', 1) }}</a></li>
-                @endcan
+                        @canany(['view fee defaulters', 'fees-student-report', 'fees-student-print'])
+    <li class="{{ Request::is('admin/defaulters*') ? 'active' : '' }}">
+        <a href="{{ route('admin.defaulters.index') }}" class="">Defaulters List</a>
+    </li>
+@endcanany
 
-                 @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">Busaries|Sponsorship</a></li>
-                        @endcanany
+                         @canany(['view partial payments', 'fees-student-report', 'fees-student-print'])
+    <li class="{{ Request::is('admin/partial-payments*') ? 'active' : '' }}">
+        <a href="{{ route('admin.partial-payments.index') }}" class="">Partial Payments List</a>
+    </li>
+@endcanany
 
-                         @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">Waivers | Discounts</a></li>
-                        @endcanany
+@can('view outstanding fees reports')
+    <li class="{{ Request::is('admin/outstanding-fees*') ? 'active' : '' }}">
+        <a href="{{ route('admin.outstanding-fees.index') }}">Outstanding Fees Report</a>
+    </li>
+@endcan
 
-                         @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">Exam Fees Report</a></li>
-                        @endcanany
+ @canany(['view bursary reports', 'fees-student-report', 'fees-student-print'])
+    <li class="{{ Request::is('admin/bursary-report*') ? 'active' : '' }}">
+        <a href="{{ route('admin.bursary-report.index') }}" class="">Bursary | Sponsorship</a>
+    </li>
+@endcanany
+
+ @canany(['view financial reports', 'fees-student-report', 'fees-student-print'])
+    <li class="{{ Request::is('admin/fines-discounts-report*') ? 'active' : '' }}">
+        <a href="{{ route('admin.fines-discounts-report.index') }}" class="">Fines & Discounts</a>
+    </li>
+@endcanany
+
+@canany(['view fee collection reports', 'fees-student-report', 'fees-student-print'])
+    <li class="{{ Request::is('admin/fee-collection-report*') ? 'active' : '' }}">
+        <a href="{{ route('admin.fee-collection-report.index') }}" class="">Fee Collection Summary</a>
+    </li>
+@endcanany
+
+@can('view government fees reports')
+    <li class="{{ Request::is('admin/government-fees-report*') ? 'active' : '' }}">
+        <a href="{{ route('admin.government-fees-report.index') }}">Government Fees Report</a>
+    </li>
+@endcan
+
+@can('view external fees reports')
+    <li class="{{ Request::is('admin/external-fees-report*') ? 'active' : '' }}">
+        <a href="{{ route('admin.external-fees-report.index') }}">External Exam Fees Report</a>
+    </li>
+@endcan
+
+
+                   {{-- @canany(['fees-student-report', 'fees-student-print'])
+                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">{{ trans_choice('module_fees_report', 2) }}</a></li>
+                        @endcanany --}}
+
+                    
                        
                     </ul>
                 </li>
