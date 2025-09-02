@@ -1,3 +1,4 @@
+
 <?php $__env->startSection('title', $title); ?>
 <?php $__env->startSection('page_css'); ?>
 <style>
@@ -83,19 +84,10 @@
                 </div>
             </div>
             
-            <div class="col-sm-6 col-md-6 col-xl-3">
-                <div class="card theme-bg bitcoin-wallet">
-                    <div class="card-block">
-                        <!-- Fetch and display the SMS balance -->
-                        
-                        <h5 class="text-white mb-2"><?php echo e(__('SMS Credit')); ?></h5>
-                        <h2 class="text-white mb-2 f-w-300">
-                          
-                        </h2>
-                        <i class="fas fa-exchange-alt f-70 text-white"></i>
-                    </div>
-                </div>
-            </div>
+            
+
+
+
             
         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'payroll-report'])): ?>
         <div class="row">

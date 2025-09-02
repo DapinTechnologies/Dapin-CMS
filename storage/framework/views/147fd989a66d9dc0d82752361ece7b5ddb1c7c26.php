@@ -1159,6 +1159,14 @@
                 <li class="<?php echo e(Request::is('admin/web/news*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.news.index')); ?>" class=""><?php echo e(trans_choice('module_news', 2)); ?></a></li>
                 <?php endif; ?>
 
+                
+                <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any('director-view')): ?>
+                <li class="<?php echo e(Request::is('admin/directors') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route('directors.index')); ?>"><?php echo e(__('Add Directors')); ?></a>
+                </li>
+                <?php endif; ?>
+
+
                 <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['faq-view', 'faq-create'])): ?>
                 <li class="<?php echo e(Request::is('admin/web/faq*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.faq.index')); ?>" class=""><?php echo e(trans_choice('module_faq', 2)); ?></a></li>
                 <?php endif; ?>

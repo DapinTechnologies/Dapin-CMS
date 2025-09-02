@@ -1,0 +1,95 @@
+<!-- AOS Styles -->
+<link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+<section class="director-message py-4" style="background-color: #f9f9f9;">
+    <div class="container">
+        <?php $director = \App\Models\Director::first(); ?>
+
+        <?php if($director): ?>
+        <div class="row align-items-center">
+            <!-- Director's Image -->
+            <div class="col-lg-5 col-md-6 mb-4 mb-md-0 text-center text-md-start">
+                <figure class="director-image" itemscope itemtype="https://schema.org/Person" data-aos="fade-right">
+                    <img src="<?php echo e(url($director->image)); ?>"
+                         alt="Photo of <?php echo e($director->name); ?>, Director of the College"
+                         class="director-photo-oval"
+                         itemprop="image">
+                    <meta itemprop="name" content="<?php echo e($director->name); ?>">
+                    <meta itemprop="jobTitle" content="Director">
+                </figure>
+            </div>
+
+            <!-- Director's Message -->
+            <div class="col-lg-7 col-md-6">
+                <article class="director-text ps-lg-4" itemscope itemtype="https://schema.org/Article" data-aos="fade-left">
+                    <header>
+                        <h1 class="text-uppercase text-muted mb-2 h6">
+                            <i class="fal fa-user-tie me-2"></i>
+                            <span itemprop="headline">Message from the Director</span>
+                        </h1>
+                        <h2 class="fw-bold h4 mb-3" itemprop="about"><?php echo e($director->title); ?></h2>
+                    </header>
+
+                    <!-- Quote Box -->
+                    <blockquote class="director-quote mb-3" itemprop="articleBody" data-aos="fade-up" data-aos-duration="800">
+                        <i class="fas fa-quote-left text-primary me-2"></i>
+                        <p class="mb-0 text-dark d-inline"><?php echo e($director->message); ?></p>
+                        <i class="fas fa-quote-right text-primary ms-2"></i>
+                    </blockquote>
+
+                    <footer>
+                        <h3 class="fw-semibold mb-1 h5" itemprop="author"><?php echo e($director->name); ?></h3>
+                        <p class="fst-italic text-muted mb-0">Director</p>
+                    </footer>
+                </article>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+</section>
+
+<!-- AOS Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script>
+    AOS.init();
+</script>
+
+<!-- Styles -->
+<style>
+.director-photo-oval {
+    width: 200px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 50% / 40%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+}
+
+.director-quote {
+    background-color: #fff;
+    border-left: 3px solid #0d6efd;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    border-radius: 6px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.director-quote i.fas {
+    font-size: 0.9rem;
+    opacity: 0.6;
+    vertical-align: top;
+}
+
+@media (max-width: 767.98px) {
+    .director-image {
+        margin-left: 0 !important;
+    }
+    .director-photo-oval {
+        margin: auto;
+    }
+}
+</style>
+<?php /**PATH C:\wamp64\www\Dapin-CMS-main\resources\views/web/message.blade.php ENDPATH**/ ?>
