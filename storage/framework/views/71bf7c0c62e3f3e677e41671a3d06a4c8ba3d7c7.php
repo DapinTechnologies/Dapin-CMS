@@ -1,15 +1,15 @@
-@extends('admin.layouts.master')
-@section('title', $title)
-@section('page_css')
+
+<?php $__env->startSection('title', $title); ?>
+<?php $__env->startSection('page_css'); ?>
 <style>
     #pieChart{
         max-width: 100% !important;
         max-height: 500px !important;
     }
 </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
 <!-- Start Content-->
 <div class="main-body">
@@ -20,8 +20,8 @@
             <div class="col-sm-6 col-md-6 col-xl-3">
                 <div class="card bg-c-blue bitcoin-wallet">
                     <div class="card-block">
-                        <h5 class="text-white mb-2">{{ __('status_pending') }} {{ trans_choice('module_application', 2) }}</h5>
-                        <h2 class="text-white mb-2 f-w-300">{{ $pending_applications->count() }}</h2>
+                        <h5 class="text-white mb-2"><?php echo e(__('status_pending')); ?> <?php echo e(trans_choice('module_application', 2)); ?></h5>
+                        <h2 class="text-white mb-2 f-w-300"><?php echo e($pending_applications->count()); ?></h2>
                         <i class="fa-solid fa-scroll f-70 text-white"></i>
                     </div>
                 </div>
@@ -29,8 +29,8 @@
             <div class="col-sm-6 col-md-6 col-xl-3">
                 <div class="card bg-c-blue bitcoin-wallet">
                     <div class="card-block">
-                        <h5 class="text-white mb-2"> {{ __('status_active') }} {{ trans_choice('module_student', 2) }}</h5>
-                        <h2 class="text-white mb-2 f-w-300">{{ $active_students->count() }}</h2>
+                        <h5 class="text-white mb-2"> <?php echo e(__('status_active')); ?> <?php echo e(trans_choice('module_student', 2)); ?></h5>
+                        <h2 class="text-white mb-2 f-w-300"><?php echo e($active_students->count()); ?></h2>
                         <i class="fas fa-user-graduate f-70 text-white"></i>
                     </div>
                 </div>
@@ -38,8 +38,8 @@
             <div class="col-sm-6 col-md-6 col-xl-3">
                 <div class="card bg-c-blue bitcoin-wallet">
                     <div class="card-block">
-                        <h5 class="text-white mb-2">{{ __('status_active') }} {{ trans_choice('module_staff', 2) }}</h5>
-                        <h2 class="text-white mb-2 f-w-300">{{ $active_staffs->count() }}</h2>
+                        <h5 class="text-white mb-2"><?php echo e(__('status_active')); ?> <?php echo e(trans_choice('module_staff', 2)); ?></h5>
+                        <h2 class="text-white mb-2 f-w-300"><?php echo e($active_staffs->count()); ?></h2>
                         <i class="fas fa-user-tag f-70 text-white"></i>
                     </div>
                 </div>
@@ -47,8 +47,8 @@
             <div class="col-sm-6 col-md-6 col-xl-3">
                 <div class="card bg-c-blue bitcoin-wallet">
                     <div class="card-block">
-                        <h5 class="text-white mb-2">{{ __('field_total') }} {{ trans_choice('module_book', 2) }}</h5>
-                        <h2 class="text-white mb-2 f-w-300">{{ $library_books->count() }}</h2>
+                        <h5 class="text-white mb-2"><?php echo e(__('field_total')); ?> <?php echo e(trans_choice('module_book', 2)); ?></h5>
+                        <h2 class="text-white mb-2 f-w-300"><?php echo e($library_books->count()); ?></h2>
                         <i class="fas fa-book f-70 text-white"></i>
                     </div>
                 </div>
@@ -59,8 +59,8 @@
             <div class="col-sm-6 col-md-6 col-xl-3">
                 <div class="card theme-bg bitcoin-wallet">
                     <div class="card-block">
-                        <h5 class="text-white mb-2">{{ __('field_daily') }} {{ trans_choice('module_visitor_log', 2) }}</h5>
-                        <h2 class="text-white mb-2 f-w-300">{{ $daily_visitors->count() }}</h2>
+                        <h5 class="text-white mb-2"><?php echo e(__('field_daily')); ?> <?php echo e(trans_choice('module_visitor_log', 2)); ?></h5>
+                        <h2 class="text-white mb-2 f-w-300"><?php echo e($daily_visitors->count()); ?></h2>
                         <i class="fas fa-eye f-70 text-white"></i>
                     </div>
                 </div>
@@ -68,8 +68,8 @@
             <div class="col-sm-6 col-md-6 col-xl-3">
                 <div class="card theme-bg bitcoin-wallet">
                     <div class="card-block">
-                        <h5 class="text-white mb-2">{{ __('field_daily') }} {{ trans_choice('module_phone_log', 2) }}</h5>
-                        <h2 class="text-white mb-2 f-w-300">{{ $daily_phone_logs->count() }}</h2>
+                        <h5 class="text-white mb-2"><?php echo e(__('field_daily')); ?> <?php echo e(trans_choice('module_phone_log', 2)); ?></h5>
+                        <h2 class="text-white mb-2 f-w-300"><?php echo e($daily_phone_logs->count()); ?></h2>
                         <i class="fas fa-phone-volume f-70 text-white"></i>
                     </div>
                 </div>
@@ -77,60 +77,19 @@
             <div class="col-sm-6 col-md-6 col-xl-3">
                 <div class="card theme-bg bitcoin-wallet">
                     <div class="card-block">
-                        <h5 class="text-white mb-2">{{ __('field_daily') }} {{ trans_choice('module_enquiry', 2) }}</h5>
-                        <h2 class="text-white mb-2 f-w-300">{{ $daily_enqueries->count() }}</h2>
+                        <h5 class="text-white mb-2"><?php echo e(__('field_daily')); ?> <?php echo e(trans_choice('module_enquiry', 2)); ?></h5>
+                        <h2 class="text-white mb-2 f-w-300"><?php echo e($daily_enqueries->count()); ?></h2>
                         <i class="fas fa-question f-70 text-white"></i>
                     </div>
                 </div>
             </div>
             
-            {{-- <div class="col-sm-6 col-md-6 col-xl-3">
-                <div class="card theme-bg bitcoin-wallet">
-                    <div class="card-block">
-                        <!-- Fetch and display the SMS balance -->
-                        @php 
-                            $smsConfig = \App\Models\SmsConfiguration::first();
-                            $balance = 'No SMS configuration found';
-                            if ($smsConfig) {
-                                $apiKey = $smsConfig->api_key;
-                                $response = \Illuminate\Support\Facades\Http::post('https://smsportal.dapintechnologies.com/sms/v3/profile', [
-                                    'api_key' => $apiKey
-                                ]);
-                                if ($response->successful()) {
-                                    $responseJson = $response->json();
-                                    $balance = $responseJson[0]['wallet']['credit_balance'] ?? 'Balance not found';
-                                    // Check if the balance is numeric before formatting it
-                                    if (is_numeric($balance)) {
-                                        $balance = number_format((float) $balance, 0);
-                                        // Ensure it's treated as a float
-                                        if ($balance == 0) {
-                                            $balance = '0'; // Explicitly set to string '0'
-                                        }
-                                    } else {
-                                        $balance = 'No Credit';
-                                    }
-                                } else {
-                                    $balance = 'Failed to authenticate API key.';
-                                }
-                            }
-                        @endphp
-                        <h5 class="text-white mb-2">{{ __('SMS Credit') }}</h5>
-                        <h2 class="text-white mb-2 f-w-300">
-                            @if ($balance == 'Balance not found' || $balance == 'Failed to authenticate API key.' || $balance == 'No SMS configuration found' || $balance == 'No Credit' || $balance === '0')
-                                <span class="badge badge-danger alert"> {{ $balance }} </span>
-                            @else
-                                <span class="badge badge-success"> {{ $balance }} </span>
-                            @endif
-                        </h2>
-                        <i class="fas fa-exchange-alt f-70 text-white"></i>
-                    </div>
-                </div>
-            </div> --}}
+            
 
 
 
             
-        @canany(['fees-student-report', 'payroll-report'])
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report', 'payroll-report'])): ?>
         <div class="row">
             <div class="col-12 col-md-12 col-xl-12">
                 <div class="card">
@@ -140,10 +99,10 @@
                 </div>
             </div>
         </div>
-        @endcanany
+        <?php endif; ?>
 
         <div class="row">
-            @canany(['fees-student-report'])
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report'])): ?>
             <div class="col-12 col-md-6 col-xl-6 mt-5">
                 <div class="card">
                     <div class="card-block">
@@ -151,8 +110,8 @@
                     </div>
                 </div>
             </div>
-            @endcanany
-            @canany(['payroll-report'])
+            <?php endif; ?>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['payroll-report'])): ?>
             <div class="col-12 col-md-6 col-xl-6 mt-5">
                 <div class="card">
                     <div class="card-block">
@@ -160,12 +119,12 @@
                     </div>
                 </div>
             </div>
-            @endcanany
+            <?php endif; ?>
         </div>
 
         <div class="clear-fix mt-5"></div>
         <div class="row">
-            @canany(['student-view'])
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['student-view'])): ?>
             <div class="col-xl-4 col-md-6">
                 <div class="card">
                     <div class="card-block">
@@ -173,8 +132,8 @@
                     </div>
                 </div>
             </div>
-            @endcanany
-            @canany(['fees-student-report'])
+            <?php endif; ?>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['fees-student-report'])): ?>
             <div class="col-xl-4 col-md-6">
                 <div class="card">
                     <div class="card-block">
@@ -182,8 +141,8 @@
                     </div>
                 </div>
             </div>
-            @endcanany
-            @canany(['item-view'])
+            <?php endif; ?>
+            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['item-view'])): ?>
             <div class="col-xl-4 col-md-6">
                 <div class="card">
                     <div class="card-block">
@@ -191,10 +150,10 @@
                     </div>
                 </div>
             </div>
-            @endcanany
+            <?php endif; ?>
         </div>
 
-        @canany(['visitor-view', 'phone-log-view', 'enquiry-view', 'complaine-view', 'postal-exchange-view', 'meeting-view'])
+        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['visitor-view', 'phone-log-view', 'enquiry-view', 'complaine-view', 'postal-exchange-view', 'meeting-view'])): ?>
         <div class="row">
             <div class="col-xl-12 col-md-12">
                 <div class="card">
@@ -204,17 +163,17 @@
                 </div>
             </div>
         </div>
-        @endcanany
+        <?php endif; ?>
         <!-- [ Main Content ] end -->
     </div>
 </div>
 <!-- End Content-->
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('page_js')
+<?php $__env->startSection('page_js'); ?>
 <!-- chart Js -->
-<script src="{{ asset('dashboard/plugins/chart-chartjs/js/chart.min.js') }}"></script>
+<script src="<?php echo e(asset('dashboard/plugins/chart-chartjs/js/chart.min.js')); ?>"></script>
 
 
 <script type="text/javascript">
@@ -232,7 +191,7 @@
         datasets: [
             {
 
-            label: '{{ trans_choice('module_student_fees', 2) }}',
+            label: '<?php echo e(trans_choice('module_student_fees', 2)); ?>',
 
             backgroundColor: '#04a9f5',
 
@@ -242,7 +201,7 @@
 
             },
             {
-            label: '{{ __('field_salary') }} {{ __('status_paid') }}',
+            label: '<?php echo e(__('field_salary')); ?> <?php echo e(__('status_paid')); ?>',
 
             backgroundColor: '#f4c22b',
 
@@ -251,7 +210,7 @@
             data: salaries,
             },
             {
-            label: '{{ trans_choice('module_income', 2) }}',
+            label: '<?php echo e(trans_choice('module_income', 2)); ?>',
 
             backgroundColor: '#1de9b6',
 
@@ -260,7 +219,7 @@
             data: incomes,
             },
             {
-            label: '{{ trans_choice('module_expense', 2) }}',
+            label: '<?php echo e(trans_choice('module_expense', 2)); ?>',
 
             backgroundColor: '#f44236',
 
@@ -302,7 +261,7 @@
     const pieChart = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: ['{{ __('field_student') }} {{ __('field_fee') }}', '{{ __('field_discount') }}', '{{ __('field_fine_amount') }}', '{{ __('field_paid_amount') }}'],
+            labels: ['<?php echo e(__('field_student')); ?> <?php echo e(__('field_fee')); ?>', '<?php echo e(__('field_discount')); ?>', '<?php echo e(__('field_fine_amount')); ?>', '<?php echo e(__('field_paid_amount')); ?>'],
             datasets: [{
                 label: '# of Fees',
                 data: [
@@ -348,7 +307,7 @@ $(function(){
     labels: labels,
     datasets: [
         {
-        label: "{{ __('field_salary') }} {{ __('status_paid') }}",
+        label: "<?php echo e(__('field_salary')); ?> <?php echo e(__('status_paid')); ?>",
         data: net_salary,
         backgroundColor: "#04a9f5",
         borderColor: "#038fcf",
@@ -357,7 +316,7 @@ $(function(){
         radius: 5
         },
         {
-        label: "{{ __('field_total_allowance') }}",
+        label: "<?php echo e(__('field_total_allowance')); ?>",
         data: total_allowance,
         backgroundColor: "#1de9b6",
         borderColor: "#14cc9e",
@@ -366,7 +325,7 @@ $(function(){
         radius: 5
         },
         {
-        label: "{{ __('field_total_deduction') }}",
+        label: "<?php echo e(__('field_total_deduction')); ?>",
         data: total_deduction,
         backgroundColor: "#f44236",
         borderColor: "#f22012",
@@ -375,7 +334,7 @@ $(function(){
         radius: 5
         },
         {
-        label: "{{ __('field_tax') }}",
+        label: "<?php echo e(__('field_tax')); ?>",
         data: total_tax,
         backgroundColor: "#f4c22b",
         borderColor: "#ecb50c",
@@ -423,15 +382,15 @@ $(function(){
         var bar = document.getElementById("student").getContext('2d');
         var student = {
             labels: [
-                @foreach($programs as $program)
-                '{{ $program->shortcode }}', 
-                @endforeach
+                <?php $__currentLoopData = $programs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $program): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                '<?php echo e($program->shortcode); ?>', 
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             ],
             datasets: [{
                 data: [
-                @foreach($programs as $program)
-                {{ $program->students->where('status', '1')->count() }}, 
-                @endforeach
+                <?php $__currentLoopData = $programs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $program): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php echo e($program->students->where('status', '1')->count()); ?>, 
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 ],
                 backgroundColor: [
                     "#1de9b6",
@@ -456,7 +415,7 @@ $(function(){
                 plugins: {
                     title: {
                         display: true,
-                        text: '{{ trans_choice('module_student', 2) }}'
+                        text: '<?php echo e(trans_choice('module_student', 2)); ?>'
                     }
                 }
             }
@@ -467,15 +426,15 @@ $(function(){
         var bar = document.getElementById("feesType").getContext('2d');
         var feesType = {
             labels: [
-                @foreach($fees_types as $fees_type)
-                '{{ $fees_type->title }}', 
-                @endforeach
+                <?php $__currentLoopData = $fees_types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fees_type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                '<?php echo e($fees_type->title); ?>', 
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             ],
             datasets: [{
                 data: [
-                @foreach($fees_types as $fees_type)
-                {{ $fees_type->fees->where('status', '1')->sum('paid_amount') }}, 
-                @endforeach
+                <?php $__currentLoopData = $fees_types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fees_type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php echo e($fees_type->fees->where('status', '1')->sum('paid_amount')); ?>, 
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 ],
                 backgroundColor: [
                     "#1de9b6",
@@ -500,7 +459,7 @@ $(function(){
                 plugins: {
                     title: {
                         display: true,
-                        text: '{{ trans_choice('module_fees_collection', 2) }}'
+                        text: '<?php echo e(trans_choice('module_fees_collection', 2)); ?>'
                     }
                 }
             }
@@ -511,15 +470,15 @@ $(function(){
         var bar = document.getElementById("inventory").getContext('2d');
         var inventory = {
             labels: [
-                @foreach($item_types as $item_type)
-                '{{ $item_type->title }}', 
-                @endforeach
+                <?php $__currentLoopData = $item_types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item_type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                '<?php echo e($item_type->title); ?>', 
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             ],
             datasets: [{
                 data: [
-                @foreach($item_types as $item_type)
-                {{ $item_type->items->where('status', '1')->count() }}, 
-                @endforeach
+                <?php $__currentLoopData = $item_types; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item_type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php echo e($item_type->items->where('status', '1')->count()); ?>, 
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 ],
                 backgroundColor: [
                     "#1de9b6",
@@ -544,7 +503,7 @@ $(function(){
                 plugins: {
                     title: {
                         display: true,
-                        text: '{{ trans_choice('module_inventory', 2) }}'
+                        text: '<?php echo e(trans_choice('module_inventory', 2)); ?>'
                     }
                 }
             }
@@ -565,37 +524,37 @@ $(function(){
             labels: labels,
             datasets: [
                 {
-                    label: '{{ trans_choice('module_visitor_log', 2) }}',
+                    label: '<?php echo e(trans_choice('module_visitor_log', 2)); ?>',
                     backgroundColor: '#04a9f5',
                     borderColor: '#04a9f5',
                     data: monthly_visitors,
                 },
                 {
-                    label: '{{ trans_choice('module_phone_log', 2) }}',
+                    label: '<?php echo e(trans_choice('module_phone_log', 2)); ?>',
                     backgroundColor: '#1de9b6',
                     borderColor: '#1de9b6',
                     data: monthly_phone_logs,
                 },
                 {
-                    label: '{{ trans_choice('module_enquiry', 2) }}',
+                    label: '<?php echo e(trans_choice('module_enquiry', 2)); ?>',
                     backgroundColor: '#3ebfea',
                     borderColor: '#3ebfea',
                     data: monthly_enqueries,
                 },
                 {
-                    label: '{{ trans_choice('module_complain', 2) }}',
+                    label: '<?php echo e(trans_choice('module_complain', 2)); ?>',
                     backgroundColor: '#f4c22b',
                     borderColor: '#f4c22b',
                     data: monthly_complains,
                 },
                 {
-                    label: '{{ trans_choice('module_postal_exchange', 2) }}',
+                    label: '<?php echo e(trans_choice('module_postal_exchange', 2)); ?>',
                     backgroundColor: '#f44236',
                     borderColor: '#f44236',
                     data: monthly_postals,
                 },
                 {
-                    label: '{{ trans_choice('module_meeting', 2) }}',
+                    label: '<?php echo e(trans_choice('module_meeting', 2)); ?>',
                     backgroundColor: '#37474f',
                     borderColor: '#37474f',
                     data: monthly_schedules,
@@ -619,4 +578,5 @@ $(function(){
         // [ bar-chart ] end
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/admin/index.blade.php ENDPATH**/ ?>

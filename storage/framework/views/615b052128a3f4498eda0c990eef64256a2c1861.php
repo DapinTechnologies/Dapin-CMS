@@ -1,25 +1,25 @@
-@extends('web.layouts.master')
-@section('title', __('navbar_home'))
 
-@section('social_meta_tags')
-    @if(isset($setting))
+<?php $__env->startSection('title', __('navbar_home')); ?>
+
+<?php $__env->startSection('social_meta_tags'); ?>
+    <?php if(isset($setting)): ?>
     <meta property="og:type" content="website">
-    <meta property='og:site_name' content="{{ $setting->title }}"/>
-    <meta property='og:title' content="{{ $setting->title }}"/>
-    <meta property='og:description' content="{!! str_limit(strip_tags($setting->meta_description), 160, ' ...') !!}"/>
-    <meta property='og:url' content="{{ route('home') }}"/>
-    <meta property='og:image' content="{{ asset('/uploads/setting/'.$setting->logo_path) }}"/>
+    <meta property='og:site_name' content="<?php echo e($setting->title); ?>"/>
+    <meta property='og:title' content="<?php echo e($setting->title); ?>"/>
+    <meta property='og:description' content="<?php echo str_limit(strip_tags($setting->meta_description), 160, ' ...'); ?>"/>
+    <meta property='og:url' content="<?php echo e(route('home')); ?>"/>
+    <meta property='og:image' content="<?php echo e(asset('/uploads/setting/'.$setting->logo_path)); ?>"/>
 
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="{!! '@'.str_replace(' ', '', $setting->title) !!}" />
+    <meta name="twitter:site" content="<?php echo '@'.str_replace(' ', '', $setting->title); ?>" />
     <meta name="twitter:creator" content="@HiTechParks" />
-    <meta name="twitter:url" content="{{ route('home') }}" />
-    <meta name="twitter:title" content="{{ $setting->title }}" />
-    <meta name="twitter:description" content="{!! str_limit(strip_tags($setting->meta_description), 160, ' ...') !!}" />
-    <meta name="twitter:image" content="{{ asset('/uploads/setting/'.$setting->logo_path) }}" />
-    @endif
-@endsection
+    <meta name="twitter:url" content="<?php echo e(route('home')); ?>" />
+    <meta name="twitter:title" content="<?php echo e($setting->title); ?>" />
+    <meta name="twitter:description" content="<?php echo str_limit(strip_tags($setting->meta_description), 160, ' ...'); ?>" />
+    <meta name="twitter:image" content="<?php echo e(asset('/uploads/setting/'.$setting->logo_path)); ?>" />
+    <?php endif; ?>
+<?php $__env->stopSection(); ?>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
 
@@ -346,40 +346,40 @@
 </style>
 
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
     <!-- main-area -->
     <main>
-       @include('web.slider')
+       <?php echo $__env->make('web.slider', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-  @include('web.features')
+  <?php echo $__env->make('web.features', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     
-  @include('web.abouthead')
+  <?php echo $__env->make('web.abouthead', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-  @include('web.message')
+  <?php echo $__env->make('web.message', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
         
-        @include('web.cot')
+        <?php echo $__env->make('web.cot', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-      @include('web.coursehead')
-
-
-
-@include('web.stats')
-
-@include('web.newshead')
-
-
-@include('web.exams')
+      <?php echo $__env->make('web.coursehead', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 
 
-@include('web.testimonial')
+<?php echo $__env->make('web.stats', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+<?php echo $__env->make('web.newshead', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
 
-@include('web.choose')
+<?php echo $__env->make('web.exams', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
-@include('web.enquiry')
+
+
+<?php echo $__env->make('web.testimonial', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+
+<?php echo $__env->make('web.choose', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+
+<?php echo $__env->make('web.enquiry', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
      
     </main>
@@ -512,4 +512,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('web.layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\Users\User\Desktop\cms\Dapin-CMS\resources\views/web/index.blade.php ENDPATH**/ ?>

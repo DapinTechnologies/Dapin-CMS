@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "78eab0ed4c0af2abf7e62281298ec6ea",
+=======
+    "content-hash": "79c14ac6dd74d46c29877d9d2dea03ac",
+>>>>>>> b3b27bc89c3d4967845a65516dc3719241678985
     "packages": [
         {
             "name": "africastalking/africastalking",
@@ -2580,34 +2584,31 @@
         },
         {
             "name": "lcobucci/clock",
-            "version": "2.3.0",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lcobucci/clock.git",
-                "reference": "c7aadcd6fd97ed9e199114269c0be3f335e38876"
+                "reference": "fb533e093fd61321bfcbac08b131ce805fe183d3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lcobucci/clock/zipball/c7aadcd6fd97ed9e199114269c0be3f335e38876",
-                "reference": "c7aadcd6fd97ed9e199114269c0be3f335e38876",
+                "url": "https://api.github.com/repos/lcobucci/clock/zipball/fb533e093fd61321bfcbac08b131ce805fe183d3",
+                "reference": "fb533e093fd61321bfcbac08b131ce805fe183d3",
                 "shasum": ""
             },
             "require": {
-                "php": "~8.1.0 || ~8.2.0",
-                "stella-maris/clock": "^0.1.7"
-            },
-            "provide": {
-                "psr/clock-implementation": "1.0"
+                "php": "^8.0",
+                "stella-maris/clock": "^0.1.4"
             },
             "require-dev": {
                 "infection/infection": "^0.26",
-                "lcobucci/coding-standard": "^9.0",
-                "phpstan/extension-installer": "^1.2",
-                "phpstan/phpstan": "^1.9.4",
-                "phpstan/phpstan-deprecation-rules": "^1.1.1",
-                "phpstan/phpstan-phpunit": "^1.3.2",
-                "phpstan/phpstan-strict-rules": "^1.4.4",
-                "phpunit/phpunit": "^9.5.27"
+                "lcobucci/coding-standard": "^8.0",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan-deprecation-rules": "^0.12",
+                "phpstan/phpstan-phpunit": "^0.12",
+                "phpstan/phpstan-strict-rules": "^0.12",
+                "phpunit/phpunit": "^9.5"
             },
             "type": "library",
             "autoload": {
@@ -2628,7 +2629,7 @@
             "description": "Yet another clock abstraction",
             "support": {
                 "issues": "https://github.com/lcobucci/clock/issues",
-                "source": "https://github.com/lcobucci/clock/tree/2.3.0"
+                "source": "https://github.com/lcobucci/clock/tree/2.2.0"
             },
             "funding": [
                 {
@@ -2640,7 +2641,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2022-12-19T14:38:11+00:00"
+            "time": "2022-04-19T19:34:17+00:00"
         },
         {
             "name": "lcobucci/jwt",
@@ -5603,6 +5604,7 @@
             "time": "2025-01-21T10:13:31+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "simplesoftwareio/simple-qrcode",
             "version": "4.2.0",
             "source": {
@@ -5685,6 +5687,22 @@
                 "shasum": ""
             },
             "require": {
+=======
+            "name": "spatie/laravel-package-tools",
+            "version": "1.92.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/laravel-package-tools.git",
+                "reference": "d20b1969f836d210459b78683d85c9cd5c5f508c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/laravel-package-tools/zipball/d20b1969f836d210459b78683d85c9cd5c5f508c",
+                "reference": "d20b1969f836d210459b78683d85c9cd5c5f508c",
+                "shasum": ""
+            },
+            "require": {
+>>>>>>> b3b27bc89c3d4967845a65516dc3719241678985
                 "illuminate/contracts": "^9.28|^10.0|^11.0|^12.0",
                 "php": "^8.0"
             },
@@ -6068,6 +6086,72 @@
                 "source": "https://github.com/stella-maris-solutions/clock/tree/0.1.7"
             },
             "time": "2022-11-25T16:15:06+00:00"
+        },
+        {
+            "name": "stevebauman/purify",
+            "version": "v6.3.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stevebauman/purify.git",
+                "reference": "3acb5e77904f420ce8aad8fa1c7f394e82daa500"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stevebauman/purify/zipball/3acb5e77904f420ce8aad8fa1c7f394e82daa500",
+                "reference": "3acb5e77904f420ce8aad8fa1c7f394e82daa500",
+                "shasum": ""
+            },
+            "require": {
+                "ezyang/htmlpurifier": "^4.17",
+                "illuminate/contracts": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/support": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^8.0|^9.0|^10.0|^11.5.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Purify": "Stevebauman\\Purify\\Facades\\Purify"
+                    },
+                    "providers": [
+                        "Stevebauman\\Purify\\PurifyServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Stevebauman\\Purify\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Steve Bauman",
+                    "email": "steven_bauman@outlook.com"
+                }
+            ],
+            "description": "An HTML Purifier / Sanitizer for Laravel",
+            "keywords": [
+                "Purifier",
+                "clean",
+                "cleaner",
+                "html",
+                "laravel",
+                "purification",
+                "purify"
+            ],
+            "support": {
+                "issues": "https://github.com/stevebauman/purify/issues",
+                "source": "https://github.com/stevebauman/purify/tree/v6.3.1"
+            },
+            "time": "2025-05-21T16:53:09+00:00"
         },
         {
             "name": "stripe/stripe-php",

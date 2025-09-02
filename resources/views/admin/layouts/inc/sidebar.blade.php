@@ -1163,6 +1163,14 @@
                 <li class="{{ Request::is('admin/web/news*') ? 'active' : '' }}"><a href="{{ route('admin.news.index') }}" class="">{{ trans_choice('module_news', 2) }}</a></li>
                 @endcanany
 
+                
+                @canany('director-view')
+                <li class="{{ Request::is('admin/directors') ? 'active' : '' }}">
+                    <a href="{{ route('directors.index') }}">{{ __('Add Directors') }}</a>
+                </li>
+                @endcanany
+
+
                 @canany(['faq-view', 'faq-create'])
                 <li class="{{ Request::is('admin/web/faq*') ? 'active' : '' }}"><a href="{{ route('admin.faq.index') }}" class="">{{ trans_choice('module_faq', 2) }}</a></li>
                 @endcanany

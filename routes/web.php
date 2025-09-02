@@ -10,20 +10,19 @@ use App\Http\Controllers\Admin\FeesCategoryController;
 use App\Http\Controllers\Admin\FeeStructureController;
 use App\Http\Controllers\Admin\FeesMasterController;
 use App\Http\Controllers\Admin\FeeClearanceController;
-use App\Http\Controllers\Admin\FeeDashboardController;
+use App\Http\Controllers\Admin\FeeDashboardController;use App\Http\Controllers\DirectorController;
 
 
-//
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group whichlo
-| contains the "web" middleware group. Now create something great!
-|
-*/
+
+
+Route::get('/index/director',[DirectorController::class,'index'])->name('directors.index');
+Route::get('/create/director',[DirectorController::class,'create'])->name('directors.create');
+Route::post('/store/director',[DirectorController::class,'store'])->name('directors.store');
+Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
+Route::get('/home/about',[DirectorController::class,'About'])->name('aboutus');
+
+
+
 Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
 Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
 Route::get('/admin/invoice/{id}/print', [FeesStudentController::class, 'printr'])->name('invoice.print');
