@@ -28,16 +28,18 @@ class FeeReconciliationController extends Controller
             ->when($request->has('status') && $request->status != '', function($query) use ($request) {
                 $query->where('status', $request->status);
             })
-            ->when($request->has('reconciled') && $request->reconciled != '', function($query) use ($request, $defaultReconciled) {
-                if ($request->reconciled == 'yes') {
-                    $query->where('is_reconciled', 1);
-                } elseif ($request->reconciled == 'no') {
-                    $query->where('is_reconciled', 0);
-                }
-            }, function($query) use ($defaultReconciled) {
-                // Default filter: show only unreconciled payments
-                $query->where('is_reconciled', 0);
-            })
+            ->when($request->has('reconciled'), function($query) use ($request) {
+    if ($request->reconciled === 'yes') {
+        $query->where('is_reconciled', 1);
+    } elseif ($request->reconciled === 'no') {
+        $query->where('is_reconciled', 0);
+    }
+    // if value is '', do nothing → show all
+}, function($query) {
+    // param not present → default to Not Reconciled
+    $query->where('is_reconciled', 0);
+})
+
             ->when($request->filled('faculty') && $request->faculty != '0', function($query) use ($request) {
                 $query->whereHas('studentEnroll.program', function($q) use ($request) {
                     $q->where('faculty_id', $request->faculty);

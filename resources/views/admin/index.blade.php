@@ -84,7 +84,7 @@
                 </div>
             </div>
             
-            {{-- <div class="col-sm-6 col-md-6 col-xl-3">
+             <div class="col-sm-6 col-md-6 col-xl-3">
                 <div class="card theme-bg bitcoin-wallet">
                     <div class="card-block">
                         <!-- Fetch and display the SMS balance -->
@@ -125,7 +125,7 @@
                         <i class="fas fa-exchange-alt f-70 text-white"></i>
                     </div>
                 </div>
-            </div> --}}
+            </div> 
 
 
 

@@ -22,6 +22,16 @@ use App\Http\Controllers\Admin\FeeCollectionReportController;
 use App\Http\Controllers\Admin\GovernmentFeesReportController;
 use App\Http\Controllers\Admin\ExternalFeesReportController;
 use App\Http\Controllers\Admin\OutstandingFeesController;
+use App\Http\Controllers\DirectorController;
+
+
+
+
+Route::get('/index/director',[DirectorController::class,'index'])->name('directors.index');
+Route::get('/create/director',[DirectorController::class,'create'])->name('directors.create');
+Route::post('/store/director',[DirectorController::class,'store'])->name('directors.store');
+Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
+Route::get('/home/about',[DirectorController::class,'About'])->name('aboutus');
 
 
 Route::group(['prefix' => 'fees-student', 'as' => 'fees-student.'], function() {
