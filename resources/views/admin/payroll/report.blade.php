@@ -15,6 +15,7 @@
                     <div class="card-block">
                         <form class="needs-validation" novalidate method="get" action="{{ route($route.'.report') }}">
                             <div class="row gx-2">
+                                <!-- Filter form fields remain the same -->
                                 <div class="form-group col-md-3">
                                     <label for="salary_type">{{ __('field_salary_type') }} <span>*</span></label>
                                     <select class="form-control" name="salary_type" id="salary_type" required>
@@ -22,7 +23,6 @@
                                         <option value="1" @if($selected_salary_type == 1) selected @endif>{{ __('salary_type_fixed') }}</option>
                                         <option value="2" @if($selected_salary_type == 2) selected @endif>{{ __('salary_type_hourly') }}</option>
                                     </select>
-
                                     <div class="invalid-feedback">
                                       {{ __('required_field') }} {{ __('field_salary_type') }}
                                     </div>
@@ -35,7 +35,6 @@
                                         <option value="{{ $department->id }}" @if( $selected_department == $department->id) selected @endif>{{ $department->title }}</option>
                                         @endforeach
                                     </select>
-
                                     <div class="invalid-feedback">
                                       {{ __('required_field') }} {{ __('field_department') }}
                                     </div>
@@ -48,7 +47,6 @@
                                         <option value="{{ $designation->id }}" @if( $selected_designation == $designation->id) selected @endif>{{ $designation->title }}</option>
                                         @endforeach
                                     </select>
-
                                     <div class="invalid-feedback">
                                       {{ __('required_field') }} {{ __('field_designation') }}
                                     </div>
@@ -60,7 +58,6 @@
                                         <option value="1" {{ $selected_contract == 1 ? 'selected' : '' }}>{{ __('contract_type_full_time') }}</option>
                                         <option value="2" {{ $selected_contract == 2 ? 'selected' : '' }}>{{ __('contract_type_part_time') }}</option>
                                     </select>
-
                                     <div class="invalid-feedback">
                                       {{ __('required_field') }} {{ __('field_contract_type') }}
                                     </div>
@@ -73,7 +70,6 @@
                                         <option value="{{ $shift->id }}" @if( $selected_shift == $shift->id) selected @endif>{{ $shift->title }}</option>
                                         @endforeach
                                     </select>
-
                                     <div class="invalid-feedback">
                                       {{ __('required_field') }} {{ __('field_work_shift') }}
                                     </div>
@@ -94,7 +90,6 @@
                                         <option value="11" @if($selected_month == 11) selected @endif>{{ __('month_november') }}</option>
                                         <option value="12" @if($selected_month == 12) selected @endif>{{ __('month_december') }}</option>
                                     </select>
-
                                     <div class="invalid-feedback">
                                       {{ __('required_field') }} {{ __('field_month') }}
                                     </div>
@@ -113,7 +108,6 @@
                                         <option value="{{ date("Y") - 8 }}" @if($selected_year == date("Y") - 8) selected @endif>{{ date("Y") - 8 }}</option>
                                         <option value="{{ date("Y") - 9 }}" @if($selected_year == date("Y") - 9) selected @endif>{{ date("Y") - 9 }}</option>
                                     </select>
-
                                     <div class="invalid-feedback">
                                       {{ __('required_field') }} {{ __('field_year') }}
                                     </div>
@@ -127,131 +121,323 @@
                 </div>
             </div>
 
+            <!-- Enhanced Report Dashboard -->
+            @if(isset($report_data))
             <div class="col-sm-12">
-                <div class="card">
-                    @if(isset($rows))
-                    <div class="card-block">
-                        <a href="{{ route($route.'.report') }}" class="btn btn-info"><i class="fas fa-sync-alt"></i> {{ __('btn_refresh') }}</a>
-
-                        @if(isset($rows))
-                        <button type="button" class="btn btn-dark btn-print">
-                            <i class="fas fa-print"></i> {{ __('btn_print') }}
-                        </button>
-                        @endif
-                    </div>
-                    <div class="card-block">
-                        <!-- [ Data table ] start -->
-                        <div class="table-responsive">
-                            <table class="display table nowrap table-striped table-hover table-bordered printable">
-                                <thead>
-                                    <tr>
-                                        <th>{{ __('field_receipt') }}</th>
-                                        <th>{{ __('field_staff_id') }}</th>
-                                        <th>{{ __('field_name') }}</th>
-                                        <th>{{ __('field_basic_salary') }}</th>
-                                        <th>{{ __('field_total_earning') }}</th>
-                                        <th>{{ __('field_total_allowance') }}</th>
-                                        <th>{{ __('field_total_deduction') }}</th>
-                                        <th>{{ __('field_gross_salary') }}</th>
-                                        <th>{{ __('field_tax') }}</th>
-                                        <th>{{ __('field_net_salary') }}</th>
-                                        <th>{{ __('field_status') }}</th>
-                                        <th>{{ __('field_pay_date') }}</th>
-                                        <th>{{ __('field_payment_method') }}</th>
-                                        <th>{{ __('field_note') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                  @if(isset($rows))
-                                    @foreach( $rows as $key => $row)
-                                    <tr>
-                                        <td>{{ $print->prefix ?? '' }}{{ str_pad($row->id, 6, '0', STR_PAD_LEFT) }}</td>
-                                        <td>
-                                            <a href="{{ route('admin.user.show', $row->user->id) }}">
-                                                #{{ $row->user->staff_id ?? '' }}
-                                            </a>
-                                        </td>
-                                        <td>{{ $row->user->first_name ?? '' }} {{ $row->user->last_name ?? '' }}</td>
-                                        <td>
-                                            {{ number_format((float)$row->basic_salary, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!} / 
-
-                                            @if( $row->salary_type == 1 )
-                                            {{ __('salary_type_fixed') }}
-                                            @elseif( $row->salary_type == 2 )
-                                            {{ __('salary_type_hourly') }}
-                                            @endif
-                                        </td>
-                                        <td>{{ number_format((float)$row->total_earning, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</td>
-                                        <td>{{ number_format((float)$row->total_allowance, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</td>
-                                        <td>{{ number_format((float)$row->total_deduction, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</td>
-                                        <td>{{ number_format((float)$row->gross_salary, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</td>
-                                        <td>{{ number_format((float)$row->tax, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</td>
-                                        <td>{{ number_format((float)$row->net_salary, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</td>
-                                        <td>
-                                            @if($row->status == 1)
-                                            <span class="badge badge-pill badge-success">{{ __('status_paid') }}</span>
-                                            @else
-                                            <span class="badge badge-pill badge-danger">{{ __('status_unpaid') }}</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($row->status == 1)
-                                            @if(isset($setting->date_format))
-                                            {{ date($setting->date_format, strtotime($row->pay_date)) }}
-                                            @else
-                                            {{ date("Y-m-d", strtotime($row->pay_date)) }}
-                                            @endif
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if( $row->payment_method == 1 )
-                                            {{ __('payment_method_card') }}
-                                            @elseif( $row->payment_method == 2 )
-                                            {{ __('payment_method_cash') }}
-                                            @elseif( $row->payment_method == 3 )
-                                            {{ __('payment_method_cheque') }}
-                                            @elseif( $row->payment_method == 4 )
-                                            {{ __('payment_method_bank') }}
-                                            @elseif( $row->payment_method == 5 )
-                                            {{ __('payment_method_e_wallet') }}
-                                            @endif
-                                        </td>
-                                        <td>{{ $row->note }}</td>
-                                    </tr>
-                                    @endforeach
-                                  @endif
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th></th>
-                                        <th></th>
-                                        <th>{{ __('field_grand_total') }}</th>
-                                        <th>{{ number_format((float)$rows->sum('total_earning'), $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</th>
-                                        <th>{{ number_format((float)$rows->sum('total_allowance'), $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</th>
-                                        <th>{{ number_format((float)$rows->sum('total_deduction'), $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</th>
-                                        <th>{{ number_format((float)$rows->sum('gross_salary'), $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</th>
-                                        <th>{{ number_format((float)$rows->sum('tax'), $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</th>
-                                        <th>{{ number_format((float)$rows->sum('net_salary'), $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                        <th></th>
-                                    </tr>
-                                </tfoot>
-
-                                <caption>{{ date("F Y", strtotime($selected_year.'-'.$selected_month.'-01')) ?? '' }}</caption>
-                            </table>
+                <!-- Summary Statistics Cards -->
+                <div class="row">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card">
+                            <div class="card-block">
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <h4 class="text-c-purple">{{ number_format($report_data['summary']['total_net_pay'] ?? 0, 2) }}</h4>
+                                        <h6 class="text-muted m-b-0">{{ __('Total Net Pay') }}</h6>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <i class="fas fa-wallet f-28"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <!-- [ Data table ] end -->
                     </div>
-                    @endif
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card">
+                            <div class="card-block">
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <h4 class="text-c-green">{{ $report_data['summary']['total_employees'] ?? 0 }}</h4>
+                                        <h6 class="text-muted m-b-0">{{ __('Total Employees') }}</h6>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <i class="fas fa-users f-28"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card">
+                            <div class="card-block">
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <h4 class="text-c-red">{{ number_format($report_data['summary']['total_deductions'] ?? 0, 2) }}</h4>
+                                        <h6 class="text-muted m-b-0">{{ __('Total Deductions') }}</h6>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <i class="fas fa-hand-holding-usd f-28"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card">
+                            <div class="card-block">
+                                <div class="row align-items-center">
+                                    <div class="col-8">
+                                        <h4 class="text-c-blue">{{ number_format($report_data['summary']['average_salary'] ?? 0, 2) }}</h4>
+                                        <h6 class="text-muted m-b-0">{{ __('Average Salary') }}</h6>
+                                    </div>
+                                    <div class="col-4 text-right">
+                                        <i class="fas fa-chart-line f-28"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Graphs Section -->
+                <div class="row">
+                    <!-- Department-wise Distribution -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>{{ __('Department-wise Salary Distribution') }}</h5>
+                            </div>
+                            <div class="card-block">
+                                <canvas id="departmentChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monthly Comparison -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>{{ __('Monthly Salary Comparison') }} ({{ $selected_year }})</h5>
+                            </div>
+                            <div class="card-block">
+                                <canvas id="monthlyChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deduction Type Performance Table -->
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>{{ __('Deduction Type Performance Summary') }}</h5>
+                            </div>
+                            <div class="card-block">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('Deduction Type') }}</th>
+                                                <th>{{ __('Total Amount') }}</th>
+                                                <th>{{ __('Average per Employee') }}</th>
+                                                <th>{{ __('Employee Count') }}</th>
+                                                <th>{{ __('% of Total Deductions') }}</th>
+                                                <th>{{ __('Status') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php
+                                                $totalDeductions = $report_data['summary']['total_deductions'] ?? 0;
+                                                $deductionTypes = $report_data['deduction_analysis'] ?? [];
+                                            @endphp
+                                            
+                                            @forelse($deductionTypes as $deduction)
+                                            <tr>
+                                                <td>{{ $deduction->deduction_name ?? $deduction->component_name ?? 'N/A' }}</td>
+                                                <td>{{ number_format($deduction->total_amount ?? 0, 2) }}</td>
+                                                <td>{{ number_format($deduction->average_amount ?? 0, 2) }}</td>
+                                                <td>{{ $deduction->employee_count ?? 0 }}</td>
+                                                <td>
+                                                    @php
+                                                        $percentage = $totalDeductions > 0 ? (($deduction->total_amount ?? 0) / $totalDeductions) * 100 : 0;
+                                                    @endphp
+                                                    {{ number_format($percentage, 1) }}%
+                                                </td>
+                                                <td>
+                                                    @php
+                                                        $employeeCount = $deduction->employee_count ?? 0;
+                                                        $totalEmployees = $report_data['summary']['total_employees'] ?? 1;
+                                                        $coveragePercentage = ($employeeCount / $totalEmployees) * 100;
+                                                    @endphp
+                                                    @if($coveragePercentage >= 80)
+                                                        <span class="badge badge-success">{{ __('High Coverage') }}</span>
+                                                    @elseif($coveragePercentage >= 50)
+                                                        <span class="badge badge-warning">{{ __('Medium Coverage') }}</span>
+                                                    @else
+                                                        <span class="badge badge-danger">{{ __('Low Coverage') }}</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center">{{ __('No deduction data available') }}</td>
+                                            </tr>
+                                            @endforelse
+                                        </tbody>
+                                        @if(count($deductionTypes) > 0)
+                                        <tfoot>
+                                            <tr class="table-primary">
+                                                <td><strong>{{ __('Total') }}</strong></td>
+                                                <td><strong>{{ number_format($totalDeductions, 2) }}</strong></td>
+                                                <td><strong>{{ number_format($totalDeductions / ($report_data['summary']['total_employees'] ?? 1), 2) }}</strong></td>
+                                                <td><strong>{{ $report_data['summary']['total_employees'] ?? 0 }}</strong></td>
+                                                <td><strong>100%</strong></td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                        @endif
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Tables Section -->
+                <div class="row">
+                    <!-- Staff Analysis by Department -->
+                    <div class="col-sm-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>{{ __('Staff Analysis by Department') }}</h5>
+                            </div>
+                            <div class="card-block">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('Department') }}</th>
+                                                <th>{{ __('Employee Count') }}</th>
+                                                <th>{{ __('Total Gross') }}</th>
+                                                <th>{{ __('Total Net') }}</th>
+                                                <th>{{ __('Average Salary') }}</th>
+                                                <th>{{ __('Total Deductions') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($report_data['department_analysis'] as $dept)
+                                            <tr>
+                                                <td>{{ $dept->department_name }}</td>
+                                                <td>{{ $dept->employee_count }}</td>
+                                                <td>{{ number_format($dept->total_gross, 2) }}</td>
+                                                <td>{{ number_format($dept->total_net, 2) }}</td>
+                                                <td>{{ number_format($dept->avg_salary, 2) }}</td>
+                                                <td>{{ number_format($dept->total_deductions, 2) }}</td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Teacher/Staff Detailed Information -->
+                    <div class="col-sm-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>{{ __('Staff Detailed Information') }}</h5>
+                            </div>
+                            <div class="card-block">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>{{ __('Staff ID') }}</th>
+                                                <th>{{ __('Name') }}</th>
+                                                <th>{{ __('Department') }}</th>
+                                                <th>{{ __('Designation') }}</th>
+                                                <th>{{ __('Gross Salary') }}</th>
+                                                <th>{{ __('Net Salary') }}</th>
+                                                <th>{{ __('Contract Type') }}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($report_data['staff_analysis'] as $staff)
+                                            <tr>
+                                                <td>#{{ $staff->staff_id }}</td>
+                                                <td>{{ $staff->first_name }} {{ $staff->last_name }}</td>
+                                                <td>{{ $staff->department }}</td>
+                                                <td>{{ $staff->designation }}</td>
+                                                <td>{{ number_format($staff->gross_salary, 2) }}</td>
+                                                <td>{{ number_format($staff->current_salary, 2) }}</td>
+                                                <td>
+                                                    @if($staff->contract_type == 1)
+                                                    {{ __('Full Time') }}
+                                                    @elseif($staff->contract_type == 2)
+                                                    {{ __('Part Time') }}
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            @endif
+
+            <!-- Original Payroll Table (Keep existing functionality) -->
+            
         </div>
         <!-- [ Main Content ] end -->
     </div>
 </div>
 <!-- End Content-->
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    @if(isset($report_data))
+    // Department Chart
+    const deptCtx = document.getElementById('departmentChart').getContext('2d');
+    const deptChart = new Chart(deptCtx, {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($report_data['department_analysis']->pluck('department_name')) !!},
+            datasets: [{
+                label: 'Total Net Salary',
+                data: {!! json_encode($report_data['department_analysis']->pluck('total_net')) !!},
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Monthly Comparison Chart
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    const monthlyChart = new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode(collect($report_data['monthly_comparison'])->pluck('month')) !!},
+            datasets: [{
+                label: 'Net Salary',
+                data: {!! json_encode(collect($report_data['monthly_comparison'])->pluck('total_net')) !!},
+                borderColor: 'rgba(75, 192, 192, 1)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+    @endif
+});
+</script>
 
 @endsection

@@ -214,6 +214,10 @@ class UserController extends Controller
             $user->last_name = $request->last_name;
             $user->father_name = $request->father_name;
             $user->mother_name = $request->mother_name;
+            $user->kra_pin = $request->kra_pin;
+$user->nssf_number = $request->nssf_number;
+$user->sha_number = $request->sha_number;
+$user->nhif = $request->nhif;
 
             $user->email = $request->email;
             $user->password = Hash::make($password);
@@ -436,6 +440,10 @@ class UserController extends Controller
             $user->last_name = $request->last_name;
             $user->father_name = $request->father_name;
             $user->mother_name = $request->mother_name;
+            $user->kra_pin = $request->kra_pin;
+$user->nssf_number = $request->nssf_number;
+$user->sha_number = $request->sha_number;
+$user->nhif = $request->nhif;
 
             $user->email = $request->email;
             $user->gender = $request->gender;

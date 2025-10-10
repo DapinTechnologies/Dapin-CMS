@@ -11,7 +11,7 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('modal_edit') }} {{ $title }}</h5>
+                        <h5>{{ __('modal_edit') }} Payable</h5>
                     </div>
                     <div class="card-block">
                         <a href="{{ route($route.'.index') }}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> {{ __('btn_back') }}</a>

@@ -23,7 +23,52 @@ use App\Http\Controllers\Admin\GovernmentFeesReportController;
 use App\Http\Controllers\Admin\ExternalFeesReportController;
 use App\Http\Controllers\Admin\OutstandingFeesController;
 use App\Http\Controllers\DirectorController;
+use App\Http\Controllers\Admin\PayrollController;
+use App\Http\Controllers\Admin\IncomeReportController;
+use App\Http\Controllers\Admin\ExpenseReportController;
+use App\Http\Controllers\Admin\ReconciliationController;
+use App\Http\Controllers\Admin\BillingController;
+use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\IncomeController;
+use App\Http\Controllers\Admin\ReceivableInvoiceController;
 
+
+
+
+
+
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('reconciliation')->name('reconciliation.')->group(function () {
+        Route::get('/', [ReconciliationController::class, 'index'])->name('index');
+        Route::post('/', [ReconciliationController::class, 'store'])->name('store');
+        Route::post('/quick-reconcile', [ReconciliationController::class, 'quickReconcile'])->name('quick-reconcile');
+        Route::post('/bulk-reconcile', [ReconciliationController::class, 'bulkReconcile'])->name('bulk-reconcile');
+        Route::post('/{id}/reconcile', [ReconciliationController::class, 'reconcile'])->name('reconcile');
+        Route::post('/{id}/discrepancy', [ReconciliationController::class, 'markDiscrepancy'])->name('discrepancy');
+        Route::get('/unreconciled', [ReconciliationController::class, 'unreconciled'])->name('unreconciled');
+        Route::delete('/{id}', [ReconciliationController::class, 'destroy'])->name('destroy');
+        Route::get('/report', [ReconciliationController::class, 'report'])->name('report');
+    });
+});
+
+
+
+
+
+
+Route::prefix('admin')->group(function () {
+    Route::get('income-report', [IncomeReportController::class, 'index'])->name('admin.income-report.index');
+    Route::get('income-report/print', [IncomeReportController::class, 'print'])->name('admin.income-report.print');
+    Route::get('income-report/pdf', [IncomeReportController::class, 'pdf'])->name('admin.income-report.pdf');
+    Route::get('income-report/chart-data', [IncomeReportController::class, 'chartData'])->name('admin.income-report.chart-data');
+    
+Route::get('admin/expense-report', [ExpenseReportController::class, 'index'])->name('admin.expense-report.index');
+Route::get('admin/expense-report/print', [ExpenseReportController::class, 'print'])->name('admin.expense-report.print');
+Route::get('admin/expense-report/pdf', [ExpenseReportController::class, 'pdf'])->name('admin.expense-report.pdf');
+Route::get('admin/expense-report/chart-data', [ExpenseReportController::class, 'chartData'])->name('admin.expense-report.chart-data');
+});
 
 
 
@@ -41,6 +86,11 @@ Route::group(['prefix' => 'fees-student', 'as' => 'fees-student.'], function() {
     Route::put('quick-assign/{invoice}', 'FeesStudentController@update')->name('quick.assign.update');
 });
 
+
+// Add these routes to your existing payroll routes
+Route::get('/payroll/draft/{userId}/{periodId}', [PayrollController::class, 'getDraft'])->name('admin.payroll.draft.get');
+Route::delete('/payroll/draft/{userId}/{periodId}/restart', [PayrollController::class, 'restartDraft'])->name('admin.payroll.draft.restart');
+Route::post('/payroll/draft/save', [PayrollController::class, 'saveDraft'])->name('admin.payroll.draft.save');
 //
 /*
 |--------------------------------------------------------------------------
@@ -54,8 +104,20 @@ Route::group(['prefix' => 'fees-student', 'as' => 'fees-student.'], function() {
 */
 
 
+Route::prefix('admin/payroll')->name('admin.payroll.')->group(function () {
+    Route::post('/settings/nhif/update', [PayrollController::class, 'updateNhifSettings'])
+        ->name('settings.nhif.update');
 
-
+    Route::post('/settings/paye/update', [PayrollController::class, 'updatePayeSettings'])
+        ->name('settings.paye.update');
+        
+        
+});
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+    Route::group(['prefix' => 'payroll', 'as' => 'payroll.'], function () {
+        Route::post('/draft/save', [PayrollController::class, 'saveDraft'])->name('draft.save');
+    });
+});
 
 Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
 Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
@@ -802,8 +864,34 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::resource('staff/work-shift-type', 'WorkShiftTypeController');
     Route::resource('staff/staff-note', 'StaffNoteController');
     Route::resource('staff/tax-setting', 'TaxSettingController');
+    Route::resource('payroll/deduction-setting', 'DeductionSettingController');
 
-
+Route::resource('payroll', 'PayrollController');
+    Route::get('payroll/run/{id}/show', 'PayrollController@showRun')->name('payroll.run.show');
+    Route::post('payroll/bulk-generate', 'PayrollController@bulkGenerate')->name('payroll.bulk-generate');
+    Route::post('payroll/generate-employee', 'PayrollController@generateForEmployee')->name('payroll.generate-employee');
+    Route::post('payroll/{id}/pay', 'PayrollController@pay')->name('payroll.pay');
+    Route::post('payroll/bulk-pay', 'PayrollController@bulkPay')->name('payroll.bulk-pay');
+    Route::get('payroll/{id}/payslip', 'PayrollController@exportPdf')->name('payroll.payslip');
+    Route::get('payroll/run/{id}/master-report', 'PayrollController@downloadMasterReport')->name('payroll.master-report');
+    Route::get('payroll/run/{id}/export-pdfs', 'PayrollController@exportAllPayslips')->name('payroll.export-all');
+    
+    // Payroll Components Management
+    Route::get('payroll-components', 'PayrollComponentController@index')->name('payroll-components.index');
+    Route::post('payroll-components', 'PayrollComponentController@store')->name('payroll-components.store');
+    Route::put('payroll-components/{id}', 'PayrollComponentController@update')->name('payroll-components.update');
+    Route::post('payroll-components/{id}/toggle-status', 'PayrollComponentController@toggleStatus')->name('payroll-components.toggle-status');
+    
+    // NHIF Management
+    Route::get('nhif-settings', 'NHIFController@index')->name('nhif-settings.index');
+    Route::post('nhif-settings', 'NHIFController@store')->name('nhif-settings.store');
+    Route::put('nhif-settings/{id}', 'NHIFController@update')->name('nhif-settings.update');
+    Route::delete('nhif-settings/{id}', 'NHIFController@destroy')->name('nhif-settings.destroy');
+    
+    // PAYE Management
+    Route::get('paye-settings', 'PAYEController@index')->name('paye-settings.index');
+    Route::post('paye-settings', 'PAYEController@store')->name('paye-settings.store');
+    Route::put('paye-settings/{id}', 'PAYEController@update')->name('paye-settings.update');
 
     // Staff Attendance Routes
     Route::resource('attendance/staff-daily-attendance', 'StaffAttendanceController');
@@ -812,6 +900,23 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::get('attendance/staff-hourly-report', 'StaffHourlyAttendanceController@report')->name('staff-hourly-attendance.report');
     Route::get('attendance/staff-hourly-report/{id}', 'StaffHourlyAttendanceController@reportDetails')->name('staff-hourly-attendance.report.details');
 
+
+    // Excel Export Routes
+Route::get('payroll/run/{id}/export-excel', [PayrollController::class, 'exportExcel'])->name('payroll.export-excel');
+Route::get('payroll/run/{id}/export-master-excel', [PayrollController::class, 'exportMasterReportExcel'])->name('payroll.export-master-excel');
+Route::get('payroll/entry/{id}/export-payslip-excel', [PayrollController::class, 'exportPayslipExcel'])->name('payroll.export-payslip-excel');
+Route::get('payroll/run/{id}/export-all-payslips', [PayrollController::class, 'exportAllPayslips'])->name('payroll.export-all-payslips');
+
+// Print Routes
+Route::get('payroll/entry/{id}/print', [PayrollController::class, 'printPayslip'])->name('payroll.print-payslip');
+Route::get('payroll/run/{id}/print-master', [PayrollController::class, 'printMasterReport'])->name('payroll.print-master-report');
+
+
+    Route::post('/settings/nhif/update', [PayrollController::class, 'updateNhifSettings'])
+         ->name('admin.payroll.settings.nhif.update');
+         
+    Route::post('/settings/paye/update', [PayrollController::class, 'updatePayeSettings'])
+         ->name('admin.payroll.settings.paye.update');
 
 
     // Staff Leave Routes
@@ -828,8 +933,7 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::resource('account/expense', 'ExpenseController');
     Route::resource('account/expense-category', 'ExpenseCategoryController');
     Route::resource('account/outcome', 'OutcomeCalculationController');
-
-
+    
 
     // Communicate Routes
     Route::resource('communicate/email-notify', 'EmailNotifyController');
@@ -839,6 +943,49 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::resource('communicate/notice', 'NoticeController');
     Route::resource('communicate/notice-category', 'NoticeCategoryController');
 
+// Billing Routes
+Route::group(['prefix' => 'billing', 'as' => 'billing.'], function() {
+    Route::get('/', [BillingController::class, 'index'])->name('index');
+    Route::get('/create', [BillingController::class, 'create'])->name('create');
+    Route::post('/', [BillingController::class, 'store'])->name('store');
+    Route::get('/{billing}', [BillingController::class, 'show'])->name('show');
+    Route::get('/{billing}/edit', [BillingController::class, 'edit'])->name('edit');
+    Route::put('/{billing}', [BillingController::class, 'update'])->name('update');
+    Route::delete('/{billing}', [BillingController::class, 'destroy'])->name('destroy');
+    Route::get('/{billing}/print', [BillingController::class, 'print'])->name('print');
+});
+
+// Expense Routes (add receipt route)
+Route::group(['prefix' => 'expense', 'as' => 'expense.'], function() {
+    // ... other routes ...
+    Route::get('/{expense}/receipt', [ExpenseController::class, 'receipt'])->name('receipt');
+});
+
+// Receivable Invoice Routes
+Route::group(['prefix' => 'receivable-invoice', 'as' => 'receivable-invoice.'], function() {
+    Route::get('/', [ReceivableInvoiceController::class, 'index'])->name('index');
+    Route::get('/create', [ReceivableInvoiceController::class, 'create'])->name('create');
+    Route::post('/', [ReceivableInvoiceController::class, 'store'])->name('store');
+    Route::get('/{receivableInvoice}', [ReceivableInvoiceController::class, 'show'])->name('show');
+    Route::get('/{receivableInvoice}/edit', [ReceivableInvoiceController::class, 'edit'])->name('edit');
+    Route::put('/{receivableInvoice}', [ReceivableInvoiceController::class, 'update'])->name('update');
+    Route::delete('/{receivableInvoice}', [ReceivableInvoiceController::class, 'destroy'])->name('destroy');
+    Route::get('/{receivableInvoice}/print', [ReceivableInvoiceController::class, 'print'])->name('print');
+    // AJAX routes for searchable dropdowns
+Route::get('/receivable-invoice/ajax/students', [ReceivableInvoiceController::class, 'getStudents'])->name('ajax.students');
+Route::get('/receivable-invoice/ajax/staff', [ReceivableInvoiceController::class, 'getStaff'])->name('ajax.staff');
+    // AJAX routes for dropdowns
+    Route::get('/get/students', [ReceivableInvoiceController::class, 'getStudents'])->name('get.students');
+    Route::get('/get/staff', [ReceivableInvoiceController::class, 'getStaff'])->name('get.staff');
+});
+
+
+
+// Income Routes
+Route::group(['prefix' => 'income', 'as' => 'income.'], function() {
+    // ... other routes ...
+    Route::get('/{income}/receipt', [IncomeController::class, 'receipt'])->name('receipt');
+});
 
 
     // Library Routes

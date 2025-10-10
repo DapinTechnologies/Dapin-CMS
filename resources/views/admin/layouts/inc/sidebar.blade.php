@@ -732,6 +732,9 @@
                     </a>
 
                     <ul class="pcoded-submenu">
+                        @canany(['deduction-setting-create', 'deduction-setting-view'])
+<li class="{{ Request::is('admin/payroll/deduction-setting*') ? 'active' : '' }}"><a href="{{ route('admin.deduction-setting.index') }}" class="">{{ trans_choice('module_deduction_setting', 2) }}</a></li>
+@endcanany
                         @canany(['tax-setting-create', 'tax-setting-view'])
                         <li class="{{ Request::is('admin/staff/tax-setting*') ? 'active' : '' }}"><a href="{{ route('admin.tax-setting.index') }}" class="">{{ trans_choice('module_tax_setting', 2) }}</a></li>
                         @endcanany
@@ -799,34 +802,132 @@
         @endcanany
 
         @canany(['income-create', 'income-view', 'income-category-create', 'income-category-view', 'expense-create', 'expense-view', 'expense-category-create', 'expense-category-view', 'outcome-view'])
-        <li class="nav-item pcoded-hasmenu {{ Request::is('admin/account*') ? 'pcoded-trigger active' : '' }}">
+<li class="nav-item pcoded-hasmenu {{ Request::is('admin/account*') ? 'pcoded-trigger active' : '' }}">
+    <a href="#!" class="nav-link">
+        <span class="pcoded-micon"><i class="fas fa-credit-card"></i></span>
+        <span class="pcoded-mtext">{{ trans_choice('module_income_expense', 2) }}</span>
+    </a>
+    <ul class="pcoded-submenu">
+        {{-- Outcome --}}
+        @can('outcome-view')
+        <li class="{{ Request::is('admin/account/outcome*') ? 'active' : '' }}">
+            <a href="{{ route('admin.outcome.index') }}">Account Dashboard</a>
+        </li>
+        @endcan
+        
+
+        
+         @canany(['income-category-create', 'income-category-view'])
+        <li class="pcoded-hasmenu {{  'pcoded-trigger active' }}">
             <a href="#!" class="nav-link">
-                <span class="pcoded-micon"><i class="fas fa-credit-card"></i></span>
-                <span class="pcoded-mtext">{{ trans_choice('module_income_expense', 2) }}</span>
+                
+                <span class="pcoded-mtext">Payables</span>
             </a>
             <ul class="pcoded-submenu">
-                @canany(['income-create', 'income-view'])
-                <li class="{{ Request::is('admin/account/income*') ? 'active' : '' }}"><a href="{{ route('admin.income.index') }}" class="">{{ trans_choice('module_income', 1) }} {{ __('list') }}</a></li>
-                @endcanany
-                
-                @canany(['income-category-create', 'income-category-view'])
-                <li class="{{ Request::is('admin/account/income-category*') ? 'active' : '' }}"><a href="{{ route('admin.income-category.index') }}" class="">{{ trans_choice('module_income_category', 2) }}</a></li>
-                @endcanany
-                
-                @canany(['expense-create', 'expense-view'])
-                <li class="{{ Request::is('admin/account/expense*') ? 'active' : '' }}"><a href="{{ route('admin.expense.index') }}" class="">{{ trans_choice('module_expense', 1) }} {{ __('list') }}</a></li>
-                @endcanany
-                
-                @canany(['expense-category-create', 'expense-category-view'])
-                <li class="{{ Request::is('admin/account/expense-category*') ? 'active' : '' }}"><a href="{{ route('admin.expense-category.index') }}" class="">{{ trans_choice('module_expense_category', 2) }}</a></li>
-                @endcanany
-                
-                @can('outcome-view')
-                <li class="{{ Request::is('admin/account/outcome*') ? 'active' : '' }}"><a href="{{ route('admin.outcome.index') }}" class="">{{ trans_choice('module_outcome_calculation', 2) }}</a></li>
-                @endcan
+               {{-- Billing --}}
+@canany(['billing-view', 'billing-create', 'billing-edit', 'billing-delete'])
+<li class="{{ Request::is('admin/billing*') ? 'active' : '' }}">
+    <a href="{{ route('admin.billing.index') }}">
+        
+        <span>{{ __('module_billing') }}</span>
+    </a>
+</li>
+@endcanany
+
+                {{-- Expense --}}
+        @canany(['expense-create', 'expense-view'])
+        <li class="{{ Request::is('admin/account/expense*') ? 'active' : '' }}">
+            <a href="{{ route('admin.expense.index') }}">Payable Receipt</a>
+        </li>
+        @endcanany
             </ul>
         </li>
         @endcanany
+
+        @canany(['income-create', 'income-view'])
+        <li class="pcoded-hasmenu {{ Request::is('admin/account/*-category*') ? 'pcoded-trigger active' : '' }}">
+            <a href="#!" class="nav-link">
+
+                <span class="pcoded-mtext">Receivables</span>
+            </a>
+            <ul class="pcoded-submenu">
+                {{-- Receivable Invoices --}}
+@canany(['receivable-invoice-view', 'receivable-invoice-create', 'receivable-invoice-edit', 'receivable-invoice-delete'])
+<li class="{{ Request::is('admin/receivable-invoice*') ? 'active' : '' }}">
+    <a href="{{ route('admin.receivable-invoice.index') }}">
+        <span>Invoicing</span>
+    </a>
+</li>
+@endcanany
+
+                {{-- Income --}}
+        @canany(['income-create', 'income-view'])
+        <li class="{{ Request::is('admin/account/income*') ? 'active' : '' }}">
+            <a href="{{ route('admin.income.index') }}">Receivable Receipt</a>
+        </li>
+        @endcanany
+            </ul>
+        </li>
+        @endcanany
+
+        {{-- Reconciliation --}}
+@canany(['reconciliation-create', 'reconciliation-view', 'reconciliation-edit'])
+<li class="{{ Request::is('admin/account/reconciliation*') ? 'active' : '' }}">
+    <a href="{{ route('admin.reconciliation.index') }}">
+         <span>Banking</span>
+    </a>
+</li>
+@endcanany
+
+         @canany(['income-category-create', 'income-category-view', 'expense-category-create', 'expense-category-view'])
+        <li class="pcoded-hasmenu {{  'pcoded-trigger active' }}">
+            <a href="#!" class="nav-link">
+                
+                <span class="pcoded-mtext">Reports</span>
+            </a>
+            <ul class="pcoded-submenu">
+               @canany(['income-report-view'])
+<li class="{{ Request::is('admin/income-report*') ? 'active' : '' }}">
+    <a href="{{ route('admin.income-report.index') }}">Receivable Report</a>
+</li>
+@endcanany
+
+                @canany(['expense-report-view'])
+<li class="{{ Request::is('admin/expense-report*') ? 'active' : '' }}">
+    <a href="{{ route('admin.expense-report.index') }}">Payable Report</a>
+</li>
+@endcanany
+            </ul>
+        </li>
+        @endcanany
+
+        {{-- Settings Submenu --}}
+        @canany(['income-category-create', 'income-category-view', 'expense-category-create', 'expense-category-view'])
+        <li class="pcoded-hasmenu {{ Request::is('admin/account/*-category*') ? 'pcoded-trigger active' : '' }}">
+            <a href="#!" class="nav-link">
+                
+                <span class="pcoded-mtext">{{ __('Settings') }}</span>
+            </a>
+            <ul class="pcoded-submenu">
+                @canany(['income-category-create', 'income-category-view'])
+                <li class="{{ Request::is('admin/account/income-category*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.income-category.index') }}">Receivable Categories</a>
+                </li>
+                @endcanany
+
+                @canany(['expense-category-create', 'expense-category-view'])
+                <li class="{{ Request::is('admin/account/expense-category*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.expense-category.index') }}">Payable Categories</a>
+                </li>
+                @endcanany
+            </ul>
+        </li>
+        @endcanany
+
+    </ul>
+</li>
+@endcanany
+
 
         @canany(['email-notify-create', 'email-notify-view', 'sms-notify-create', 'sms-notify-view', 'event-create', 'event-view', 'event-calendar', 'notice-create', 'notice-view', 'notice-category-create', 'notice-category-view'])
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/communicate*') ? 'pcoded-trigger active' : '' }}">

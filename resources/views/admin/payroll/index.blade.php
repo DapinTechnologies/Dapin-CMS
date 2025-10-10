@@ -2,291 +2,519 @@
 @section('title', $title)
 @section('content')
 
-<!-- Start Content-->
 <div class="main-body">
     <div class="page-wrapper">
-        <!-- [ Main Content ] start -->
         <div class="row">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>{{ $title }}</h5>
-                    </div>
-                    <div class="card-block">
-                        <form class="needs-validation" novalidate method="get" action="{{ route($route.'.index') }}">
-                            <div class="row gx-2">
-                                <div class="form-group col-md-2">
-                                    <label for="salary_type">{{ __('field_salary_type') }} <span>*</span></label>
-                                    <select class="form-control" name="salary_type" id="salary_type" required>
-                                        <option value="">{{ __('select') }}</option>
-                                        <option value="1" @if($selected_salary_type == 1) selected @endif>{{ __('salary_type_fixed') }}</option>
-                                        <option value="2" @if($selected_salary_type == 2) selected @endif>{{ __('salary_type_hourly') }}</option>
-                                    </select>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_salary_type') }}
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="department">{{ __('field_department') }}</label>
-                                    <select class="form-control" name="department" id="department">
-                                        <option value="">{{ __('all') }}</option>
-                                        @foreach( $departments as $department )
-                                        <option value="{{ $department->id }}" @if( $selected_department == $department->id) selected @endif>{{ $department->title }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_department') }}
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="designation">{{ __('field_designation') }}</label>
-                                    <select class="form-control" name="designation" id="designation">
-                                        <option value="">{{ __('all') }}</option>
-                                        @foreach( $designations as $designation )
-                                        <option value="{{ $designation->id }}" @if( $selected_designation == $designation->id) selected @endif>{{ $designation->title }}</option>
-                                        @endforeach
-                                    </select>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_designation') }}
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="month">{{ __('field_month') }} <span>*</span></label>
-                                    <select class="form-control" name="month" id="month" required>
-                                        <option value="1" @if($selected_month == 1) selected @endif>{{ __('month_january') }}</option>
-                                        <option value="2" @if($selected_month == 2) selected @endif>{{ __('month_february') }}</option>
-                                        <option value="3" @if($selected_month == 3) selected @endif>{{ __('month_march') }}</option>
-                                        <option value="4" @if($selected_month == 4) selected @endif>{{ __('month_april') }}</option>
-                                        <option value="5" @if($selected_month == 5) selected @endif>{{ __('month_may') }}</option>
-                                        <option value="6" @if($selected_month == 6) selected @endif>{{ __('month_june') }}</option>
-                                        <option value="7" @if($selected_month == 7) selected @endif>{{ __('month_july') }}</option>
-                                        <option value="8" @if($selected_month == 8) selected @endif>{{ __('month_august') }}</option>
-                                        <option value="9" @if($selected_month == 9) selected @endif>{{ __('month_september') }}</option>
-                                        <option value="10" @if($selected_month == 10) selected @endif>{{ __('month_october') }}</option>
-                                        <option value="11" @if($selected_month == 11) selected @endif>{{ __('month_november') }}</option>
-                                        <option value="12" @if($selected_month == 12) selected @endif>{{ __('month_december') }}</option>
-                                    </select>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_month') }}
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <label for="year">{{ __('field_year') }} <span>*</span></label>
-                                    <select class="form-control" name="year" id="year" required>
-                                        <option value="{{ date("Y") }}" @if($selected_year == date("Y")) selected @endif>{{ date("Y") }}</option>
-                                        <option value="{{ date("Y") - 1 }}" @if($selected_year == date("Y") - 1) selected @endif>{{ date("Y") - 1 }}</option>
-                                        <option value="{{ date("Y") - 2 }}" @if($selected_year == date("Y") - 2) selected @endif>{{ date("Y") - 2 }}</option>
-                                        <option value="{{ date("Y") - 3 }}" @if($selected_year == date("Y") - 3) selected @endif>{{ date("Y") - 3 }}</option>
-                                        <option value="{{ date("Y") - 4 }}" @if($selected_year == date("Y") - 4) selected @endif>{{ date("Y") - 4 }}</option>
-                                        <option value="{{ date("Y") - 5 }}" @if($selected_year == date("Y") - 5) selected @endif>{{ date("Y") - 5 }}</option>
-                                        <option value="{{ date("Y") - 6 }}" @if($selected_year == date("Y") - 6) selected @endif>{{ date("Y") - 6 }}</option>
-                                        <option value="{{ date("Y") - 7 }}" @if($selected_year == date("Y") - 7) selected @endif>{{ date("Y") - 7 }}</option>
-                                        <option value="{{ date("Y") - 8 }}" @if($selected_year == date("Y") - 8) selected @endif>{{ date("Y") - 8 }}</option>
-                                        <option value="{{ date("Y") - 9 }}" @if($selected_year == date("Y") - 9) selected @endif>{{ date("Y") - 9 }}</option>
-                                    </select>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_year') }}
-                                    </div>
-                                </div>
-                                <div class="form-group col-md-2">
-                                    <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-search"></i> {{ __('btn_filter') }}</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+            <!-- Enhanced Summary Cards -->
+            <div class="col-xl-3 col-md-6">
+                <div class="card bg-primary mb-4">
+    <div class="card-body text-white" style="color: white !important;">
+        <div class="d-flex justify-content-between">
+            <div>
+                <h6 style="color: white !important;">Total Employees</h6>
+                <h3 style="color: white !important;">{{ $totalEmployees }}</h3>
             </div>
+            <div class="align-self-center">
+                <i class="fas fa-users fa-2x" style="color: white !important;"></i>
+            </div>
+        </div>
+    </div>
+</div>
 
-            <div class="col-sm-12">
-                <div class="card">
-                    @if(isset($rows))
-                    <div class="card-block">
-                        <!-- [ Data table ] start -->
-                        <div class="table-responsive">
-                            <table class="display table nowrap table-striped table-hover" style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>{{ __('field_staff_id') }}</th>
-                                        <th>{{ __('field_name') }}</th>
-                                        <th>{{ __('field_department') }}</th>
-                                        <th>{{ __('field_designation') }}</th>
-                                        <th>{{ __('field_salary_type') }}</th>
-                                        <th>{{ __('field_work_shift') }}</th>
-                                        <th>{{ __('field_status') }}</th>
-                                        <th>{{ __('field_action') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                  @foreach( $rows as $key => $row )
-                                  @if($row->status == 1)
-                                    <tr>
-                                        <td>
-                                            <a href="{{ route('admin.user.show', $row->id) }}">
-                                                #{{ $row->staff_id }}
-                                            </a>
-                                        </td>
-                                        <td>{{ $row->first_name }} {{ $row->last_name }}</td>
-                                        <td>{{ $row->department->title ?? '' }}</td>
-                                        <td>{{ $row->designation->title ?? '' }}</td>
-                                        <td>
-                                            @if( $row->salary_type == 1 )
-                                            {{ __('salary_type_fixed') }}
-                                            @elseif( $row->salary_type == 2 )
-                                            {{ __('salary_type_hourly') }}
-                                            @endif
-                                        </td>
-                                        <td>{{ $row->workShift->title ?? '' }}</td>
-                                        @php
-                                            $payroll_generate = 0;
-                                            $payroll_status = 0;
-                                        @endphp
-                                        @if(isset($payrolls))
-                                        @foreach( $payrolls as $payroll)
-                                            @if($payroll->user_id == $row->id)
-                                            @php
-                                            $payroll_data = $payroll;
-                                            $payroll_generate = 1;
-                                            if($payroll->status == 1){
-                                                $payroll_status = 1;
-                                            }
-                                            @endphp
-                                            @endif
-                                        @endforeach
-                                        @endif
-                                        <td>
-                                            @if( $payroll_generate == 1 )
-                                            @if($payroll_status == 1)
-                                            <span class="badge badge-pill badge-success">{{ __('status_paid') }}</span>
-                                            @else
-                                            <span class="badge badge-pill badge-primary">{{ __('status_generated') }}</span>
-                                            @endif
-                                            @else
-                                            <span class="badge badge-pill badge-danger">{{ __('status_not_generated') }}</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                        @if( $payroll_generate == 0 )
-                                            @can($access.'-action')
-                                            <a href="{{ route($route.'.generate', ['id' => $row->id, 'month' => $selected_month, 'year' => $selected_year]) }}" class="btn btn-icon btn-primary btn-sm">
-                                                <i class="fas fa-plus"></i>
-                                            </a>
-                                            @endcan
-                                        @else
-
-                                            @if(isset($payroll_data))
-                                            @if($payroll_status == 0)
-                                            @can($access.'-action')
-                                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#payModal-{{ $row->id }}">
-                                                <i class="fas fa-money-check"></i> {{ __('btn_pay') }}
-                                            </button>
-                                            <!-- Include Edit modal -->
-                                            @include($view.'.pay')
-                                            @endcan
-
-                                            @can($access.'-action')
-                                            <a href="{{ route($route.'.generate', ['id' => $row->id, 'month' => $selected_month, 'year' => $selected_year]) }}" class="btn btn-icon btn-primary btn-sm">
-                                                <i class="far fa-edit"></i>
-                                            </a>
-                                            @endcan
-
-                                            @else
-                                            @can($access.'-print')
-                                            @if(isset($print) && isset($payroll_data))
-                                            <a href="#" class="btn btn-icon btn-dark btn-sm" onclick="PopupWin('{{ route($route.'.print', ['id' => $payroll_data->id]) }}', '{{ $title }}', 1000, 600);">
-                                                <i class="fas fa-print"></i>
-                                            </a>
-                                            @endif
-                                            @endcan
-
-                                            @can($access.'-action')
-                                            <button type="button" class="btn btn-icon btn-danger btn-sm" title="{{ __('status_unpaid') }}" data-bs-toggle="modal" data-bs-target="#unpayModal-{{ $row->id }}">
-                                                <i class="fas fa-undo"></i>
-                                            </button>
-                                            <!-- Include Unpay modal -->
-                                            @include($view.'.unpay')
-                                            @endcan
-                                            @endif
-                                            @endif
-                                            
-                                        @endif
-                                        </td>
-                                    </tr>
-                                  @endif
-                                  @endforeach
-                                </tbody>
-                                
-                                <caption>{{ date("F Y", strtotime($selected_year.'-'.$selected_month.'-01')) ?? '' }}</caption>
-                            </table>
-                        </div>
-                        <!-- [ Data table ] end -->
-                    </div>
-                    @endif
+            </div>
+            <div class="col-xl-3 col-md-6">
+    <div class="card bg-primary mb-4">
+        <div class="card-body text-white" style="color: white !important;">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 style="color: white !important;">Active Payrolls</h6>
+                    <h3 style="color: white !important;">{{ $activeRuns }}</h3>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-money-bill fa-2x" style="color: white !important;"></i>
                 </div>
             </div>
         </div>
-        <!-- [ Main Content ] end -->
     </div>
 </div>
-<!-- End Content-->
 
-@endsection
+<div class="col-xl-3 col-md-6">
+    <div class="card bg-primary mb-4">
+        <div class="card-body text-white" style="color: white !important;">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 style="color: white !important;">Pending Payments</h6>
+                    <h3 style="color: white !important;">{{ $pendingPayments }}</h3>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-clock fa-2x" style="color: white !important;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-@section('page_js')
-    <script type="text/javascript">
-        "use strict";
-        function salaryCalculator(type, id) {
-          // Get Data
-          var total_earning = $("input[name='total_earning'][data_id='"+type+"-"+id+"']").val();
-          var bonus = $("input[name='bonus'][data_id='"+type+"-"+id+"']").val();
-          var gross_salary = $("input[name='gross_salary'][data_id='"+type+"-"+id+"']").val();
-          var deduction_salary = $("input[name='deduction_salary'][data_id='"+type+"-"+id+"']").val();
-          var total_deduction = $("input[name='total_deduction'][data_id='"+type+"-"+id+"']").val();
-          var tax_amount = $("input[name='tax'][data_id='"+type+"-"+id+"']").val();
-          var net_salary = $("input[name='net_salary'][data_id='"+type+"-"+id+"']").val();
+<div class="col-xl-3 col-md-6">
+    <div class="card bg-primary mb-4">
+        <div class="card-body text-white" style="color: white !important;">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <h6 style="color: white !important;">This Month Net Pay</h6>
+                    <h3 style="color: white !important;">KES {{ number_format($currentMonthNet, 2) }}</h3>
+                </div>
+                <div class="align-self-center">
+                    <i class="fas fa-chart-line fa-2x" style="color: white !important;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-          // Pass Bonus
-          if (isNaN(bonus)) bonus = 0;
-          $("input[name='bonus'][data_id='"+type+"-"+id+"']").val(Math.ceil(bonus));
+        </div>
 
-          // Total Gross
-          var total_gross = parseFloat(total_earning) + parseFloat(bonus);
+        <div class="row">
+            <!-- Recent Attendance with Internal Scroll -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Recent Attendance</h5>
+                        <a href="{{ route('admin.staff-daily-attendance.index') }}" class="btn btn-sm btn-primary">View All</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-striped">
+                                <thead style="position: sticky; top: 0; background: white; z-index: 1;">
+                                    <tr>
+                                        <th>Employee</th>
+                                        <th>Date</th>
+                                        <th>Hours</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    // Get recent attendance from both tables (with conditional hours)
+                                    $fixedAttendance = DB::table('staff_attendances')
+                                        ->join('users', 'staff_attendances.user_id', '=', 'users.id')
+                                        ->select(
+                                            'users.first_name',
+                                            'users.last_name',
+                                            'staff_attendances.date',
+                                            'staff_attendances.start_time',
+                                            'staff_attendances.end_time',
+                                            'staff_attendances.attendance',
+                                            DB::raw("'Normal' as type"),
+                                            DB::raw('CASE 
+                                                WHEN staff_attendances.start_time IS NOT NULL AND staff_attendances.end_time IS NOT NULL 
+                                                THEN TIMESTAMPDIFF(HOUR, staff_attendances.start_time, staff_attendances.end_time)
+                                                ELSE NULL 
+                                            END as hours_worked')
+                                        )
+                                        ->orderBy('staff_attendances.date', 'desc')
+                                        ->limit(10);
 
-            // Calculate Tax
-            @php
-            if(isset($taxs)){
-            foreach($taxs as $key =>$value){
-                $taxs[$key] = json_decode(json_encode($value));
-            }
-            @endphp
+                                    $recentAttendance = DB::table('staff_hourly_attendances')
+                                        ->join('users', 'staff_hourly_attendances.user_id', '=', 'users.id')
+                                        ->select(
+                                            'users.first_name',
+                                            'users.last_name',
+                                            'staff_hourly_attendances.date',
+                                            'staff_hourly_attendances.start_time',
+                                            'staff_hourly_attendances.end_time',
+                                            'staff_hourly_attendances.attendance',
+                                            DB::raw("'Hourly' as type"),
+                                            DB::raw('CASE 
+                                                WHEN staff_hourly_attendances.start_time IS NOT NULL AND staff_hourly_attendances.end_time IS NOT NULL 
+                                                THEN TIMESTAMPDIFF(HOUR, staff_hourly_attendances.start_time, staff_hourly_attendances.end_time)
+                                                ELSE NULL 
+                                            END as hours_worked')
+                                        )
+                                        ->union($fixedAttendance)
+                                        ->orderBy('date', 'desc')
+                                        ->limit(20)
+                                        ->get();
+                                    ?>
 
-            var taxs = <?php echo json_encode($taxs); ?>;
+                                    @if($recentAttendance->count() > 0)
+                                        @foreach($recentAttendance as $attendance)
+                                        <tr>
+                                            <td>{{ $attendance->first_name }} {{ $attendance->last_name }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}</td>
+                                            <td>
+                                                @if($attendance->hours_worked)
+                                                    <span class="badge bg-info">{{ $attendance->hours_worked }}h</span>
+                                                @else
+                                                    <span class="text-muted">N/A</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($attendance->type == 'Normal')
+                                                <span class="badge bg-primary">Normal</span>
+                                                @else
+                                                <span class="badge bg-warning">Hourly</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($attendance->attendance == 1)
+                                                <span class="badge bg-success">Present</span>
+                                                @elseif($attendance->attendance == 2)
+                                                <span class="badge bg-danger">Absent</span>
+                                                @elseif($attendance->attendance == 3)
+                                                <span class="badge bg-info">Leave</span>
+                                                @else
+                                                <span class="badge bg-secondary">Holiday</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted py-3">No attendance records found</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            var i;
-            for (i = 0; i < taxs.length; ++i) {
-                if(taxs[i]['min_amount'] <= total_gross && taxs[i]['max_amount'] >= total_gross){
+            <!-- Enhanced Tax Settings Overview with Direct SQL -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Payroll Components Overview</h5>
+                        <a href="{{ route('admin.payroll-components.index') }}" class="btn btn-sm btn-primary">Manage Components</a>
+                    </div>
+                    <div class="card-body">
+                        <?php
+                        // Direct SQL queries to get component statistics
+                        $componentStats = DB::select("
+                            SELECT 
+                                type,
+                                COUNT(*) as total,
+                                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active,
+                                SUM(CASE WHEN is_statutory = 1 THEN 1 ELSE 0 END) as statutory,
+                                SUM(CASE WHEN is_taxable = 1 THEN 1 ELSE 0 END) as taxable
+                            FROM payroll_components 
+                            GROUP BY type
+                        ");
 
-                    var taxable_amount = total_gross - taxs[i]['max_no_taxable_amount'];
+                        $earningComponents = DB::select("
+                            SELECT * FROM payroll_components 
+                            WHERE type = 'earning' AND is_active = 1 
+                            ORDER BY name
+                        ");
 
-                    var tax_amount = (taxable_amount / 100) * taxs[i]['percentange'];
-                }
-            }
-            @php } @endphp
+                        $deductionComponents = DB::select("
+                            SELECT * FROM payroll_components 
+                            WHERE type = 'deduction' AND is_active = 1 
+                            ORDER BY name
+                        ");
+
+                        $calculationTypes = DB::select("
+                            SELECT 
+                                calculation_type,
+                                COUNT(*) as count
+                            FROM payroll_components 
+                            WHERE is_active = 1
+                            GROUP BY calculation_type
+                        ");
+                        ?>
+
+                        <div class="row text-center mb-3">
+                            @foreach($componentStats as $stat)
+                            <div class="col-6 mb-3">
+                                <div class="border rounded p-3 bg-light">
+                                    <h6 class="text-{{ $stat->type == 'earning' ? 'success' : 'danger' }}">
+                                        {{ ucfirst($stat->type) }} Components
+                                    </h6>
+                                    <h4 class="text-{{ $stat->type == 'earning' ? 'success' : 'danger' }}">
+                                        {{ $stat->active }}/{{ $stat->total }}
+                                    </h4>
+                                    <small class="text-muted">
+                                        Active: {{ $stat->active }} | 
+                                        Statutory: {{ $stat->statutory }} |
+                                        Taxable: {{ $stat->taxable }}
+                                    </small>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                        
+                        <div class="row text-center mb-3">
+                            @foreach($calculationTypes as $calcType)
+                            <div class="col-4">
+                                <div class="border rounded p-2 bg-white">
+                                    <small class="text-muted">{{ ucfirst($calcType->calculation_type) }}</small>
+                                    <br>
+                                    <strong class="text-primary">{{ $calcType->count }}</strong>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        <div class="mt-3">
+                            <h6>Active Components Breakdown:</h6>
+                            <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Component Name</th>
+                                            <th>Type</th>
+                                            <th>Calculation</th>
+                                            <th>Amount/Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($earningComponents as $component)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $component->name }}</strong>
+                                                @if($component->is_statutory)
+                                                <br><small class="text-warning">Statutory</small>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">Earning</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ ucfirst($component->calculation_type) }}</span>
+                                            </td>
+                                            <td>
+                                                @if($component->calculation_type == 'percentage')
+                                                {{ $component->percentage }}%
+                                                @elseif($component->calculation_type == 'fixed')
+                                                KES {{ number_format($component->default_amount, 2) }}
+                                                @else
+                                                Formula
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                        
+                                        @foreach($deductionComponents as $component)
+                                        <tr>
+                                            <td>
+                                                <strong>{{ $component->name }}</strong>
+                                                @if($component->is_statutory)
+                                                <br><small class="text-warning">Statutory</small>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger">Deduction</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ ucfirst($component->calculation_type) }}</span>
+                                            </td>
+                                            <td>
+                                                @if($component->calculation_type == 'percentage')
+                                                {{ $component->percentage }}%
+                                                @elseif($component->calculation_type == 'fixed')
+                                                KES {{ number_format($component->default_amount, 2) }}
+                                                @else
+                                                Formula
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                        
+                                        @if(count($earningComponents) == 0 && count($deductionComponents) == 0)
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">No active components found</td>
+                                        </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Payroll Runs Summary with Month Filter -->
+        <div class="row mt-4">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Monthly Payroll Summary</h5>
+                            <div>
+                                <!-- Month Filter -->
+                                <select id="monthFilter" class="form-select form-select-sm" style="width: auto; display: inline-block;">
+                                    <option value="">All Months</option>
+                                    <?php
+                                    // Get unique months from payroll runs for filter
+                                    $months = DB::select("
+                                        SELECT 
+                                            DISTINCT YEAR(run_date) as year,
+                                            MONTH(run_date) as month,
+                                            DATE_FORMAT(run_date, '%M %Y') as month_name
+                                        FROM payroll_runs 
+                                        ORDER BY run_date DESC
+                                    ");
+                                    ?>
+                                    @foreach($months as $month)
+                                    <option value="{{ $month->year }}-{{ $month->month }}">
+                                        {{ $month->month_name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                
+                                <a href="{{ route($route.'.create') }}" class="btn btn-primary btn-sm ms-2">
+                                    <i class="fas fa-plus"></i> Generate New Payroll
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if($monthlyRuns->count() > 0)
+                            @foreach($monthlyRuns as $monthly)
+                            <div class="card mb-3 monthly-section" data-month="{{ $monthly->year }}-{{ $monthly->month }}">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-calendar-alt me-2"></i>
+                                        {{ $monthly->month_name }}
+                                        <span class="badge bg-primary ms-2">{{ $monthly->run_count }} Run(s)</span>
+                                        
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-3">
+                                            <div class="card bg-primary text-white">
+                                                <div class="card-body text-center p-2">
+                                                    <strong>Total Gross</strong><br>
+                                                    KES {{ number_format($monthly->total_gross, 2) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-primary text-white">
+                                                <div class="card-body text-center p-2">
+                                                    <strong>Total Tax</strong><br>
+                                                    KES {{ number_format($monthly->total_tax, 2) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-primary text-white">
+                                                <div class="card-body text-center p-2">
+                                                    <strong>Total Net Pay</strong><br>
+                                                    KES {{ number_format($monthly->total_net, 2) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card bg-primary text-white">
+                                                <div class="card-body text-center p-2">
+                                                    <strong>Success Rate</strong><br>
+                                                    {{ $monthly->total_employees > 0 ? round(($monthly->successful_entries / $monthly->total_employees) * 100, 1) : 0 }}%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Individual runs for this month -->
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Run Date</th>
+                                                    <th>Period</th>
+                                                    <th>Employees</th>
+                                                    <th>Gross</th>
+                                                    <th>Tax</th>
+                                                    <th>Net Pay</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($monthly->runs as $run)
+                                                <?php
+                                                // Direct SQL to get accurate counts and totals for this run
+                                                $runDetails = DB::select("
+                                                    SELECT 
+                                                        COUNT(*) as employee_count,
+                                                        COALESCE(SUM(gross_earnings), 0) as total_gross,
+                                                        COALESCE(SUM(paye_net), 0) as total_tax,
+                                                        COALESCE(SUM(net_pay), 0) as total_net
+                                                    FROM payroll_entries 
+                                                    WHERE payroll_run_id = ?
+                                                ", [$run->id]);
+                                                
+                                                $details = $runDetails[0] ?? null;
+                                                ?>
+                                                <tr>
+                                                    <td>{{ $run->run_date->format('d M Y') }}</td>
+                                                    <td>{{ $run->period->name ?? 'N/A' }}</td>
+                                                    <td>
+                                                        <span class="badge bg-primary">{{ $details->employee_count ?? 0 }}</span>
+                                                    </td>
+                                                    <td>KES {{ number_format($details->total_gross ?? 0, 2) }}</td>
+                                                    <td>KES {{ number_format($details->total_tax ?? 0, 2) }}</td>
+                                                    <td><strong>KES {{ number_format($details->total_net ?? 0, 2) }}</strong></td>
+                                                    <td>
+                                                        <span class="badge bg-{{ $run->status == 'computed' ? 'warning' : ($run->status == 'paid' ? 'success' : 'secondary') }}">
+                                                            {{ ucfirst($run->status) }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a href="{{ route($route.'.run.show', $run->id) }}" class="btn btn-info" title="View Details">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        @else
+                            <div class="text-center py-4">
+                                <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No payroll runs found</h5>
+                                <p class="text-muted">Generate your first payroll run to see the summary here.</p>
+                                <a href="{{ route($route.'.create') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Generate Payroll
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Month Filter -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const monthFilter = document.getElementById('monthFilter');
+    
+    if (monthFilter) {
+        monthFilter.addEventListener('change', function() {
+            const selectedMonth = this.value;
+            const monthlySections = document.querySelectorAll('.monthly-section');
             
+            monthlySections.forEach(section => {
+                if (selectedMonth === '' || section.getAttribute('data-month') === selectedMonth) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
 
-          // Net Total
-          var total_deduction = parseFloat(deduction_salary) + parseFloat(tax_amount);
-          var net_total = parseFloat(total_gross) - parseFloat(tax_amount);
-
-          // Pass Data
-          $("input[name='gross_salary'][data_id='"+type+"-"+id+"']").val(Math.ceil(total_gross));
-          $("input[name='tax'][data_id='"+type+"-"+id+"']").val(Math.ceil(tax_amount));
-          $("input[name='total_deduction'][data_id='"+type+"-"+id+"']").val(Math.ceil(total_deduction));
-          $("input[name='net_salary'][data_id='"+type+"-"+id+"']").val(Math.ceil(net_total));
-        }
-    </script>
 @endsection

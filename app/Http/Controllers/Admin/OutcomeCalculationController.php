@@ -8,6 +8,10 @@ use App\Models\IncomeCategory;
 use Illuminate\Http\Request;
 use App\Models\Expense;
 use App\Models\Income;
+use App\Models\PayrollEntry;
+use App\Models\PayrollRun;
+use App\Models\Reconciliation;
+use App\Models\Payment;
 use Carbon\Carbon;
 use Toastr;
 
@@ -26,7 +30,6 @@ class OutcomeCalculationController extends Controller
         $this->view = 'admin.outcome';
         $this->access = 'outcome';
 
-
         $this->middleware('permission:'.$this->access.'-view', ['only' => ['index', 'show']]);
     }
 
@@ -37,12 +40,10 @@ class OutcomeCalculationController extends Controller
      */
     public function index(Request $request)
     {
-        //
         $data['title'] = $this->title;
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
-
 
         if(!empty($request->start_date) || $request->start_date != null){
             $data['start_date'] = $start_date = $request->start_date;
@@ -51,7 +52,6 @@ class OutcomeCalculationController extends Controller
         else{
             $data['start_date'] = $start_date = date("Y-m-d", strtotime(Carbon::today()->subYears(1)));
             $data['date_range'] = '12';
-
         }
 
         if(!empty($request->end_date) || $request->end_date != null){
@@ -61,43 +61,156 @@ class OutcomeCalculationController extends Controller
             $data['end_date'] = $end_date = date("Y-m-d", strtotime(Carbon::today()));
         }
 
-        
+        // Income Calculations
         $data['total_income'] = Income::where('date', '>=', $start_date)
                             ->where('date', '<=', $end_date)
                             ->where('status', '1')
                             ->sum('amount');
 
+        // Expense Calculations
         $data['total_expense'] = Expense::where('date', '>=', $start_date)
                             ->where('date', '<=', $end_date)
                             ->where('status', '1')
                             ->sum('amount');
 
-        // Pie Chart
+        // Payroll Calculations
+        $data['total_payroll'] = PayrollEntry::whereHas('run', function($query) use ($start_date, $end_date) {
+                                $query->where('run_date', '>=', $start_date)
+                                      ->where('run_date', '<=', $end_date);
+                            })
+                            ->where('is_paid', 1)
+                            ->sum('net_pay');
+
+        $data['total_gross_payroll'] = PayrollEntry::whereHas('run', function($query) use ($start_date, $end_date) {
+                                $query->where('run_date', '>=', $start_date)
+                                      ->where('run_date', '<=', $end_date);
+                            })
+                            ->where('is_paid', 1)
+                            ->sum('gross_earnings');
+
+        $data['total_payroll_taxes'] = PayrollEntry::whereHas('run', function($query) use ($start_date, $end_date) {
+                                $query->where('run_date', '>=', $start_date)
+                                      ->where('run_date', '<=', $end_date);
+                            })
+                            ->where('is_paid', 1)
+                            ->sum('paye_net');
+
+        // NEW: Student Fees Reconciled (including bursaries)
+        $data['student_fees_reconciled'] = Payment::where('payment_date', '>=', $start_date)
+                                    ->where('payment_date', '<=', $end_date)
+                                    ->where('status', 'completed') // Using 'completed' status from your table
+                                    ->where('is_reconciled', 1)
+                                    ->sum('amount');
+
+        // NEW: Bursaries Amount (both reconciled and non-reconciled)
+        $data['bursaries_amount'] = Payment::where('payment_date', '>=', $start_date)
+                                ->where('payment_date', '<=', $end_date)
+                                ->where('status', 'completed')
+                                ->where('is_bursary', 1)
+                                ->sum('amount');
+
+        // NEW: Reconciled Bursaries
+        $data['bursaries_reconciled'] = Payment::where('payment_date', '>=', $start_date)
+                                    ->where('payment_date', '<=', $end_date)
+                                    ->where('status', 'completed')
+                                    ->where('is_bursary', 1)
+                                    ->where('is_reconciled', 1)
+                                    ->sum('amount');
+
+        // NEW: Total Student Fees (including bursaries) - Reconciled
+        $data['total_student_fees_reconciled'] = $data['student_fees_reconciled'] + $data['bursaries_reconciled'];
+
+        // NEW: Total Payable Reconciled (from reconciliations table - expenses)
+        $data['total_payable_reconciled'] = Reconciliation::where('reconciliation_date', '>=', $start_date)
+                                        ->where('reconciliation_date', '<=', $end_date)
+                                        ->where('type', 'expense')
+                                        ->where('status', 'reconciled')
+                                        ->sum('amount');
+
+        // NEW: Receivable Reconciled (from reconciliations table - income)
+        $data['receivable_reconciled'] = Reconciliation::where('reconciliation_date', '>=', $start_date)
+                                    ->where('reconciliation_date', '<=', $end_date)
+                                    ->where('type', 'income')
+                                    ->where('status', 'reconciled')
+                                    ->sum('amount');
+
+        // NEW: Total Overall Outcome Calculation
+        $data['total_overall_outcome'] = $data['total_student_fees_reconciled'] + $data['receivable_reconciled'];
+
+        // Pie Chart Data
         $data['income_categories'] = IncomeCategory::where('status', '1')
                             ->orderBy('title', 'asc')->get();
 
         $data['expense_categories'] = ExpenseCategory::where('status', '1')
                             ->orderBy('title', 'asc')->get();
 
-
         $year = Carbon::parse(Carbon::today())->format('Y');
         $month = Carbon::parse(Carbon::today())->format('m');
         $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        //Line Chart
+        // Line Chart Data
         $monthly_incomes = [];
         $monthly_expenses = [];
-
+        $monthly_payroll = [];
+        $monthly_student_fees_reconciled = [];
+        $monthly_bursaries_reconciled = [];
+        $monthly_total_student_fees_reconciled = [];
+        $monthly_total_payable_reconciled = [];
+        $monthly_receivable_reconciled = [];
+        $monthly_total_overall_outcome = [];
 
         for($i = 1; $i <= $month; $i++){
             $monthly_incomes[] = Income::where('status', '1')->whereYear('date', $year)->whereMonth('date', $i)->sum('amount');
-        }
-        for($j = 1; $j <= $month; $j++){
-            $monthly_expenses[] = Expense::where('status', '1')->whereYear('date', $year)->whereMonth('date', $j)->sum('amount');
+            $monthly_expenses[] = Expense::where('status', '1')->whereYear('date', $year)->whereMonth('date', $i)->sum('amount');
+            
+            $monthly_payroll[] = PayrollEntry::whereHas('run', function($query) use ($year, $i) {
+                $query->whereYear('run_date', $year)
+                      ->whereMonth('run_date', $i);
+            })->where('is_paid', 1)->sum('net_pay');
+
+            // NEW: Monthly reconciled data
+            $monthly_student_fees_reconciled[] = Payment::where('status', 'completed')
+                                                ->where('is_reconciled', 1)
+                                                ->where('is_bursary', 0) // Regular fees only
+                                                ->whereYear('payment_date', $year)
+                                                ->whereMonth('payment_date', $i)
+                                                ->sum('amount');
+
+            $monthly_bursaries_reconciled[] = Payment::where('status', 'completed')
+                                            ->where('is_reconciled', 1)
+                                            ->where('is_bursary', 1) // Bursaries only
+                                            ->whereYear('payment_date', $year)
+                                            ->whereMonth('payment_date', $i)
+                                            ->sum('amount');
+
+            $monthly_total_student_fees_reconciled[] = $monthly_student_fees_reconciled[$i-1] + $monthly_bursaries_reconciled[$i-1];
+
+            $monthly_total_payable_reconciled[] = Reconciliation::where('type', 'expense')
+                                                    ->where('status', 'reconciled')
+                                                    ->whereYear('reconciliation_date', $year)
+                                                    ->whereMonth('reconciliation_date', $i)
+                                                    ->sum('amount');
+
+            $monthly_receivable_reconciled[] = Reconciliation::where('type', 'income')
+                                                ->where('status', 'reconciled')
+                                                ->whereYear('reconciliation_date', $year)
+                                                ->whereMonth('reconciliation_date', $i)
+                                                ->sum('amount');
+
+            $monthly_total_overall_outcome[] = $monthly_total_student_fees_reconciled[$i-1] + $monthly_receivable_reconciled[$i-1];
         }
 
-
-        return view($this->view.'.index', $data)->with('months', json_encode($months,JSON_NUMERIC_CHECK))->with('monthly_incomes', json_encode($monthly_incomes,JSON_NUMERIC_CHECK))->with('monthly_expenses', json_encode($monthly_expenses,JSON_NUMERIC_CHECK));
+        return view($this->view.'.index', $data)
+            ->with('months', json_encode($months,JSON_NUMERIC_CHECK))
+            ->with('monthly_incomes', json_encode($monthly_incomes,JSON_NUMERIC_CHECK))
+            ->with('monthly_expenses', json_encode($monthly_expenses,JSON_NUMERIC_CHECK))
+            ->with('monthly_payroll', json_encode($monthly_payroll,JSON_NUMERIC_CHECK))
+            ->with('monthly_student_fees_reconciled', json_encode($monthly_student_fees_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_bursaries_reconciled', json_encode($monthly_bursaries_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_total_student_fees_reconciled', json_encode($monthly_total_student_fees_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_total_payable_reconciled', json_encode($monthly_total_payable_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_receivable_reconciled', json_encode($monthly_receivable_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_total_overall_outcome', json_encode($monthly_total_overall_outcome,JSON_NUMERIC_CHECK));
     }
 
     /**
@@ -108,12 +221,10 @@ class OutcomeCalculationController extends Controller
      */
     public function show($id)
     {
-        //
         $data['title'] = $this->title;
         $data['route'] = $this->route;
         $data['view'] = $this->view;
         $data['access'] = $this->access;
-
 
         // Start Date
         if($id != 0){
@@ -128,42 +239,155 @@ class OutcomeCalculationController extends Controller
 
         $data['date_range'] = $id;
 
-
+        // Income Calculations
         $data['total_income'] = Income::where('date', '>=', $start_date)
                             ->where('date', '<=', $end_date)
                             ->where('status', '1')
                             ->sum('amount');
 
+        // Expense Calculations
         $data['total_expense'] = Expense::where('date', '>=', $start_date)
                             ->where('date', '<=', $end_date)
                             ->where('status', '1')
                             ->sum('amount');
 
-        // Pie Chart
+        // Payroll Calculations
+        $data['total_payroll'] = PayrollEntry::whereHas('run', function($query) use ($start_date, $end_date) {
+                                $query->where('run_date', '>=', $start_date)
+                                      ->where('run_date', '<=', $end_date);
+                            })
+                            ->where('is_paid', 1)
+                            ->sum('net_pay');
+
+        $data['total_gross_payroll'] = PayrollEntry::whereHas('run', function($query) use ($start_date, $end_date) {
+                                $query->where('run_date', '>=', $start_date)
+                                      ->where('run_date', '<=', $end_date);
+                            })
+                            ->where('is_paid', 1)
+                            ->sum('gross_earnings');
+
+        $data['total_payroll_taxes'] = PayrollEntry::whereHas('run', function($query) use ($start_date, $end_date) {
+                                $query->where('run_date', '>=', $start_date)
+                                      ->where('run_date', '<=', $end_date);
+                            })
+                            ->where('is_paid', 1)
+                            ->sum('paye_net');
+
+        // NEW: Student Fees Reconciled (including bursaries)
+        $data['student_fees_reconciled'] = Payment::where('payment_date', '>=', $start_date)
+                                    ->where('payment_date', '<=', $end_date)
+                                    ->where('status', 'completed')
+                                    ->where('is_reconciled', 1)
+                                    ->sum('amount');
+
+        // NEW: Bursaries Amount (both reconciled and non-reconciled)
+        $data['bursaries_amount'] = Payment::where('payment_date', '>=', $start_date)
+                                ->where('payment_date', '<=', $end_date)
+                                ->where('status', 'completed')
+                                ->where('is_bursary', 1)
+                                ->sum('amount');
+
+        // NEW: Reconciled Bursaries
+        $data['bursaries_reconciled'] = Payment::where('payment_date', '>=', $start_date)
+                                    ->where('payment_date', '<=', $end_date)
+                                    ->where('status', 'completed')
+                                    ->where('is_bursary', 1)
+                                    ->where('is_reconciled', 1)
+                                    ->sum('amount');
+
+        // NEW: Total Student Fees (including bursaries) - Reconciled
+        $data['total_student_fees_reconciled'] = $data['student_fees_reconciled'] + $data['bursaries_reconciled'];
+
+        // NEW: Total Payable Reconciled
+        $data['total_payable_reconciled'] = Reconciliation::where('reconciliation_date', '>=', $start_date)
+                                        ->where('reconciliation_date', '<=', $end_date)
+                                        ->where('type', 'expense')
+                                        ->where('status', 'reconciled')
+                                        ->sum('amount');
+
+        // NEW: Receivable Reconciled
+        $data['receivable_reconciled'] = Reconciliation::where('reconciliation_date', '>=', $start_date)
+                                    ->where('reconciliation_date', '<=', $end_date)
+                                    ->where('type', 'income')
+                                    ->where('status', 'reconciled')
+                                    ->sum('amount');
+
+        // NEW: Total Overall Outcome Calculation
+        $data['total_overall_outcome'] = $data['total_student_fees_reconciled'] + $data['receivable_reconciled'];
+
+        // Pie Chart Data
         $data['income_categories'] = IncomeCategory::where('status', '1')
                             ->orderBy('title', 'asc')->get();
 
         $data['expense_categories'] = ExpenseCategory::where('status', '1')
                             ->orderBy('title', 'asc')->get();
-        
 
         $year = Carbon::parse(Carbon::today())->format('Y');
         $month = Carbon::parse(Carbon::today())->format('m');
         $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        //Line Chart
+        // Line Chart Data
         $monthly_incomes = [];
         $monthly_expenses = [];
-
+        $monthly_payroll = [];
+        $monthly_student_fees_reconciled = [];
+        $monthly_bursaries_reconciled = [];
+        $monthly_total_student_fees_reconciled = [];
+        $monthly_total_payable_reconciled = [];
+        $monthly_receivable_reconciled = [];
+        $monthly_total_overall_outcome = [];
 
         for($i = 1; $i <= $month; $i++){
             $monthly_incomes[] = Income::where('status', '1')->whereYear('date', $year)->whereMonth('date', $i)->sum('amount');
-        }
-        for($j = 1; $j <= $month; $j++){
-            $monthly_expenses[] = Expense::where('status', '1')->whereYear('date', $year)->whereMonth('date', $j)->sum('amount');
+            $monthly_expenses[] = Expense::where('status', '1')->whereYear('date', $year)->whereMonth('date', $i)->sum('amount');
+            
+            $monthly_payroll[] = PayrollEntry::whereHas('run', function($query) use ($year, $i) {
+                $query->whereYear('run_date', $year)
+                      ->whereMonth('run_date', $i);
+            })->where('is_paid', 1)->sum('net_pay');
+
+            // NEW: Monthly reconciled data
+            $monthly_student_fees_reconciled[] = Payment::where('status', 'completed')
+                                                ->where('is_reconciled', 1)
+                                                ->where('is_bursary', 0) // Regular fees only
+                                                ->whereYear('payment_date', $year)
+                                                ->whereMonth('payment_date', $i)
+                                                ->sum('amount');
+
+            $monthly_bursaries_reconciled[] = Payment::where('status', 'completed')
+                                            ->where('is_reconciled', 1)
+                                            ->where('is_bursary', 1) // Bursaries only
+                                            ->whereYear('payment_date', $year)
+                                            ->whereMonth('payment_date', $i)
+                                            ->sum('amount');
+
+            $monthly_total_student_fees_reconciled[] = $monthly_student_fees_reconciled[$i-1] + $monthly_bursaries_reconciled[$i-1];
+
+            $monthly_total_payable_reconciled[] = Reconciliation::where('type', 'expense')
+                                                    ->where('status', 'reconciled')
+                                                    ->whereYear('reconciliation_date', $year)
+                                                    ->whereMonth('reconciliation_date', $i)
+                                                    ->sum('amount');
+
+            $monthly_receivable_reconciled[] = Reconciliation::where('type', 'income')
+                                                ->where('status', 'reconciled')
+                                                ->whereYear('reconciliation_date', $year)
+                                                ->whereMonth('reconciliation_date', $i)
+                                                ->sum('amount');
+
+            $monthly_total_overall_outcome[] = $monthly_total_student_fees_reconciled[$i-1] + $monthly_receivable_reconciled[$i-1];
         }
 
-
-        return view($this->view.'.index', $data)->with('months', json_encode($months,JSON_NUMERIC_CHECK))->with('monthly_incomes', json_encode($monthly_incomes,JSON_NUMERIC_CHECK))->with('monthly_expenses', json_encode($monthly_expenses,JSON_NUMERIC_CHECK));
+        return view($this->view.'.index', $data)
+            ->with('months', json_encode($months,JSON_NUMERIC_CHECK))
+            ->with('monthly_incomes', json_encode($monthly_incomes,JSON_NUMERIC_CHECK))
+            ->with('monthly_expenses', json_encode($monthly_expenses,JSON_NUMERIC_CHECK))
+            ->with('monthly_payroll', json_encode($monthly_payroll,JSON_NUMERIC_CHECK))
+            ->with('monthly_student_fees_reconciled', json_encode($monthly_student_fees_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_bursaries_reconciled', json_encode($monthly_bursaries_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_total_student_fees_reconciled', json_encode($monthly_total_student_fees_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_total_payable_reconciled', json_encode($monthly_total_payable_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_receivable_reconciled', json_encode($monthly_receivable_reconciled,JSON_NUMERIC_CHECK))
+            ->with('monthly_total_overall_outcome', json_encode($monthly_total_overall_outcome,JSON_NUMERIC_CHECK));
     }
 }

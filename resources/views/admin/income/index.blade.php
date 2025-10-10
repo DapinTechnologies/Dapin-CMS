@@ -10,7 +10,7 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ $title }} {{ __('list') }}</h5>
+                        <h5>Receivable {{ __('list') }}</h5>
                     </div>
                     <div class="card-block">
                         @can($access.'-create')
@@ -80,7 +80,7 @@
                                         <th>#</th>
                                         <th>{{ __('field_title') }}</th>
                                         <th>{{ __('field_category') }}</th>
-                                        <th>{{ __('field_invoice_id') }}</th>
+                                        <th>Reference Code</th>
                                         <th>{{ __('field_amount') }}</th>
                                         <th>{{ __('field_date') }}</th>
                                         <th>{{ __('field_payment_method') }}</th>
@@ -93,7 +93,19 @@
                                         <td>{{ $key + 1 }}</td>
                                         <td>{!! str_limit($row->title, 30, ' ...') !!}</td>
                                         <td>{{ $row->category->title ?? '' }}</td>
-                                        <td>{{ $row->invoice_id }}</td>
+                                        <td>
+    @if($row->receivableInvoice)
+        <span class="badge badge-pill badge-info" title="Invoice: {{ $row->receivableInvoice->invoice_no }}">
+            {{ $row->receivableInvoice->invoice_no }}
+        </span>
+    @elseif($row->invoice_id)
+        <span class="badge badge-pill badge-secondary">
+            {{ $row->invoice_id }}
+        </span>
+    @else
+        <span class="text-muted">N/A</span>
+    @endif
+</td>
                                         <td>{{ round($row->amount, $setting->decimal_place ?? 2) }} {!! $setting->currency_symbol !!}</td>
                                         <td>
                                             @if(isset($setting->date_format))
@@ -119,6 +131,9 @@
                                             <button type="button" class="btn btn-icon btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#showModal-{{ $row->id }}">
                                                 <i class="fas fa-eye"></i>
                                             </button>
+                                            <a href="{{ route($route.'.receipt', $row->id) }}" class="btn btn-icon btn-warning btn-sm" target="_blank">
+    <i class="fas fa-receipt"></i>
+</a>
                                             <!-- Include Show modal -->
                                             @include($view.'.show')
 
