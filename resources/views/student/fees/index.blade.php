@@ -127,27 +127,31 @@
                                         </td>
                             
                                         <!-- Action -->
-                                        <td class="text-center">
-                                            @php
-                                            $queryData = [
-                                                'fee_id' => $row->id,
-                                                'student_id' => Auth::user()->id,
-                                                'fee_category_id' => $row->category->id ?? '',
-                                                'due_date' => $row->due_date ?? '',
-                                                'fee_amount' => $row->fee_amount,
-                                                'paid_amount' => $row->paid_amount ?? 0,
-                                                'phone_number' => Auth::user()->phone,
-                                            ];
-                                            $queryString = http_build_query($queryData);
-                                        @endphp
-                                        
-                                        <a href="{{ route('paymentprocess', $row->id) }}?{{ $queryString }}" 
-                                           class="btn btn-success" 
-                                           style="padding: 4px 8px; font-size: 12px;">
-                                            <i class="fas fa-money-bill-alt"></i> {{ __('Pay') }}
-                                        </a>
-                                        
-                                        </td>
+
+
+                                      <td class="text-center">
+    @php
+    $queryData = [
+        'fee_id' => $row->id,
+        'student_id' => Auth::user()->id,
+        'fee_category_id' => $row->category->id ?? '',
+        'due_date' => $row->due_date ?? '',
+        'fee_amount' => $row->fee_amount,
+        'paid_amount' => $row->paid_amount ?? 0,
+        'phone_number' => Auth::user()->phone,
+    ];
+    $queryString = http_build_query($queryData);
+    @endphp
+    
+    <!-- Use the correct route with parameter -->
+    <a href="{{ route('paymentprocess', ['feeId' => $row->id]) }}?{{ $queryString }}" 
+       class="btn btn-success" 
+       style="padding: 4px 8px; font-size: 12px;">
+        <i class="fas fa-money-bill-alt"></i> {{ __('Pay') }}
+    </a>
+</td>
+
+
                                     </tr>
                                     @endforeach
                                 </tbody>

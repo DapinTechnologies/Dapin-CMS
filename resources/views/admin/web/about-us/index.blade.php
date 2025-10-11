@@ -24,8 +24,16 @@
 </div>
             <div class="col-sm-12">
                 <!-- Main Form - Wrapping all content including modals -->
-                <form class="needs-validation" novalidate action="{{ route($route.'.store') }}" method="post" enctype="multipart/form-data">
+            <form action="{{ route('admin.about-us.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+
+
+
+ <input name="id" type="hidden" value="{{ isset($row->id) ? $row->id : -1 }}">
+    
+    <!-- Add a test field -->
+    <input type="hidden" name="debug_test" value="form_is_working">
+
                     <div class="card">
                       
                         

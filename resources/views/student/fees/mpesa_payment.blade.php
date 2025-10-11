@@ -5,6 +5,8 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
   
+
+    
 <!-- Start Content-->
 <div class="main-body">
     <div class="page-wrapper">
@@ -36,9 +38,8 @@
                 
                 <!-- Now you can use $balance and other fee details in the form -->
                 
-                <form method="post" action="{{ route('feepaymentmpesa', ['id' => $formData['fee_category_id']]) }}" >
-                    @csrf
-                    
+             <form method="post" action="{{ route('initiatepush') }}">
+    @csrf
                     <div class="card-block">
                         <!-- Display Fee Category Name -->
                         <div class="row">

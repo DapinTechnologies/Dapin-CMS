@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Student;
 use App\Models\Material;
 use App\Models\Category;
+
 use Auth;
 use Str;
 use Illuminate\Support\Facades\Storage;
@@ -71,6 +72,41 @@ public function CateEdit($id){
 }
 
 }
+/**
+ * Handle student digital files access
+ * This method is called by some existing route
+ */
+public function DigitalFilestudent(Request $request)
+{
+    $query = Material::with('category');
+    
+    // Search functionality
+    if ($request->has('query') && $request->query('query')) {
+        $searchTerm = $request->query('query');
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('title', 'LIKE', "%{$searchTerm}%")
+              ->orWhere('author', 'LIKE', "%{$searchTerm}%")
+              ->orWhere('publisher', 'LIKE', "%{$searchTerm}%");
+        });
+    }
+    
+    $materials = $query->paginate(12); // This returns LengthAwarePaginator
+    return view('student.digital.index', compact('materials'));
+}
+
+
+public function viewMaterial($id)
+{
+   // dd($id);
+    $material = Material::findOrFail($id);
+    
+    return view('student.digital.view', compact('material'));
+}
+
+
+
+
+
 
 public function CateUpdate(Request $request,$id){
    // dd($request->all());
@@ -379,13 +415,19 @@ public function searchdigitalbook(Request $request)
 
 
 
-public function viewdigitalSingle($id){
-    //dd($id);
-
-    $material = Material::findOrFail($id);
-    //dd($material);
-    return view('student.digital.view', compact('material'));
-
+public function viewdigitalSingle($id)
+{
+    try {
+        $material = Material::findOrFail($id);
+        
+        // Log for debugging
+        \Log::info("Viewing material: " . $material->title . " | Type: " . $material->type . " | File: " . $material->file_path);
+        
+        return view('student.digital.view', compact('material'));
+    } catch (\Exception $e) {
+        \Log::error("Error loading material ID {$id}: " . $e->getMessage());
+        abort(404, 'Material not found');
+    }
 }
 public function download($id)
 {

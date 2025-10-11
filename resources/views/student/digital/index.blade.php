@@ -24,6 +24,7 @@ h2 {
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
+    gap: 10px;
 }
 
 .search-input {
@@ -40,6 +41,18 @@ h2 {
 .search-input:focus {
     box-shadow: 0 0 10px rgba(0, 123, 255, 0.25);
     border-color: #007bff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
 }
 
 /* Card Styling */
@@ -66,7 +79,12 @@ h2 {
 }
 
 .material-thumbnail:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
+}
+
+.material-link {
+    display: block;
+    overflow: hidden;
 }
 
 /* Card Body */
@@ -105,6 +123,15 @@ h2 {
         font-size: 1.5rem;
     }
 
+    .search-bar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-input {
+        margin-bottom: 10px;
+    }
+
     .card-title {
         font-size: 1rem;
     }
@@ -119,19 +146,20 @@ h2 {
     <h2 class="text-center mb-4">Digital Library</h2>
 
     <!-- Search Bar -->
-    <form action="{{ route('library.index') }}" method="GET" class="search-bar">
+    <form action="" method="GET" class="search-bar">
         <input type="text" name="query" value="{{ request('query') }}" class="search-input" placeholder="Search by title, author, or publisher..." />
         <button type="submit" class="btn btn-primary">{{ __('Search') }}</button>
-   
     </form>
 
     <div class="row g-4">
         @forelse ($materials as $material)
         <div class="col-lg-4 col-md-6">
             <div class="card shadow-sm">
-                <a href="{{ route('viewshow', $material->id) }}">
-                    <img src="{{ asset($material->thumbnail) }}" alt="{{ $material->title }}" class="card-img-top material-thumbnail" style="height: 150px; object-fit: cover;">
-                </a>
+   
+<a href="{{ route('student.digital.material.view', $material->id) }}" class="material-link">
+    <img src="{{ asset($material->thumbnail) }}" alt="{{ $material->title }}" class="card-img-top material-thumbnail" style="height: 150px; object-fit: cover;">
+</a>
+
                 <div class="card-body">
                     <h5 class="card-title">Title: {{ $material->title }}</h5>
                     <h5 class="card-title">Author: {{ $material->author }}</h5>
@@ -144,9 +172,18 @@ h2 {
             </div>
         </div>
         @empty
-        <p class="text-center">No materials found for your search query.</p>
+        <div class="col-12">
+            <p class="text-center text-muted">No materials found for your search query.</p>
+        </div>
         @endforelse
     </div>
+
+    <!-- Pagination (if you have it) -->
+    @if($materials->hasPages())
+    <div class="d-flex justify-content-center mt-4">
+        {{ $materials->links() }}
+    </div>
+    @endif
 </div>
 
 @endsection

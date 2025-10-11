@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\StatisticController;
 use App\Http\Controllers\Admin\ReasonController;
 use App\Http\Controllers\Web\AdmissionController;
 use App\Http\Controllers\Admin\AdmissionProcessController;
+use App\Http\Controllers\Admin\Web\WebEventController;
 
 Route::get('/admission', [AdmissionController::class, 'index'])->name('web.admission');
 Route::get('/test-email', action: function() {
@@ -79,15 +80,17 @@ Route::get('/check-payment-status/{id}', [MpesaController::class, 'checkPaymentS
 Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
 Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
 
+
+
 Route::get('admin/sub-enquiries', [SubEnquiryController::class, 'index'])
     ->name('admin.sub_enquiries.index')
     ->middleware('permission:view-sub-enquiries');
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     
-    Route::get('sub-enquiries', [SubEnquiryController::class, 'index'])
-        ->name('admin.sub_enquiries.index')
-        ->middleware('permission:view-sub-enquiries');
+    // Route::get('sub-enquiries', [SubEnquiryController::class, 'index'])
+    //     ->name('admin.sub_enquiries.index')
+    //     ->middleware('permission:view-sub-enquiries');
 
     Route::get('sub-enquiries/{id}', [SubEnquiryController::class, 'show'])
         ->name('admin.sub_enquiries.show')
@@ -96,13 +99,13 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::delete('sub-enquiries/{id}', [SubEnquiryController::class, 'destroy'])
         ->name('admin.sub_enquiries.destroy')
         ->middleware('permission:delete-sub-enquiries');
-        Route::get('sub-enquiries', [SubEnquiryController::class, 'index'])
-    ->name('admin.sub_enquiries.index')
-    ->middleware('permission:view-sub-enquiries');
+    //     Route::get('sub-enquiries', [SubEnquiryController::class, 'index'])
+    // ->name('admin.sub_enquiries.index')
+    // ->middleware('permission:view-sub-enquiries');
 
-    Route::get('admin/sub-enquiries', [SubEnquiryController::class, 'index'])
-    ->name('admin.sub_enquiries.index')
-    ->middleware('permission:view-sub-enquiries');
+    // Route::get('admin/sub-enquiries', [SubEnquiryController::class, 'index'])
+    // ->name('admin.sub_enquiries.index')
+    // ->middleware('permission:view-sub-enquiries');
 
 });
 
@@ -112,20 +115,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::post('/store/director', [DirectorController::class, 'store'])->name('directors.store');
     Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
 
-
-    Route::get('/sms/view', [SmsController::class, 'index'])->name('sms.index');
-Route::get('/sms/create', [SmsController::class, 'create'])->name('sms.create'); // Send New SMS
-Route::post('/sms/send', [SmsController::class, 'send'])->name('sms.send');
-Route::post('/sms/send-individual', [SmsController::class, 'sendIndividual'])->name('sms.sendIndividual');
-Route::get('sms/send/sms', [SMSController::class, 'sendTest']);
-Route::post('/sms-config/store', [SmsController::class, 'store'])->name('sms.store');
-Route::get('/sms/search', [SmsController::class, 'search'])->name('sms.search');
-Route::get('/sms/{id}', [SmsController::class, 'show'])->name('sms.show');
-Route::get('/sms/balance', [SmsController::class, 'showBalance'])->name('sms.balance');
-Route::get('/balance/credit', [SmsController::class, 'showCredits'])->name('dashboardbalance');
-
-
-Route::get('/digital/files', [FileController::class, 'index'])->name('alldigitalbooks');
+    Route::get('/digital/files', [FileController::class, 'index'])->name('alldigitalbooks');
 Route::post('/digita/file', [FileController::class, 'store'])->name('filepost');
 Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
 
@@ -147,7 +137,7 @@ Route::delete('/materials/{id}', [FileController::class, 'destroy'])->name('dele
     
    Route::get('histories', [AboutUsController::class, 'histories'])->name('histories.index');
     Route::get('histories/create', [AboutUsController::class, 'create'])->name('histories.create');
-    Route::post('histories/store', [AboutUsController::class, 'saveHistories'])->name('histories.store');
+    // Route::post('histories/store', [AboutUsController::class, 'saveHistories'])->name('histories.store');
       Route::get('histories/{id}/edit', [AboutUsController::class, 'edit'])->name('histories.edit');
     Route::post('histories/update/{id}', [AboutUsController::class, 'update'])->name('histories.update');
   Route::delete('histories/{id}', [AboutUsController::class, 'destroy'])->name('histories.destroy');
@@ -275,7 +265,7 @@ Route::middleware(['XSS', 'track.visits'])->namespace('Web')->group(function () 
 
     // SetCookie Route
     Route::get('/set-cookie', 'HomeController@setCookie')->name('setCookie');
-Route::post('/frontend/inquiry/store', [FrontendController::class, 'storeInquiry'])->name('frontend.inquiry.store');
+// Route::post('/frontend/inquiry/store', [FrontendController::class, 'storeInquiry'])->name('frontend.inquiry.store');
 Route::post('/frontend/newsletter/store', [FrontendController::class, 'storeNewsletterSubscription'])->name('frontend.newsletterstore');
 
 
@@ -310,22 +300,19 @@ Route::get('/materials/{id}', [FileController::class, 'allpdfshow'])->name('mate
 
 Route::get('/view/file/home/{id}', [FileController::class, 'ViewOnlyFile'])->name('viewOnlyFile');
 
-Route::get('paymentprocess/{id}', [PesaController::class, 'process'])->name('paymentprocess');
-Route::post('/payment/mpesa/{id}', [PesaController::class, 'processMpesaPayment'])->name('feepaymentmpesa');
 
 
+// Display M-Pesa payment page
+Route::get('/payment-process/{feeId}', [PesaController::class, 'Feepaymentmpesa'])
+    ->name('paymentprocess');
 
+// Process STK Push payment - use the correct method name 'initiatePush'
+Route::post('/initiate-push', [PesaController::class, 'initiatePush'])
+    ->name('initiatepush');
 
-Route::post('/feepaymentmpesa', [PesaController::class, 'manualPay'])->name('feepaymentmpesa');
-
-
-Route::post('/callbacks/stkcallback', [PesaController::class, 'StkCallback'])->name('mpesa.stkcallback');
-
-
-
-
-
-Route::get('/initiatepush',[PesaController::class,'initiateStkPush'])->name('initiatepush');
+// M-Pesa callback - use the correct method name 'handleCallback'
+Route::post('/api/mpesa/callback', [PesaController::class, 'handleCallback'])
+    ->name('mpesa.callback');
     Route::post('/stkcallback',[PesaController::class,'stkCallback'])->name('stkcallback');
 
 
@@ -335,32 +322,13 @@ Route::get('/initiatepush',[PesaController::class,'initiateStkPush'])->name('ini
 Route::post('/paybill/store', [PesaController::class, 'store'])->name('storegatedetails');
 Route::get('/settings', [PesaController::class, 'index'])->name('settings.index');
 
- Route::get('/pay/pesa/store/', [PesaController::class, 'Feepaymentmpesa'])->name('paymentprocess');
+
 
 Route::get('/payment/{fee_id}', [PaymentController::class, 'showPaymentForm'])->name('paymentform');
 
 Route::get('/payment/success/{fee_id}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
 
 
-
-//feepaymentmpesa
-
-
-
-Route::get('/test/imagick', function () {
-    if (class_exists('Imagick')) {
-        return 'Imagick is installed and working!';
-    } else {
-        return 'Imagick is not installed!';
-    }
-});
-
-
-Route::get('/test/script', function () {
-    echo 'Starting script...' . PHP_EOL;
-    sleep(120); // Sleep for 120 seconds (2 minutes)
-    echo 'Script finished successfully after 2 minutes.';
-});
 
 
 Route::get('/test/balance', function (SMSService $smsService)
@@ -473,6 +441,19 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     // Dashboard Route
     Route::get('/', 'DashboardController@index')->name('dashboard.index');
     Route::get('dashboard', 'DashboardController@index')->name('dashboard.index');
+    
+    // SMS Routes
+    Route::prefix('sms')->group(function () {
+        Route::get('/', 'SmsController@index')->name('sms.index');
+        Route::get('/create', 'SmsController@create')->name('sms.create');
+        Route::post('/send', 'SmsController@send')->name('sms.send');
+        Route::post('/send-individual', 'SmsController@sendIndividual')->name('sms.sendIndividual');
+        Route::get('/send/test', 'SmsController@sendTest')->name('sms.test');
+        Route::post('/config/store', 'SmsController@store')->name('sms.store');
+        Route::get('/search', 'SmsController@search')->name('sms.search');
+        Route::get('/{id}', 'SmsController@show')->name('sms.show');
+        Route::get('/balance/credit', 'SmsController@showCredits')->name('sms.balance');
+    });
 
 
 
@@ -862,10 +843,16 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
 
         Route::resource('slider', 'SliderController');
         Route::resource('feature', 'FeatureController');
-        Route::resource('about-us', 'AboutUsController');
+
+ //Route::post('about-us', [App\Http\Controllers\Admin\Web\AboutUsController::class, 'store'])->name('about-us.store');
+Route::resource('about-us', App\Http\Controllers\Admin\Web\AboutUsController::class);
+
+
         Route::resource('course', 'CourseController');
             
-        Route::resource('web-event', 'WebEventController');
+Route::get('/events', [WebEventController::class, 'index'])->name('events');
+        
+          Route::resource('web-event', 'WebEventController');
         Route::resource('news', 'NewsController');
         Route::resource('gallery', 'GalleryController');
         Route::resource('faq', 'FaqController');
@@ -967,10 +954,16 @@ Route::resource('subject', 'App\Http\Controllers\Student\StudentSubjectControlle
     Route::get('profile/account', 'ProfileController@account')->name('profile.account');
     // Route::post('profile/changemail', 'ProfileController@changeMail')->name('profile.changemail');
     // Route::post('profile/changepass', 'ProfileController@changePass')->name('profile.changepass');
+
+
+
 Route::get('/all/ditigal/file/student', [FileController::class, 'DigitalFilestudent'])->name('studentlibrarydigital');
-
 Route::get('/student/test/', [StudentFileController::class, 'testFile'])->name('testfile');
+Route::get('/student/all/ditigal/file/student', [\App\Http\Controllers\Student\FileController::class, 'DigitalFilestudent'])->name('student.studentlibrarydigital');
 
-    Route::get('/student/all/ditigal/file/student', [\App\Http\Controllers\Student\FileController::class, 'DigitalFilestudent'])
-    ->name('student.studentlibrarydigital');
+    
+// Remove any existing route definition and use this:
+Route::get('/student/digital/material/{id}/view', [App\Http\Controllers\Admin\FileController::class, 'viewMaterial'])
+    ->name('digital.material.view');
+
 });

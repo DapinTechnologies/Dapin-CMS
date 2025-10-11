@@ -36,6 +36,58 @@ class PesaController extends Controller
         $this->app_url = config('app.url');
     }
 
+public function Feepaymentmpesa($feeId, Request $request)
+{
+    try {
+        // Get all parameters from query string
+        $queryData = [
+            'student_id' => $request->get('student_id'),
+            'fee_category_id' => $request->get('fee_category_id'),
+            'due_date' => $request->get('due_date'),
+            'fee_amount' => $request->get('fee_amount'),
+            'paid_amount' => $request->get('paid_amount'),
+            'phone_number' => $request->get('phone_number'),
+        ];
+
+        // Validate required parameters
+        if (!$feeId || !$queryData['student_id']) {
+            return redirect()->route('student.fees.index')->with('error', 'Required payment data is missing');
+        }
+
+        // Verify the fee exists
+        $fee = \App\Models\Fee::find($feeId);
+        if (!$fee) {
+            return redirect()->route('student.fees.index')->with('error', 'Fee not found');
+        }
+
+        // Get fee category title
+        $feeCategory = \App\Models\FeesCategory::find($queryData['fee_category_id']);
+        $feeCategoryTitle = $feeCategory ? $feeCategory->title : '';
+
+        // Calculate balance
+        $balance = max(0, $queryData['fee_amount'] - $queryData['paid_amount']);
+
+        // Pass all data to the view
+        return view('student.fees.mpesa_payment', [
+            'feeId' => $feeId,
+            'studentId' => $queryData['student_id'],
+            'feeCategoryId' => $queryData['fee_category_id'],
+            'dueDate' => $queryData['due_date'],
+            'feeAmount' => $queryData['fee_amount'],
+            'paidAmount' => $queryData['paid_amount'],
+            'phoneNumber' => $queryData['phone_number'],
+            'fee' => $fee,
+            'balance' => $balance,
+            'feeCategoryTitle' => $feeCategoryTitle,
+            'formData' => $queryData // This will contain all the data for the form
+        ]);
+
+    } catch (\Exception $e) {
+        return redirect()->route('student.fees.index')->with('error', 'Error loading payment page: ' . $e->getMessage());
+    }
+}
+
+
 
     private function token()
     {
@@ -62,6 +114,9 @@ class PesaController extends Controller
         return $response->json()['access_token'];
      
     }
+
+
+
 
     // Process payment
     public function process($id, Request $request)

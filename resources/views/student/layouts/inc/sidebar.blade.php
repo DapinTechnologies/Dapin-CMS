@@ -90,12 +90,12 @@
         @endif
     
 
-{{-- <li class="nav-item {{ Request::is('student/all/digital/file/student*') ? 'active' : '' }}">
+<li class="nav-item {{ Request::is('student/all/digital/file/student*') ? 'active' : '' }}">
     <a href="{{ route('student.studentlibrarydigital') }}" class="nav-link">
         <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
         <span class="pcoded-mtext">{{ trans_choice('Digital Library', 2) }}</span>
     </a>
-</li> --}}
+</li> 
 
 
 
