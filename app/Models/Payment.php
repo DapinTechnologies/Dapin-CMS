@@ -18,17 +18,40 @@ class Payment extends Model
         'invoice_id',
         'student_enroll_id',
         'amount',
+        'excess_payment',
         'payment_method',
         'reference_number',
+        'payment_date',
         'status',
         'transaction_id',
         'paid_at',
         'is_installment',
         'installment_number',
-        'notes'
+        'notes',
+        'is_reconciled',
+        'reconciled_at',
+        'reconciled_by',
+        'reconciliation_notes',
+        'confirmed_by',
+        'confirmation_date',
+        'is_discount',
+        'is_fine',
+        'discount_id',
+        'fine_id',
+        'is_bursary',
+        'bursary_type',
+        'bursary_notes',
+        'bursary_allocated_by',
+        'bursary_allocated_at'
     ];
 
-    protected $dates = ['paid_at'];
+    protected $dates = [
+        'paid_at',
+        'payment_date',
+        'reconciled_at',
+        'bursary_allocated_at',
+        'confirmation_date'
+    ];
 
     public function invoice()
     {
@@ -45,25 +68,34 @@ class Payment extends Model
         return $this->hasMany(FeePayment::class);
     }
 
-    // app/Models/Payment.php
-public function processedBy()
-{
-    return $this->belongsTo(User::class, 'processed_by'); // Assuming 'processed_by' is the foreign key
-}
+    public function processedBy()
+    {
+        return $this->belongsTo(User::class, 'processed_by');
+    }
 
-public function student()
-{
-    return $this->belongsTo(\App\Models\StudentEnroll::class, 'student_enroll_id');
-}
+    public function student()
+    {
+        return $this->belongsTo(\App\Models\StudentEnroll::class, 'student_enroll_id');
+    }
 
-protected static function boot()
-{
-    parent::boot();
-    
-    static::creating(function ($model) {
-        if (empty($model->paid_at)) {
-            $model->paid_at = now();
-        }
-    });
-}
+    public function bursaryType()
+    {
+        return $this->belongsTo(BursaryType::class, 'bursary_type', 'code');
+    }
+
+    public function allocatedBy()
+    {
+        return $this->belongsTo(User::class, 'bursary_allocated_by');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($model) {
+            if (empty($model->paid_at)) {
+                $model->paid_at = now();
+            }
+        });
+    }
 }

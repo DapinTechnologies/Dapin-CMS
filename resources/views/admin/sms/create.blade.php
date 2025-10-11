@@ -30,7 +30,7 @@
                 <!-- Group SMS Form -->
                 <div class="tab-pane fade show active" id="group" role="tabpanel" aria-labelledby="group-tab">
                     <div class="card">
-                        <form class="needs-validation" novalidate action="{{ route('sms.send') }}" method="post">
+                        <form class="needs-validation" novalidate action="{{ route('admin.sms.send') }}" method="post">
                             @csrf
                             <div class="card-body">
                                 <div class="row gx-2">
@@ -78,7 +78,7 @@
               <!-- Individual SMS Form -->
 <div class="tab-pane fade" id="individual" role="tabpanel" aria-labelledby="individual-tab">
     <div class="card">
-        <form class="needs-validation" novalidate action="{{ route('sms.sendIndividual') }}" method="post">
+        <form class="needs-validation" novalidate action="{{ route('admin.sms.sendIndividual') }}" method="post">
             @csrf
             <div class="card-body">
                 <div class="row gx-2">

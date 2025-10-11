@@ -20,6 +20,11 @@ class StudentEnroll extends Model
         return $this->belongsTo(Student::class, 'student_id');
     }
 
+     public function faculty()
+    {
+        return $this->belongsTo(Faculty::class, 'faculty_id');
+    }
+
     public function program()
     {
         return $this->belongsTo(Program::class, 'program_id');
@@ -69,4 +74,26 @@ class StudentEnroll extends Model
     {
         return $this->hasMany(Fee::class, 'student_enroll_id', 'id');
     }
+    // In app/Models/StudentEnroll.php
+
+public function batch()
+{
+    return $this->belongsTo(Batch::class, 'batch_id');
+}
+public function user()
+{
+    return $this->belongsTo(User::class, 'user_id'); // If student details are stored in users
+}
+
+public function getFullNameAttribute()
+{
+    return $this->user->name ?? 'N/A'; // adjust as per your user structure
+}
+
+// app/Models/StudentEnroll.php
+public function invoices()
+{
+    return $this->hasMany(Invoice::class, 'student_enroll_id');
+}
+
 }

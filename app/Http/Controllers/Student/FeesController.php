@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use App\Models\FeesCategory;
 use App\Models\Student;
 use App\Models\Fee;
+use App\Models\Payment;
+use App\Models\Invoice;
+use App\Models\Setting;
 use Auth;
 
 class FeesController extends Controller
@@ -32,82 +35,94 @@ class FeesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
-        //
-        $data['title']     = $this->title;
-        $data['route']     = $this->route;
-        $data['view']      = $this->view;
-        $data['path']      = $this->path;
+{
+    $data['title'] = $this->title;
+    $data['route'] = $this->route;
+    $data['view'] = $this->view;
+    $data['path'] = $this->path;
 
+    // Get authenticated student
+    $data['user'] = $user = Auth::guard('student')->user();
+    $data['setting'] = Setting::first();
 
-        $data['user'] = $user = Student::where('id', Auth::guard('student')->user()->id)->firstOrFail();
+    // Get filter options
+    $data['sessions'] = StudentEnroll::where('student_id', $user->id)
+        ->with('session')
+        ->groupBy('session_id')
+        ->get();
 
-        $data['sessions'] = StudentEnroll::where('student_id', $user->id)->groupBy('session_id')->get();
-        $data['semesters'] = StudentEnroll::where('student_id', $user->id)->groupBy('semester_id')->get();
-        $data['categories'] = FeesCategory::where('status', '1')->orderBy('title', 'asc')->get();
+    $data['semesters'] = StudentEnroll::where('student_id', $user->id)
+        ->with('semester')
+        ->groupBy('semester_id')
+        ->get();
 
+    $data['categories'] = FeesCategory::where('status', '1')
+        ->orderBy('title', 'asc')
+        ->get();
 
-        if(!empty($request->session) || $request->session != null){
-            $data['selected_session'] = $session = $request->session;
-        }
-        else{
-            $data['selected_session'] = $session = '0';
-        }
+    // Set selected filters
+    $data['selected_session'] = $session = $request->session ?? '0';
+    $data['selected_semester'] = $semester = $request->semester ?? '0';
+    $data['selected_category'] = $category = $request->category ?? '0';
 
-        if(!empty($request->semester) || $request->semester != null){
-            $data['selected_semester'] = $semester = $request->semester;
-        }
-        else{
-            $data['selected_semester'] = $semester = '0';
-        }
-
-        if(!empty($request->category) || $request->category != null){
-            $data['selected_category'] = $category = $request->category;
-        }
-        else{
-            $data['selected_category'] = '0';
-        }
-
-
-        // Filter Fees
-        $fees = Fee::with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user, $session, $semester){
-                $query->where('student_id', $user->id);
-            if($session != 0){
+    // Get invoices with related data
+    $invoices = Invoice::with([
+            'studentEnroll.session',
+            'studentEnroll.semester',
+            'studentEnroll.student',
+            'fees.category',
+            'payments' => function($query) {
+                $query->where('status', 'completed');
+            }
+        ])
+        ->whereHas('studentEnroll', function ($query) use ($user, $session, $semester) {
+            $query->where('student_id', $user->id);
+            if ($session != '0') {
                 $query->where('session_id', $session);
             }
-            if($semester != 0){
+            if ($semester != '0') {
                 $query->where('semester_id', $semester);
             }
         });
-        if(!empty($request->category)){
-            $fees->where('category_id', $category);
-        }
-        $data['rows'] = $fees->where('status', '<=', '1')->orderBy('assign_date', 'desc')->get();
 
-        
-        return view($this->view.'.index', $data);
+    // Filter by category if selected
+    if ($category != '0') {
+        $invoices->whereHas('fees', function($query) use ($category) {
+            $query->where('category_id', $category);
+        });
     }
 
+    $data['invoices'] = $invoices->orderBy('assign_date', 'desc')->get();
+
+    return view($this->view.'.index', $data);
+}
+
     /**
-     * Display a listing of the resource.
+     * Display payment form for specific fee.
      *
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function pay($id)
     {
-        //
-        $data['title']     = $this->title;
-        $data['route']     = $this->route;
-        $data['view']      = $this->view;
-        $data['path']      = $this->path;
+        $data['title'] = $this->title;
+        $data['route'] = $this->route;
+        $data['view'] = $this->view;
+        $data['path'] = $this->path;
 
         $user = Auth::guard('student')->user()->id;
 
-        // Filter Fees
-        $fees = Fee::where('id', $id)->with('studentEnroll')->whereHas('studentEnroll', function ($query) use ($user){
-            $query->where('student_id', $user);
-        });
-        $data['row'] = $fees->where('status', '<', '1')->firstOrFail();
+        // Get fee with validation
+        $fee = Fee::where('id', $id)
+            ->with('studentEnroll')
+            ->whereHas('studentEnroll', function ($query) use ($user) {
+                $query->where('student_id', $user);
+            })
+            ->where('status', '<', '1')
+            ->firstOrFail();
+
+        $data['row'] = $fee;
+        $data['setting'] = Setting::first();
 
         return view($this->view.'.pay', $data);
     }

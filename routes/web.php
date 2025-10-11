@@ -1,12 +1,76 @@
 <?php
-use App\Http\Controllers\SmsController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\Admin\SmsController;
 use App\Services\SMSService;
 use Illuminate\Support\Facades\Http;
 use App\Models\SmsConfiguration;
-use App\Http\Controllers\FileController;
+use App\Http\Controllers\Admin\FileController;
 use App\Http\Controllers\PesaController;
+use App\Http\Controllers\Admin\FeesStudentController;
+use App\Http\Controllers\Admin\FeesCategoryController;
+use App\Http\Controllers\Admin\FeeStructureController;
+use App\Http\Controllers\Admin\FeesMasterController;
+use App\Http\Controllers\Admin\FeeClearanceController;
+use App\Http\Controllers\Admin\FeeDashboardController;
+use App\Http\Controllers\Admin\FeeReconciliationController;
+use App\Http\Controllers\Admin\BursaryAllocationController;
+use App\Http\Controllers\Admin\FeesAdjustmentController;
+use App\Http\Controllers\Admin\DefaultersController;
+use App\Http\Controllers\Admin\PartialPaymentsController;
+use App\Http\Controllers\Admin\BursaryReportController;
+use App\Http\Controllers\Admin\FinesDiscountsReportController;
+use App\Http\Controllers\Admin\FeeCollectionReportController;
+use App\Http\Controllers\Admin\GovernmentFeesReportController;
+use App\Http\Controllers\Admin\ExternalFeesReportController;
+use App\Http\Controllers\Admin\OutstandingFeesController;
 use App\Http\Controllers\DirectorController;
+use App\Http\Controllers\Admin\PayrollController;
+use App\Http\Controllers\Admin\IncomeReportController;
+use App\Http\Controllers\Admin\ExpenseReportController;
+use App\Http\Controllers\Admin\ReconciliationController;
+use App\Http\Controllers\Admin\BillingController;
+use App\Http\Controllers\Admin\ExpenseController;
+use App\Http\Controllers\Admin\IncomeController;
+use App\Http\Controllers\Admin\ReceivableInvoiceController;
 
+
+
+
+
+
+
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('reconciliation')->name('reconciliation.')->group(function () {
+        Route::get('/', [ReconciliationController::class, 'index'])->name('index');
+        Route::post('/', [ReconciliationController::class, 'store'])->name('store');
+        Route::post('/quick-reconcile', [ReconciliationController::class, 'quickReconcile'])->name('quick-reconcile');
+        Route::post('/bulk-reconcile', [ReconciliationController::class, 'bulkReconcile'])->name('bulk-reconcile');
+        Route::post('/{id}/reconcile', [ReconciliationController::class, 'reconcile'])->name('reconcile');
+        Route::post('/{id}/discrepancy', [ReconciliationController::class, 'markDiscrepancy'])->name('discrepancy');
+        Route::get('/unreconciled', [ReconciliationController::class, 'unreconciled'])->name('unreconciled');
+        Route::delete('/{id}', [ReconciliationController::class, 'destroy'])->name('destroy');
+        Route::get('/report', [ReconciliationController::class, 'report'])->name('report');
+    });
+});
+
+
+
+
+
+
+Route::prefix('admin')->group(function () {
+    Route::get('income-report', [IncomeReportController::class, 'index'])->name('admin.income-report.index');
+    Route::get('income-report/print', [IncomeReportController::class, 'print'])->name('admin.income-report.print');
+    Route::get('income-report/pdf', [IncomeReportController::class, 'pdf'])->name('admin.income-report.pdf');
+    Route::get('income-report/chart-data', [IncomeReportController::class, 'chartData'])->name('admin.income-report.chart-data');
+    
+Route::get('admin/expense-report', [ExpenseReportController::class, 'index'])->name('admin.expense-report.index');
+Route::get('admin/expense-report/print', [ExpenseReportController::class, 'print'])->name('admin.expense-report.print');
+Route::get('admin/expense-report/pdf', [ExpenseReportController::class, 'pdf'])->name('admin.expense-report.pdf');
+Route::get('admin/expense-report/chart-data', [ExpenseReportController::class, 'chartData'])->name('admin.expense-report.chart-data');
+});
 
 
 
@@ -17,6 +81,45 @@ Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name
 Route::get('/home/about',[DirectorController::class,'About'])->name('aboutus');
 
 
+Route::group(['prefix' => 'fees-student', 'as' => 'fees-student.'], function() {
+    
+    // Edit/Update Routes
+    Route::get('quick-assign/{invoice}/edit', 'FeesStudentController@edit')->name('quick.assign.edit');
+    Route::put('quick-assign/{invoice}', 'FeesStudentController@update')->name('quick.assign.update');
+});
+
+
+// Add these routes to your existing payroll routes
+Route::get('/payroll/draft/{userId}/{periodId}', [PayrollController::class, 'getDraft'])->name('admin.payroll.draft.get');
+Route::delete('/payroll/draft/{userId}/{periodId}/restart', [PayrollController::class, 'restartDraft'])->name('admin.payroll.draft.restart');
+Route::post('/payroll/draft/save', [PayrollController::class, 'saveDraft'])->name('admin.payroll.draft.save');
+//
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group whichlo
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+
+Route::prefix('admin/payroll')->name('admin.payroll.')->group(function () {
+    Route::post('/settings/nhif/update', [PayrollController::class, 'updateNhifSettings'])
+        ->name('settings.nhif.update');
+
+    Route::post('/settings/paye/update', [PayrollController::class, 'updatePayeSettings'])
+        ->name('settings.paye.update');
+        
+        
+});
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+    Route::group(['prefix' => 'payroll', 'as' => 'payroll.'], function () {
+        Route::post('/draft/save', [PayrollController::class, 'saveDraft'])->name('draft.save');
+    });
+});
 
 Route::get('/invoice/{invoiceId}/show-payment-modal', [FeesStudentController::class, 'showPaymentModal'])->name('invoice.showPaymentModal');
 Route::post('/payments/clear-print-flag', [FeesStudentController::class, 'clearPrintFlag'])->name('payments.clearPrintFlag');
@@ -41,13 +144,251 @@ Route::get('/payment/receipt/{payment}/download', [FeesStudentController::class,
         Route::post('fees-student/quick-assign-store', [FeesStudentController::class, 'quickAssignStore'])
             ->name('admin.fees-student.quick.assign.store')
             ->middleware('permission:fees-student-quick-assign');
-    
+            Route::post('fees/estimate-students', [FeeStructureController::class, 'estimateStudents'])
+    ->name('admin.fees.estimate-students');
 
+   Route::get('invoices/{id}/edit', [FeesStudentController::class, 'edit'])->name('fees-student.edit');
+    Route::put('invoices/{id}', [FeesStudentController::class, 'update'])->name('fees-student.update');
+    Route::get('invoices/{id}', [FeesStudentController::class, 'show'])->name('fees-student.show');
+    Route::get('invoices/{id}/print', [FeesStudentController::class, 'print'])->name('fees-student.print');
+    // routes/web.php
+Route::get('/invoices/{id}', [FeeStudentController::class, 'showinvoice'])->name('invoices.show'); 
+    
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+    // ... other routes
+    
+    // Payments routes
+    Route::get('payments/quick-receive', [\App\Http\Controllers\Admin\PaymentController::class, 'create'])
+        ->name('payments.quick-receive');
+        
+    Route::post('payments/get-student-data', [\App\Http\Controllers\Admin\PaymentController::class, 'getStudentData'])
+        ->name('payments.get-student-data');
+        
+    Route::post('payments/store', [\App\Http\Controllers\Admin\PaymentController::class, 'store'])
+        ->name('payments.store');
+        
+    Route::get('payments/receipt/{id}', [\App\Http\Controllers\Admin\PaymentController::class, 'receipt'])
+        ->name('payments.receipt');
+        Route::post('payments/get-student-invoices', [PaymentController::class, 'getStudentInvoices'])
+        ->name('payments.getStudentInvoices');
+        
+        
+    Route::resource('payments', \App\Http\Controllers\Admin\PaymentController::class);
+});
+Route::get('/payment/get-fee-categories', [PaymentController::class, 'getFeeCategories'])
+    ->name('payment.getFeeCategories');
+
+Route::get('/fees/get-categories', [FeeStudentController::class, 'getFeeCategories'])
+    ->name('fees.getCategories');
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function() {
+    // Fee Reconciliation Routes
+    Route::get('fee-reconciliation', [FeeReconciliationController::class, 'index'])->name('fee-reconciliation.index');
+    Route::post('fee-reconciliation/reconcile/{payment}', [FeeReconciliationController::class, 'reconcile'])->name('fee-reconciliation.reconcile');
+    Route::post('fee-reconciliation/batch-reconcile', [FeeReconciliationController::class, 'batchReconcile'])->name('fee-reconciliation.batch-reconcile');
+    Route::get('fee-reconciliation/export', [FeeReconciliationController::class, 'export'])->name('fee-reconciliation.export');
+
+    // Bursary Allocation Routes
+    Route::group(['prefix' => 'bursary-allocation', 'as' => 'bursary-allocation.'], function() {
+    Route::get('/', [BursaryAllocationController::class, 'index'])->name('index');
+    Route::get('/create/{student_enroll_id?}', [BursaryAllocationController::class, 'create'])->name('create');
+    Route::post('/', [BursaryAllocationController::class, 'store'])->name('store');
+    Route::post('/batch-allocate', [BursaryAllocationController::class, 'batchAllocate'])->name('batch-allocate');
+    Route::post('/store-fund', [BursaryAllocationController::class, 'storeFund'])->name('store-fund');
+    Route::post('/{id}/reconcile', [BursaryAllocationController::class, 'reconcile'])->name('reconcile');
+    Route::post('/batch-reconcile', [BursaryAllocationController::class, 'batchReconcile'])->name('batch-reconcile');
+    Route::get('/export', [BursaryAllocationController::class, 'export'])->name('export');
+    Route::get('/admin/bursary-types/{code}/details', [BursaryAllocationController::class, 'getBursaryTypeDetails'])->name('admin.bursary-types.details');
+    Route::put('/update-fund', [BursaryAllocationController::class, 'updateFund'])->name('update-fund');
+Route::delete('/delete-fund', [BursaryAllocationController::class, 'deleteFund'])->name('delete-fund');
+    Route::get('/get-bursary-payments', [BursaryAllocationController::class, 'getBursaryPayments'])->name('get-bursary-payments');
+});
+});
+
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    // Defaulters routes
+    Route::group(['prefix' => 'defaulters', 'as' => 'defaulters.'], function() {
+        Route::get('/', [DefaultersController::class, 'index'])->name('index');
+        Route::get('/export', [DefaultersController::class, 'export'])->name('export');
+    });
+    
+});Route::get('/admin/get-programs', [DefaultersController::class, 'getPrograms'])->name('admin.get-programs');
+
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    // Outstanding fees routes
+    Route::group(['prefix' => 'outstanding-fees', 'as' => 'outstanding-fees.'], function() {
+        Route::get('/', [OutstandingFeesController::class, 'index'])->name('index');
+        Route::get('/export', [OutstandingFeesController::class, 'export'])->name('export');
+    });
+});
+
+Route::get('/admin/get-programs', [OutstandingFeesController::class, 'getPrograms'])->name('admin.get-programs');
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+    // Government Fees Report routes
+    Route::group(['prefix' => 'government-fees-report', 'as' => 'government-fees-report.'], function () {
+        Route::get('/', [GovernmentFeesReportController::class, 'index'])->name('index');
+        Route::get('/export', [GovernmentFeesReportController::class, 'export'])->name('export');
+    });
+
+    // AJAX program loader
+    Route::get('/get-programs', [GovernmentFeesReportController::class, 'getPrograms'])->name('get-programs');
+});
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+// External Fees Report routes
+Route::group(['prefix' => 'external-fees-report', 'as' => 'external-fees-report.'], function () {
+    Route::get('/', [ExternalFeesReportController::class, 'index'])->name('index');
+    Route::get('/export', [ExternalFeesReportController::class, 'export'])->name('export');
+});
+
+// AJAX program loader
+    Route::get('/get-programs', [ExternalFeesReportController::class, 'getPrograms'])->name('get-programs');
+
+
+});
+
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    // Fee Collection Report routes
+    Route::group(['prefix' => 'fee-collection-report', 'as' => 'fee-collection-report.'], function() {
+        Route::get('/', [FeeCollectionReportController::class, 'index'])->name('index');
+        Route::get('/export', [FeeCollectionReportController::class, 'export'])->name('export');
+        // Add the get-programs route inside this group
+        Route::get('/get-programs', [FeeCollectionReportController::class, 'getPrograms'])->name('get-programs');
+    });
+});
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
+    // Partial payments routes
+    Route::group(['prefix' => 'partial-payments', 'as' => 'partial-payments.'], function() {
+        Route::get('/', [PartialPaymentsController::class, 'index'])->name('index');
+        Route::get('/export', [PartialPaymentsController::class, 'export'])->name('export');
+    });
+    
+    // Bursary Report
+Route::group(['prefix' => 'bursary-report', 'as' => 'bursary-report.'], function() {
+    Route::get('/', [BursaryReportController::class, 'index'])->name('index');
+    Route::get('/get-programs', [BursaryReportController::class, 'getPrograms'])->name('get-programs');
+    Route::get('/export', [BursaryReportController::class, 'export'])->name('export');
+});
+
+// Fines & Discounts Report
+Route::group(['prefix' => 'fines-discounts-report', 'as' => 'fines-discounts-report.'], function() {
+    Route::get('/', [FinesDiscountsReportController::class, 'index'])->name('index');
+    Route::get('/get-programs', [FinesDiscountsReportController::class, 'getPrograms'])->name('get-programs');
+    Route::get('/export', [FinesDiscountsReportController::class, 'export'])->name('export');
+});
+
+});
+
+Route::get('/admin/get-programs', [PartialPaymentsController::class, 'getPrograms'])->name('admin.get-programs');
+
+    Route::group([
+    'prefix' => 'admin',
+    'as' => 'admin.',
+    'middleware' => ['auth']
+], function () {
+    // Fees Adjustment Routes
+    Route::group([
+        'prefix' => 'fees-adjustment',
+        'as' => 'fees-adjustment.',
+        'middleware' => ['permission:fees-adjustment-create'] // Added permission middleware
+    ], function() {
+        Route::get('/', [FeesAdjustmentController::class, 'index'])->name('index');
+        Route::post('/', [FeesAdjustmentController::class, 'store'])->name('store');
+        Route::get('/get-invoices', [FeesAdjustmentController::class, 'getInvoices'])->name('getInvoices');
+        Route::get('/get-invoice-details', [FeesAdjustmentController::class, 'getInvoiceDetails'])->name('getInvoiceDetails');
+    });
+});
+
+
+            Route::middleware(['auth'])->group(function() {
+    // Fee editing routes
+    Route::get('/admin/fees/get-invoice-data', [FeesStudentController::class, 'getInvoiceData'])
+            ->name('fees.get-invoice-data')
+        ->middleware('permission:fees-edit-view');
+
+        Route::get('/admin/fees/get-details', [FeesStudentController::class, 'getDetails'])->name('invoices.getDetails');
+
+
+    Route::post('/admin/fees/update', [FeesStudentController::class, 'updateFees'])
+        ->name('fees.update')
+        ->middleware('permission:fees-edit');
+});
+// Add these to your existing FeesStudentController routes
+Route::get('fees/get-fees', [FeesStudentController::class, 'getFees'])->name('fees.get')
+    ->middleware('permission:fees-edit-view');
+
+Route::post('fees/update', [FeesStudentController::class, 'updateFees'])->name('fees.update')
+    ->middleware('permission:fees-edit');
+
+    Route::get('invoices/{invoice}/edit-data', [InvoiceController::class, 'getInvoiceData'])
+    ->name('invoices.edit.data');
+    // Add these routes
+Route::put('invoices/{invoice}', [InvoiceController::class, 'update'])->name('invoices.update');
+Route::get('invoices/{invoice}/edit', [InvoiceController::class, 'getInvoiceData'])->name('invoices.edit.data');
+
+Route::get('fees/get-student-invoices', [FeesStudentController::class, 'getStudentInvoices'])->name('admin.fees.get-student-invoices');
 Route::get('fees/invoice/{invoice}', [InvoiceController::class, 'show'])->name('fees.invoice.show');
 
 
+// Fee Clearance Module Routes
+    Route::prefix('admin/fee-clearance')->group(function () {
+        Route::get('/', [FeeClearanceController::class, 'index'])->name('admin.fee-clearance.index');
+        Route::get('/search', [FeeClearanceController::class, 'search'])->name('admin.fee-clearance.search');
+        Route::get('/student/{id}', [FeeClearanceController::class, 'show'])->name('admin.fee-clearance.show');
+        Route::post('/clear/{id}', [FeeClearanceController::class, 'clear'])->name('admin.fee-clearance.clear');
+        Route::post('/notify/{id}', [FeeClearanceController::class, 'sendNotification'])->name('admin.fee-clearance.notify');
+        Route::get('/history/{id}', [FeeClearanceController::class, 'paymentHistory'])->name('admin.fee-clearance.history');
+        Route::get('/report', [FeeClearanceController::class, 'generateReport'])->name('admin.fee-clearance.report');
+        Route::get('students/fetch', [FeeClearanceController::class, 'fetchStudents'])->name('students.fetch');
+        
+    });
+
+// Fee Structure Routes
+Route::prefix('admin/fee-structures')->group(function () {
+    Route::get('/', [FeeStructureController::class, 'index'])->name('admin.fee-structures.index');
+    Route::get('/create', [FeeStructureController::class, 'create'])->name('admin.fee-structures.create');
+    Route::post('/', [FeeStructureController::class, 'store'])->name('admin.fee-structures.store');
+    Route::get('/{feeStructure}', [FeeStructureController::class, 'show'])->name('admin.fee-structures.show');
+    Route::get('/{feeStructure}/edit', [FeeStructureController::class, 'edit'])->name('admin.fee-structures.edit');
+    Route::put('/{feeStructure}', [FeeStructureController::class, 'update'])->name('admin.fee-structures.update');
+    Route::delete('/{feeStructure}', [FeeStructureController::class, 'destroy'])->name('admin.fee-structures.destroy');
+    Route::post('/{feeStructure}/send-invoice', [FeeStructureController::class, 'sendInvoice'])
+        ->name('admin.fee-structures.sendInvoice')
+        ->middleware('permission:create fee structures');
+    Route::post('/remove-item', [FeeStructureController::class, 'removeItem'])
+        ->name('admin.fee-structures.remove-item');
+        Route::get('/import-template', [FeeStructureController::class, 'downloadImportTemplate'])
+    ->name('admin.fee-structures.import-template')
+    ->middleware('permission:import fee structures');
+     
+   // Batch assignment routes
+    Route::get('/batch-assign', [FeeStructureController::class, 'previewBatchAssign'])
+        ->name('admin.fee-structures.batch-assign');
+    
+    Route::post('/batch-assign', [FeeStructureController::class, 'batchAssign'])
+        ->name('admin.fee-structures.batch-assign');
+
+    // Additional routes for items
+    Route::post('/{feeStructure}/items', [FeeStructureController::class, 'addItem'])->name('admin.fee-structures.items.store');
+    Route::delete('/items/{item}', [FeeStructureController::class, 'removeItem'])->name('admin.fee-structures.items.destroy');
+
+    
+    Route::post('/import', [FeeStructureController::class, 'import'])->name('admin.fee-structures.import');
+    
+ // Export routes
+    Route::get('/export', [FeeStructureController::class, 'export'])
+        ->name('admin.fee-structures.export');
+        
+
+});
+
 // Web Routes
-Route::middleware(['XSS'])->namespace('Web')->group(function () {
+Route::middleware(['XSS', 'track.visits'])->namespace('Web')->group(function () {
 
     // Home Route
     Route::get('/', 'HomeController@index')->name('home');
@@ -74,56 +415,10 @@ Route::middleware(['XSS'])->namespace('Web')->group(function () {
 
     // SetCookie Route
     Route::get('/set-cookie', 'HomeController@setCookie')->name('setCookie');
+// Route::post('/frontend/inquiry/store', [FrontendController::class, 'storeInquiry'])->name('frontend.inquiry.store');
+Route::post('/frontend/newsletter/store', [FrontendController::class, 'storeNewsletterSubscription'])->name('frontend.newsletterstore');
 
 
-// SMS Management Route
-
-// Route::get('/sms', [SmsController::class, 'index'])->name('sms.index');
-
-
-// Route::get('/create', [SmsController::class, 'create'])->name('sms.create'); // Send New SMS
-// Route::post('/send', [SmsController::class, 'send'])->name('sms.send');
-// Route::post('/sms/send-individual', [SmsController::class, 'sendIndividual'])->name('sms.sendIndividual');
-
-
-// Route::get('send/sms', [SMSController::class, 'sendTest']);
-
-Route::get('/sms/view', [SmsController::class, 'index'])->name('sms.index');
-
-
-Route::get('/sms/create', [SmsController::class, 'create'])->name('sms.create'); // Send New SMS
-Route::post('/sms/send', [SmsController::class, 'send'])->name('sms.send');
-Route::post('/sms/send-individual', [SmsController::class, 'sendIndividual'])->name('sms.sendIndividual');
-
-
-Route::get('sms/send/sms', [SMSController::class, 'sendTest']);
-
-Route::post('/sms-config/store', [SmsController::class, 'store'])->name('sms.store');
-Route::get('/sms/search', [SmsController::class, 'search'])->name('sms.search');
-Route::get('/sms/{id}', [SmsController::class, 'show'])->name('sms.show');
-Route::get('/sms/balance', [SmsController::class, 'showBalance'])->name('sms.balance');
-
-Route::get('/balance/credit', [SmsController::class, 'showCredits'])->name('dashboardbalance');
-
-
-Route::get('/all/digital/files', [FileController::class, 'index'])->name('alldigitalbooks');
-Route::post('/digita/file', [FileController::class, 'store'])->name('filepost');
-Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
-
-Route::post('category/store/file', [FileController::class, 'Catestore'])->name('categoriesstore');
-Route::get('/create/cate/item', [FileController::class, 'Catecreate'])->name('categoriescreate');
-Route::get('/edit/cate/item/{id}', [FileController::class, 'CateEdit'])->name('catedit');
-Route::post('category/update/{id}', [FileController::class, 'CateUpdate'])->name('categoriesupdate');
-Route::delete('/categories/{id}', [FileController::class, 'destroyCate'])->name('categdestroy');
-Route::get('/edit/file/{id}', [FileController::class, 'EditFile'])->name('editfile');
-Route::post('material/update/{id}', [FileController::class, 'MaterialUpdate'])->name('materialsupdate');
-Route::get('/material/show/file/{id}', [FileController::class, 'ShowMaterial'])->name('fileshow');
-
-Route::delete('/materials/{id}', [FileController::class, 'destroy'])->name('deletefile');
-
-
-
-//  
 
 });
 
@@ -137,54 +432,37 @@ Route::get('/home/view/home/{id}', [FileController::class, 'ViewHome'])->name('v
 Route::get('/download-material/{id}', [FileController::class, 'download'])->name('download');
 
 
-//Route::get('/all/ditigal/file/student', [FileController::class, 'DigitalFilestudent'])->name('studentlibrarydigital');
+
 
 // Route for viewing material (accessible by logged-in students)
-Route::get('/material/{id}', [FileController::class, 'DigitalFilestudent'])->name('student.digital.viewFile');
 
 
 
-Route::get('/digita/book/home', [FileController::class, 'Home'])->name('studentlibrary');
-// 
 
-Route::get('/all/digital/file/student',[FileController::class, 'AllDigitalBook'])->name('studentlibrarydigital');
-Route::get('/view/student/single/student/{id}',[FileController::class, 'viewdigitalSingle'])->name('viewshow');
-Route::get('/library', [FileController::class, 'searchdigitalbook'])->name('library.index');
+
 
 Route::get('/materials/{id}/download', [FileController::class, 'download'])->name('material.download');
-
-//
-
-
-
-
 Route::get('/materials/create', [FileController::class, 'create'])->name('materials.create');
 Route::post('/materials/store', [FileController::class, 'storefile'])->name('materials.store');
-
 
 Route::get('/materials', [FileController::class, 'allpdfs'])->name('materials.index');
 Route::get('/materials/{id}', [FileController::class, 'allpdfshow'])->name('materials.show');
 
-
-
 Route::get('/view/file/home/{id}', [FileController::class, 'ViewOnlyFile'])->name('viewOnlyFile');
 
-Route::get('paymentprocess/{id}', [PesaController::class, 'process'])->name('paymentprocess');
-//Route::post('/payment/mpesa/{id}', [PesaController::class, 'processMpesaPayment'])->name('feepaymentmpesa');
 
 
-Route::middleware(['auth:student'])->group(function () {
+// Display M-Pesa payment page
+Route::get('/payment-process/{feeId}', [PesaController::class, 'Feepaymentmpesa'])
+    ->name('paymentprocess');
 
-Route::post('/feepaymentmpesa', [PesaController::class, 'manualPay'])->name('feepaymentmpesa');
+// Process STK Push payment - use the correct method name 'initiatePush'
+Route::post('/initiate-push', [PesaController::class, 'initiatePush'])
+    ->name('initiatepush');
 
-
-Route::post('/callbacks/stkcallback', [PesaController::class, 'StkCallback'])->name('mpesa.stkcallback');
-
-
-
-});
-
-Route::get('/initiatepush',[PesaController::class,'initiateStkPush'])->name('initiatepush');
+// M-Pesa callback - use the correct method name 'handleCallback'
+Route::post('/api/mpesa/callback', [PesaController::class, 'handleCallback'])
+    ->name('mpesa.callback');
     Route::post('/stkcallback',[PesaController::class,'stkCallback'])->name('stkcallback');
 
 
@@ -194,32 +472,13 @@ Route::get('/initiatepush',[PesaController::class,'initiateStkPush'])->name('ini
 Route::post('/paybill/store', [PesaController::class, 'store'])->name('storegatedetails');
 Route::get('/settings', [PesaController::class, 'index'])->name('settings.index');
 
-// Route::post('/pay/pesa/store/', [PesaController::class, 'Feepaymentmpesa'])->name('paymentprocess');
+ Route::get('/pay/pesa/store/', [PesaController::class, 'Feepaymentmpesa'])->name('paymentprocess');
 
 // Route::get('/payment/{fee_id}', [PaymentController::class, 'showPaymentForm'])->name('paymentform');
 
-// Route::get('/payment/success/{fee_id}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
+Route::get('/payment/success/{fee_id}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
 
 
-
-//feepaymentmpesa
-
-
-
-Route::get('/test/imagick', function () {
-    if (class_exists('Imagick')) {
-        return 'Imagick is installed and working!';
-    } else {
-        return 'Imagick is not installed!';
-    }
-});
-
-
-Route::get('/test/script', function () {
-    echo 'Starting script...' . PHP_EOL;
-    sleep(120); // Sleep for 120 seconds (2 minutes)
-    echo 'Script finished successfully after 2 minutes.';
-});
 
 
 Route::get('/test/balance', function (SMSService $smsService)
@@ -325,6 +584,14 @@ Route::middleware(['XSS'])->name('payment.')->namespace('Payment')->prefix('paym
 
 });
 
+Route::get('admin/fee-dashboard', [FeeDashboardController::class, 'index'])->name('admin.fee-dashboard.index');
+Route::get('admin/fee-dashboard/data', [FeeDashboardController::class, 'getDashboardData'])->name('admin.fee-dashboard.data');
+Route::post('admin/fee-dashboard/send-notifications', [FeeDashboardController::class, 'sendNotifications'])
+        ->name('admin.fee-dashboard.send-notifications');
+
+    Route::post('admin/fee-dashboard/send-single-notification', [FeeDashboardController::class, 'sendSingleNotification'])
+        ->name('admin.fee-dashboard.send-single-notification');
+
 
 // Admin Routes
 Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Admin')->prefix('admin')->group(function () {
@@ -332,6 +599,20 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     // Dashboard Route
     Route::get('/', 'DashboardController@index')->name('dashboard.index');
     Route::get('dashboard', 'DashboardController@index')->name('dashboard.index');
+    
+    // SMS Routes
+    Route::prefix('sms')->group(function () {
+        Route::get('/', 'SmsController@index')->name('sms.index');
+        Route::get('/create', 'SmsController@create')->name('sms.create');
+        Route::post('/send', 'SmsController@send')->name('sms.send');
+        Route::post('/send-individual', 'SmsController@sendIndividual')->name('sms.sendIndividual');
+        Route::get('/send/test', 'SmsController@sendTest')->name('sms.test');
+        Route::post('/config/store', 'SmsController@store')->name('sms.store');
+        Route::get('/search', 'SmsController@search')->name('sms.search');
+        Route::get('/{id}', 'SmsController@show')->name('sms.show');
+        Route::get('/balance/credit', 'SmsController@showCredits')->name('sms.balance');
+    });
+
 
 
 
@@ -398,7 +679,6 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::post('academic/subject-import-store', 'SubjectController@importStore')->name('subject.import.store');
     Route::resource('academic/enroll-subject', 'EnrollSubjectController');
 
-
     
     // Routine Routes
     Route::resource('routine/class-routine', 'ClassRoutineController');
@@ -452,6 +732,7 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::resource('download/content-type', 'ContentTypeController');
 
 
+    
 
     // Fees Collection Student
     Route::get('fees-student', 'FeesStudentController@index')->name('fees-student.index');
@@ -467,13 +748,26 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::post('fees-student-quick-received', 'FeesStudentController@quickReceivedStore')->name('fees-student.quick.received.store');
     Route::get('fees-student-quick-assign', 'FeesStudentController@quickAssign')->name('fees-student.quick.assign');
     Route::post('fees-student-quick-assign', 'FeesStudentController@quickAssignStore')->name('fees-student.quick.assign.store');
+     Route::get('quick-assign/{invoice}/edit', 'FeesStudentController@edit')->name('fees-student.quick.assign.edit');
+    Route::put('quick-assign/{invoice}', 'FeesStudentController@update')->name('fees-student.quick.assign.update');
+    
+    // Fees Master Routes
+    Route::resource('fees-master', 'FeesMasterController');
+     Route::get('/', [FeesMasterController::class, 'index'])->name('index');
+    Route::get('/create', [FeesMasterController::class, 'create'])->name('create');
+    Route::post('/', [FeesMasterController::class, 'store'])->name('store');
+    Route::get('fees-master/get-fee-structure', [FeesMasterController::class, 'getFeeStructure'])
+        ->name('fees-master.getFeeStructure');
+        Route::post('/send-reminder', [FeesMasterController::class, 'sendReminder'])->name('send-reminder');
+
 
     // Fees Routes
-    Route::resource('fees-master', 'FeesMasterController');
     Route::resource('fees-discount', 'FeesDiscountController');
     Route::resource('fees-fine', 'FeesFineController');
     Route::resource('fees-category', 'FeesCategoryController');
     Route::resource('fees-receipt', 'ReceiptSettingController');
+   
+    
 
 
 
@@ -503,8 +797,34 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::resource('staff/work-shift-type', 'WorkShiftTypeController');
     Route::resource('staff/staff-note', 'StaffNoteController');
     Route::resource('staff/tax-setting', 'TaxSettingController');
+    Route::resource('payroll/deduction-setting', 'DeductionSettingController');
 
-
+Route::resource('payroll', 'PayrollController');
+    Route::get('payroll/run/{id}/show', 'PayrollController@showRun')->name('payroll.run.show');
+    Route::post('payroll/bulk-generate', 'PayrollController@bulkGenerate')->name('payroll.bulk-generate');
+    Route::post('payroll/generate-employee', 'PayrollController@generateForEmployee')->name('payroll.generate-employee');
+    Route::post('payroll/{id}/pay', 'PayrollController@pay')->name('payroll.pay');
+    Route::post('payroll/bulk-pay', 'PayrollController@bulkPay')->name('payroll.bulk-pay');
+    Route::get('payroll/{id}/payslip', 'PayrollController@exportPdf')->name('payroll.payslip');
+    Route::get('payroll/run/{id}/master-report', 'PayrollController@downloadMasterReport')->name('payroll.master-report');
+    Route::get('payroll/run/{id}/export-pdfs', 'PayrollController@exportAllPayslips')->name('payroll.export-all');
+    
+    // Payroll Components Management
+    Route::get('payroll-components', 'PayrollComponentController@index')->name('payroll-components.index');
+    Route::post('payroll-components', 'PayrollComponentController@store')->name('payroll-components.store');
+    Route::put('payroll-components/{id}', 'PayrollComponentController@update')->name('payroll-components.update');
+    Route::post('payroll-components/{id}/toggle-status', 'PayrollComponentController@toggleStatus')->name('payroll-components.toggle-status');
+    
+    // NHIF Management
+    Route::get('nhif-settings', 'NHIFController@index')->name('nhif-settings.index');
+    Route::post('nhif-settings', 'NHIFController@store')->name('nhif-settings.store');
+    Route::put('nhif-settings/{id}', 'NHIFController@update')->name('nhif-settings.update');
+    Route::delete('nhif-settings/{id}', 'NHIFController@destroy')->name('nhif-settings.destroy');
+    
+    // PAYE Management
+    Route::get('paye-settings', 'PAYEController@index')->name('paye-settings.index');
+    Route::post('paye-settings', 'PAYEController@store')->name('paye-settings.store');
+    Route::put('paye-settings/{id}', 'PAYEController@update')->name('paye-settings.update');
 
     // Staff Attendance Routes
     Route::resource('attendance/staff-daily-attendance', 'StaffAttendanceController');
@@ -513,6 +833,23 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::get('attendance/staff-hourly-report', 'StaffHourlyAttendanceController@report')->name('staff-hourly-attendance.report');
     Route::get('attendance/staff-hourly-report/{id}', 'StaffHourlyAttendanceController@reportDetails')->name('staff-hourly-attendance.report.details');
 
+
+    // Excel Export Routes
+Route::get('payroll/run/{id}/export-excel', [PayrollController::class, 'exportExcel'])->name('payroll.export-excel');
+Route::get('payroll/run/{id}/export-master-excel', [PayrollController::class, 'exportMasterReportExcel'])->name('payroll.export-master-excel');
+Route::get('payroll/entry/{id}/export-payslip-excel', [PayrollController::class, 'exportPayslipExcel'])->name('payroll.export-payslip-excel');
+Route::get('payroll/run/{id}/export-all-payslips', [PayrollController::class, 'exportAllPayslips'])->name('payroll.export-all-payslips');
+
+// Print Routes
+Route::get('payroll/entry/{id}/print', [PayrollController::class, 'printPayslip'])->name('payroll.print-payslip');
+Route::get('payroll/run/{id}/print-master', [PayrollController::class, 'printMasterReport'])->name('payroll.print-master-report');
+
+
+    Route::post('/settings/nhif/update', [PayrollController::class, 'updateNhifSettings'])
+         ->name('admin.payroll.settings.nhif.update');
+         
+    Route::post('/settings/paye/update', [PayrollController::class, 'updatePayeSettings'])
+         ->name('admin.payroll.settings.paye.update');
 
 
     // Staff Leave Routes
@@ -529,8 +866,7 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::resource('account/expense', 'ExpenseController');
     Route::resource('account/expense-category', 'ExpenseCategoryController');
     Route::resource('account/outcome', 'OutcomeCalculationController');
-
-
+    
 
     // Communicate Routes
     Route::resource('communicate/email-notify', 'EmailNotifyController');
@@ -540,6 +876,49 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
     Route::resource('communicate/notice', 'NoticeController');
     Route::resource('communicate/notice-category', 'NoticeCategoryController');
 
+// Billing Routes
+Route::group(['prefix' => 'billing', 'as' => 'billing.'], function() {
+    Route::get('/', [BillingController::class, 'index'])->name('index');
+    Route::get('/create', [BillingController::class, 'create'])->name('create');
+    Route::post('/', [BillingController::class, 'store'])->name('store');
+    Route::get('/{billing}', [BillingController::class, 'show'])->name('show');
+    Route::get('/{billing}/edit', [BillingController::class, 'edit'])->name('edit');
+    Route::put('/{billing}', [BillingController::class, 'update'])->name('update');
+    Route::delete('/{billing}', [BillingController::class, 'destroy'])->name('destroy');
+    Route::get('/{billing}/print', [BillingController::class, 'print'])->name('print');
+});
+
+// Expense Routes (add receipt route)
+Route::group(['prefix' => 'expense', 'as' => 'expense.'], function() {
+    // ... other routes ...
+    Route::get('/{expense}/receipt', [ExpenseController::class, 'receipt'])->name('receipt');
+});
+
+// Receivable Invoice Routes
+Route::group(['prefix' => 'receivable-invoice', 'as' => 'receivable-invoice.'], function() {
+    Route::get('/', [ReceivableInvoiceController::class, 'index'])->name('index');
+    Route::get('/create', [ReceivableInvoiceController::class, 'create'])->name('create');
+    Route::post('/', [ReceivableInvoiceController::class, 'store'])->name('store');
+    Route::get('/{receivableInvoice}', [ReceivableInvoiceController::class, 'show'])->name('show');
+    Route::get('/{receivableInvoice}/edit', [ReceivableInvoiceController::class, 'edit'])->name('edit');
+    Route::put('/{receivableInvoice}', [ReceivableInvoiceController::class, 'update'])->name('update');
+    Route::delete('/{receivableInvoice}', [ReceivableInvoiceController::class, 'destroy'])->name('destroy');
+    Route::get('/{receivableInvoice}/print', [ReceivableInvoiceController::class, 'print'])->name('print');
+    // AJAX routes for searchable dropdowns
+Route::get('/receivable-invoice/ajax/students', [ReceivableInvoiceController::class, 'getStudents'])->name('ajax.students');
+Route::get('/receivable-invoice/ajax/staff', [ReceivableInvoiceController::class, 'getStaff'])->name('ajax.staff');
+    // AJAX routes for dropdowns
+    Route::get('/get/students', [ReceivableInvoiceController::class, 'getStudents'])->name('get.students');
+    Route::get('/get/staff', [ReceivableInvoiceController::class, 'getStaff'])->name('get.staff');
+});
+
+
+
+// Income Routes
+Route::group(['prefix' => 'income', 'as' => 'income.'], function() {
+    // ... other routes ...
+    Route::get('/{income}/receipt', [IncomeController::class, 'receipt'])->name('receipt');
+});
 
 
     // Library Routes
@@ -721,9 +1100,16 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
 
         Route::resource('slider', 'SliderController');
         Route::resource('feature', 'FeatureController');
-        Route::resource('about-us', 'AboutUsController');
+
+ //Route::post('about-us', [App\Http\Controllers\Admin\Web\AboutUsController::class, 'store'])->name('about-us.store');
+Route::resource('about-us', App\Http\Controllers\Admin\Web\AboutUsController::class);
+
+
         Route::resource('course', 'CourseController');
-        Route::resource('web-event', 'WebEventController');
+            
+Route::get('/events', [WebEventController::class, 'index'])->name('events');
+        
+          Route::resource('web-event', 'WebEventController');
         Route::resource('news', 'NewsController');
         Route::resource('gallery', 'GalleryController');
         Route::resource('faq', 'FaqController');
@@ -732,7 +1118,10 @@ Route::middleware(['auth:web', 'XSS', 'license'])->name('admin.')->namespace('Ad
         Route::resource('call-to-action', 'CallToActionController');
         Route::resource('social-setting', 'SocialSettingController');
         Route::resource('topbar-setting', 'TopbarSettingController');
+        
     });
+
+
 });
 
 
@@ -767,6 +1156,7 @@ Route::prefix('student')->name('student.')->namespace('Student')->group(function
 Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')->namespace('Student')->group(function () {
 
     // Dashboard Route
+    
     Route::get('/', 'DashboardController@index')->name('dashboard.index');
     Route::get('dashboard', 'DashboardController@index')->name('dashboard.index');
 
@@ -821,4 +1211,16 @@ Route::resource('subject', 'App\Http\Controllers\Student\StudentSubjectControlle
     Route::get('profile/account', 'ProfileController@account')->name('profile.account');
     // Route::post('profile/changemail', 'ProfileController@changeMail')->name('profile.changemail');
     // Route::post('profile/changepass', 'ProfileController@changePass')->name('profile.changepass');
+
+
+
+Route::get('/all/ditigal/file/student', [FileController::class, 'DigitalFilestudent'])->name('studentlibrarydigital');
+Route::get('/student/test/', [StudentFileController::class, 'testFile'])->name('testfile');
+Route::get('/student/all/ditigal/file/student', [\App\Http\Controllers\Student\FileController::class, 'DigitalFilestudent'])->name('student.studentlibrarydigital');
+
+    
+// Remove any existing route definition and use this:
+Route::get('/student/digital/material/{id}/view', [App\Http\Controllers\Admin\FileController::class, 'viewMaterial'])
+    ->name('digital.material.view');
+
 });

@@ -12,7 +12,7 @@ class Field extends Model
      * @var array
      */
     protected $fillable = [
-        'slug', 'status',
+        'slug', 'status','key'
     ];
 
     // Get Record
@@ -22,4 +22,6 @@ class Field extends Model
 
         return $field;
     }
+
+
 }

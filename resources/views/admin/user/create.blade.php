@@ -557,6 +557,42 @@
                                   {{ __('required_field') }} {{ __('field_tin_no') }}
                                 </div>
                             </div>
+                            <!-- New Fields Added Here -->
+    <div class="form-group col-md-3">
+        <label for="kra_pin">{{ __('field_kra_pin') }}</label>
+        <input type="text" class="form-control" name="kra_pin" id="kra_pin" value="{{ old('kra_pin') }}">
+
+        <div class="invalid-feedback">
+          {{ __('required_field') }} {{ __('field_kra_pin') }}
+        </div>
+    </div>
+
+    <div class="form-group col-md-3">
+        <label for="nssf_number">{{ __('field_nssf_number') }}</label>
+        <input type="text" class="form-control" name="nssf_number" id="nssf_number" value="{{ old('nssf_number') }}">
+
+        <div class="invalid-feedback">
+          {{ __('required_field') }} {{ __('field_nssf_number') }}
+        </div>
+    </div>
+
+    <div class="form-group col-md-3">
+        <label for="sha_number">{{ __('field_sha_number') }}</label>
+        <input type="text" class="form-control" name="sha_number" id="sha_number" value="{{ old('sha_number') }}">
+
+        <div class="invalid-feedback">
+          {{ __('required_field') }} {{ __('field_sha_number') }}
+        </div>
+    </div>
+
+    <div class="form-group col-md-3">
+        <label for="nhif">{{ __('field_nhif') }}</label>
+        <input type="text" class="form-control" name="nhif" id="nhif" value="{{ old('nhif') }}">
+
+        <div class="invalid-feedback">
+          {{ __('required_field') }} {{ __('field_nhif') }}
+        </div>
+    </div>
                             </fieldset>
                             <!-- Form End--->
                         </content>

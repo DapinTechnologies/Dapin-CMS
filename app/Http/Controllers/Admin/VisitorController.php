@@ -46,6 +46,8 @@ class VisitorController extends Controller
      */
     public function index(Request $request)
     {
+
+      
         //
         $data['title'] = $this->title;
         $data['route'] = $this->route;
@@ -190,7 +192,9 @@ class VisitorController extends Controller
      */
     public function show(Visitor $visitor)
     {
-        //
+        
+
+
         $data['title'] = $this->title;
         $data['route'] = $this->route;
         $data['view'] = $this->view;

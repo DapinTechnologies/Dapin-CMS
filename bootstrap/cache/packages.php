@@ -21,6 +21,17 @@
       0 => 'Intervention\\Image\\ImageServiceProvider',
     ),
   ),
+  'jenssegers/agent' => 
+  array (
+    'aliases' => 
+    array (
+      'Agent' => 'Jenssegers\\Agent\\Facades\\Agent',
+    ),
+    'providers' => 
+    array (
+      0 => 'Jenssegers\\Agent\\AgentServiceProvider',
+    ),
+  ),
   'kingflamez/laravelrave' => 
   array (
     'aliases' => 
@@ -151,6 +162,17 @@
       0 => 'Rahulreghunath\\Textlocal\\ServiceProvider',
     ),
   ),
+  'simplesoftwareio/simple-qrcode' => 
+  array (
+    'aliases' => 
+    array (
+      'QrCode' => 'SimpleSoftwareIO\\QrCode\\Facades\\QrCode',
+    ),
+    'providers' => 
+    array (
+      0 => 'SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider',
+    ),
+  ),
   'spatie/laravel-ignition' => 
   array (
     'aliases' => 
@@ -196,6 +218,17 @@
     'providers' => 
     array (
       0 => 'Stevebauman\\Purify\\PurifyServiceProvider',
+    ),
+  ),
+  'torann/geoip' => 
+  array (
+    'aliases' => 
+    array (
+      'GeoIP' => 'Torann\\GeoIP\\Facades\\GeoIP',
+    ),
+    'providers' => 
+    array (
+      0 => 'Torann\\GeoIP\\GeoIPServiceProvider',
     ),
   ),
   'unicodeveloper/laravel-paystack' => 

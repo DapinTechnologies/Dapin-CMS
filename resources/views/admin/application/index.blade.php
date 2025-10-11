@@ -1,6 +1,16 @@
 @extends('admin.layouts.master')
 @section('title', $title)
 @section('content')
+@flasher_render 
+
+
+
+
+<!-- Toastr CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <!-- Start Content-->
 <div class="main-body">
@@ -9,6 +19,26 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="card">
+                    
+                    <!-- Success or Error Alert -->
+                    @if(session('success'))
+                        <script>
+                            toastr.success("{{ session('success') }}", "Success", {
+                                "positionClass": "toast-top-right",
+                                "closeButton": true,
+                                "progressBar": true
+                            });
+                        </script>
+                    @elseif(session('error'))
+                        <script>
+                            toastr.error("{{ session('error') }}", "Error", {
+                                "positionClass": "toast-top-right",
+                                "closeButton": true,
+                                "progressBar": true
+                            });
+                        </script>
+                    @endif
+
                     <div class="card-header">
                         <h5>{{ $title }} {{ __('list') }}</h5>
                     </div>
@@ -20,13 +50,9 @@
                                     <select class="form-control" name="program" id="program">
                                         <option value="0">{{ __('all') }}</option>
                                         @foreach( $programs as $program )
-                                        <option value="{{ $program->id }}" @if( $selected_program == $program->id) selected @endif>{{ $program->title }}</option>
+                                            <option value="{{ $program->id }}" @if( $selected_program == $program->id) selected @endif>{{ $program->title }}</option>
                                         @endforeach
                                     </select>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_program') }}
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="status">{{ __('field_status') }}</label>
@@ -36,34 +62,18 @@
                                         <option value="2" @if( $selected_status == 2 ) selected @endif>{{ __('status_approved') }}</option>
                                         <option value="0" @if( $selected_status == 0 ) selected @endif>{{ __('status_rejected') }}</option>
                                     </select>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_status') }}
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="start_date">{{ __('field_from_date') }}</label>
                                     <input type="date" class="form-control date" name="start_date" id="start_date" value="{{ $selected_start_date }}" required>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_from_date') }}
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="end_date">{{ __('field_to_date') }}</label>
                                     <input type="date" class="form-control date" name="end_date" id="end_date" value="{{ $selected_end_date }}" required>
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_to_date') }}
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <label for="registration_no">{{ __('field_registration_no') }}</label>
                                     <input type="text" class="form-control" name="registration_no" id="registration_no" value="{{ $selected_registration_no }}">
-
-                                    <div class="invalid-feedback">
-                                      {{ __('required_field') }} {{ __('field_registration_no') }}
-                                    </div>
                                 </div>
                                 <div class="form-group col-md-2">
                                     <button type="submit" class="btn btn-info btn-filter"><i class="fas fa-search"></i> {{ __('btn_search') }}</button>
@@ -94,32 +104,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  @foreach( $rows as $key => $row )
+                                    @foreach( $rows as $key => $row )
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
                                         <td>
-                                            <a href="{{ route($route.'.show', $row->id) }}">
-                                            #{{ $row->registration_no }}
-                                            </a>
+                                            <a href="{{ route($route.'.show', $row->id) }}">#{{ $row->registration_no }}</a>
                                         </td>
                                         <td>{{ $row->first_name }} {{ $row->last_name }}</td>
-                                        <td>
-                                            @if( $row->gender == 1 )
-                                            {{ __('gender_male') }}
-                                            @elseif( $row->gender == 2 )
-                                            {{ __('gender_female') }}
-                                            @elseif( $row->gender == 3 )
-                                            {{ __('gender_other') }}
-                                            @endif
-                                        </td>
+                                        <td>{{ $row->gender == 1 ? __('gender_male') : ($row->gender == 2 ? __('gender_female') : __('gender_other')) }}</td>
                                         <td>{{ $row->program->title ?? '' }}</td>
-                                        <td>
-                                            @if(isset($setting->date_format))
-                                            {{ date($setting->date_format, strtotime($row->apply_date)) }}
-                                            @else
-                                            {{ date("Y-m-d", strtotime($row->apply_date)) }}
-                                            @endif
-                                        </td>
+                                        <td>{{ date("Y-m-d", strtotime($row->apply_date)) }}</td>
                                         <td>
                                             @if( $row->status == 1 )
                                             <span class="badge badge-pill badge-primary">{{ __('status_pending') }}</span>
@@ -177,11 +171,26 @@
                 </div>
             </div>
             @endisset
-            
         </div>
         <!-- [ Main Content ] end -->
     </div>
 </div>
 <!-- End Content-->
+
+<script type="text/javascript">
+    @if(session('success'))
+        toastr.success("{{ session('success') }}", "Success", {
+            "positionClass": "toast-top-right",
+            "closeButton": true,
+            "progressBar": true
+        });
+    @elseif(session('error'))
+        toastr.error("{{ session('error') }}", "Error", {
+            "positionClass": "toast-top-right",
+            "closeButton": true,
+            "progressBar": true
+        });
+    @endif
+</script>
 
 @endsection

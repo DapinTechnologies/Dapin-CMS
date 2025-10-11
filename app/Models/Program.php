@@ -75,5 +75,21 @@ class Program extends Model
         return $this->hasMany(Content::class, 'program_id', 'id');
     }
 
-  
+    public function invoices()
+{
+    return $this->hasManyThrough(
+        Invoice::class,
+        StudentEnroll::class,
+        'program_id', // Foreign key on StudentEnroll table
+        'student_enroll_id', // Foreign key on Invoice table
+        'id', // Local key on Program table
+        'id' // Local key on StudentEnroll table
+    );
+}
+
+public function scopeActive($query)
+{
+    return $query->where('status', 1); // or whatever your active condition is
+}
+
 }

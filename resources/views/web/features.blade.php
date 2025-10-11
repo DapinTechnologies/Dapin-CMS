@@ -1,10 +1,9 @@
-@if(count($features) > 0)
-<!-- service-area -->
-<section class="service-details-two p-relative">
+<!-- FIXED: Feature Services Section (limited to 3) -->
+<section class="service-details-two" style="position: relative; z-index: 1;">
     <div class="container">
         <div class="row">
-            @foreach($features as $key => $feature)
-            <div class="col-lg-4 col-md-6 col-sm-12 mb-4"> <!-- added mb-4 for spacing -->
+            @foreach($features->take(3) as $key => $feature)
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
                 <div class="services-box07 @if($key == 1) active @endif h-100">
                     <div class="sr-contner">
                         <div class="icon mb-3 text-center">
@@ -21,5 +20,3 @@
         </div>
     </div>
 </section>
-<!-- service-area-end -->
-@endif

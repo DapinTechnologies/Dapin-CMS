@@ -162,6 +162,7 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
+          Torann\GeoIP\GeoIPServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -175,6 +176,7 @@ return [
         Clickatell\ClickatellServiceProvider::class,
         Obydul\LaraSkrill\LaraSkrillServiceProvider::class,
         Unicodeveloper\Paystack\PaystackServiceProvider::class,
+        SimpleSoftwareIO\QrCode\QrCodeServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -249,6 +251,7 @@ return [
         'Clickatell' => Clickatell\ClickatellFacade::class,
         //Paystack
         'Paystack' => Unicodeveloper\Paystack\Facades\Paystack::class,
+        'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,
     ],
 
 ];

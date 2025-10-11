@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\IncomeCategory;
 use Illuminate\Http\Request;
+use App\Models\ReceivableInvoice;
+use App\Services\ReconciliationService;
 use App\Traits\FileUploader;
 use App\Models\Income;
 use Carbon\Carbon;
@@ -42,61 +44,63 @@ class IncomeController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {
-        //
-        $data['title'] = $this->title;
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = $this->path;
-        $data['access'] = $this->access;
+{
+    //
+    $data['title'] = $this->title;
+    $data['route'] = $this->route;
+    $data['view'] = $this->view;
+    $data['path'] = $this->path;
+    $data['access'] = $this->access;
 
-
-        if(!empty($request->title) || $request->title != null){
-            $data['selected_title'] = $title = $request->title;
-        }
-        else{
-            $data['selected_title'] = $title = null;
-        }
-
-        if(!empty($request->category) || $request->category != null){
-            $data['selected_category'] = $category = $request->category;
-        }
-        else{
-            $data['selected_category'] = $category = '0';
-        }
-
-        if(!empty($request->start_date) || $request->start_date != null){
-            $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
-            $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subYear()));
-        }
-
-        if(!empty($request->end_date) || $request->end_date != null){
-            $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
-            $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
-        }
-
-
-        // Search Filter
-        $data['categories'] = IncomeCategory::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
-
-        $rows = Income::whereDate('date', '>=', $start_date)
-                    ->whereDate('date', '<=', $end_date);
-                    if(!empty($request->title) || $request->title != null){
-                        $rows->where('title', 'LIKE', '%'.$title.'%');
-                    }
-                    if(!empty($request->category) || $request->category != null){
-                        $rows->where('category_id', $category);
-                    }
-        $data['rows'] = $rows->orderBy('id', 'desc')->get();
-
-        return view($this->view.'.index', $data);
+    // Define filter variables FIRST
+    if(!empty($request->title) || $request->title != null){
+        $data['selected_title'] = $title = $request->title;
+    }
+    else{
+        $data['selected_title'] = $title = null;
     }
 
+    if(!empty($request->category) || $request->category != null){
+        $data['selected_category'] = $category = $request->category;
+    }
+    else{
+        $data['selected_category'] = $category = '0';
+    }
+
+    if(!empty($request->start_date) || $request->start_date != null){
+        $data['selected_start_date'] = $start_date = $request->start_date;
+    }
+    else{
+        $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subYear()));
+    }
+
+    if(!empty($request->end_date) || $request->end_date != null){
+        $data['selected_end_date'] = $end_date = $request->end_date;
+    }
+    else{
+        $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
+    }
+
+    // Search Filter
+    $data['categories'] = IncomeCategory::where('status', '1')
+                        ->orderBy('title', 'asc')->get();
+
+    // Now build the query AFTER variables are defined
+    $rows = Income::with(['category', 'receivableInvoice'])
+                ->whereDate('date', '>=', $start_date)
+                ->whereDate('date', '<=', $end_date);
+                
+    if(!empty($request->title) || $request->title != null){
+        $rows->where('title', 'LIKE', '%'.$title.'%');
+    }
+    if(!empty($request->category) || $request->category != null){
+        $rows->where('category_id', $category);
+    }
+    
+    $data['rows'] = $rows->orderBy('id', 'desc')->get();
+
+    return view($this->view.'.index', $data);
+}
     /**
      * Show the form for creating a new resource.
      *
@@ -111,9 +115,21 @@ class IncomeController extends Controller
 
         $data['categories'] = IncomeCategory::where('status', '1')
                             ->orderBy('title', 'asc')->get();
-
+         $data['receivableInvoices'] = ReceivableInvoice::where('status', 1)->get();
         return view($this->view.'.create', $data);
     }
+
+
+    /**
+ * Print receipt for income
+ */
+public function receipt(Income $income)
+{
+    $data['title'] = $this->title;
+    $data['row'] = $income;
+
+    return view($this->view.'.receipt', $data);
+}
 
     /**
      * Store a newly created resource in storage.
@@ -137,6 +153,7 @@ class IncomeController extends Controller
         $income = new Income;
         $income->category_id = $request->category;
         $income->title = $request->title;
+        $income->receivable_invoice_id = $request->receivable_invoice_id;
         $income->invoice_id = $request->invoice_id;
         $income->amount = $request->amount;
         $income->date = $request->date;

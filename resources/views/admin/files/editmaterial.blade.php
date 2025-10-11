@@ -6,7 +6,7 @@
     <div class="page-wrapper">
         <div class="row">
             <div class="col-md-8 offset-md-2">
-                <form class="needs-validation" action="{{ route('materialsupdate', $material->id) }}" method="post" enctype="multipart/form-data">
+                <form class="needs-validation" action="{{ route('admin.materialsupdate', $material->id) }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="card">
                         <div class="card-header">

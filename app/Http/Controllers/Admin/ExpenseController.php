@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ExpenseCategory;
 use Illuminate\Http\Request;
+use App\Models\Billing;
 use App\Traits\FileUploader;
+use App\Services\ReconciliationService;
 use App\Models\Expense;
 use Carbon\Carbon;
 use Toastr;
@@ -111,6 +113,7 @@ class ExpenseController extends Controller
 
         $data['categories'] = ExpenseCategory::where('status', '1')
                             ->orderBy('title', 'asc')->get();
+        $data['billings'] = Billing::where('status', 1)->get();
 
         return view($this->view.'.create', $data);
     }
@@ -137,6 +140,7 @@ class ExpenseController extends Controller
         $expense = new Expense;
         $expense->category_id = $request->category;
         $expense->title = $request->title;
+        $expense->billing_id = $request->billing_id;
         $expense->invoice_id = $request->invoice_id;
         $expense->amount = $request->amount;
         $expense->date = $request->date;
@@ -248,4 +252,19 @@ class ExpenseController extends Controller
 
         return redirect()->back();
     }
+
+    /**
+ * Print receipt for payable
+ */
+/**
+ * Print receipt for payable
+ */
+public function receipt(Expense $expense)
+{
+    $data['title'] = $this->title;
+    $data['row'] = $expense;
+
+    return view($this->view.'.receipt', $data);
+}
+
 }

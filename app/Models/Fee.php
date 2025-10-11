@@ -55,4 +55,17 @@ public function transactions()
     return $this->hasMany(Transaction::class, 'fee_id', 'id');
 }
 
+ public function payments()
+    {
+        return $this->hasMany(FeePayment::class, 'fee_id');
+    }
+
+    public function getDueAmountAttribute()
+    {
+        return $this->amount - $this->payments->sum('amount');
+    }
+    public function feeStructureItem()
+{
+    return $this->belongsTo(FeeStructureItem::class, 'fee_structure_item_id');
+}
 }

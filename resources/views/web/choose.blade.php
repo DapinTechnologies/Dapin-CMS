@@ -1,112 +1,133 @@
-<!-- Owl Carousel CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css"/>
-
 <style>
-    .why-choose-carousel .card {
-        min-height: 330px;
-        margin-bottom: 20px;
-    }
-    .owl-carousel .owl-stage {
-        display: flex !important;
-    }
-    .owl-nav {
-        display: flex;
-        justify-content: space-between;
-        position: absolute;
-        top: 45%;
-        width: 100%;
-        padding: 0 15px;
-        pointer-events: none;
-    }
-    .owl-nav span {
-        background: #007bff;
-        color: #fff;
-        border-radius: 50%;
-        padding: 5px 10px;
-        font-size: 1.5rem;
-        pointer-events: all;
-        cursor: pointer;
-    }
+  /* Reason Card Styles */
+  .reason-card {
+      background-color: #f9f9f9;  /* Lighter background */
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-top: 4px solid #4A5568;  /* Lighter border color */
+      position: relative;
+      z-index: 1;
+      padding-top: 60px;
+      min-height: 350px;
+  }
+
+  .reason-icon {
+      width: 52px;
+      height: 52px;
+      background: #4A5568;  /* Lighter, neutral color */
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.6rem;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+  }
+
+  .reason-content {
+      padding: 16px 20px;
+      margin-top: 32px;
+      text-align: center;
+      flex-grow: 1;
+  }
+
+  .reason-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #4A5568;  /* Lighter text color */
+      margin-bottom: 10px;
+  }
+
+  .reason-description {
+      font-size: 0.95rem;
+      color: #6c757d;  /* Light grey text */
+      line-height: 1.5;
+  }
+
+  /* Glide Carousel Styling for mobile */
+  @media (max-width: 768px) {
+      .reason-card {
+          min-height: 320px;
+      }
+      .reason-title {
+          font-size: 1.1rem;
+      }
+      .reason-description {
+          font-size: 0.9rem;
+      }
+  }
 </style>
 
 <!-- Why Choose Us Section -->
-<section class="why-choose-us-section py-5 bg-white" id="why-choose-us" aria-labelledby="why-us-heading">
+<section class="choose-section" aria-labelledby="choose-heading">
     <div class="container">
-        <header class="text-center mb-5" data-aos="fade-up">
-            <h2 id="why-us-heading" class="fw-bold">Why Choose Us?</h2>
-            <p class="text-muted">A choice that makes the difference in education and career success.</p>
-        </header>
-
-        @php
-            $features = [
-                ['icon' => 'graduation-cap', 'title' => 'Accredited Programs', 'desc' => 'Our programs are officially certified by examination bodies including KNEC, KASNEB, and City & Guilds.'],
-                ['icon' => 'chalkboard-teacher', 'title' => 'Expert Instructors', 'desc' => 'Highly skilled trainers dedicated to delivering quality and career-relevant education.'],
-                ['icon' => 'book-open', 'title' => 'Hands-On Training', 'desc' => 'Learn by doing with real-world simulations, projects, and labs.'],
-                ['icon' => 'award', 'title' => 'Proven Success', 'desc' => 'Our graduates thrive in both employment and higher learning.'],
-            ];
-        @endphp
-
-        <!-- Desktop Grid Layout -->
-        <div class="row g-4 d-none d-md-flex" itemscope itemtype="https://schema.org/ItemList">
-            @foreach($features as $i => $f)
-                <div class="col-md-6 col-lg-3" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" data-aos="fade-up" data-aos-delay="{{ 100 * $i }}">
-                    <meta itemprop="position" content="{{ $i + 1 }}">
-                    <div class="card h-100 text-center shadow-sm border-0 p-4">
-                        <div class="mb-3">
-                            <i class="fas fa-{{ $f['icon'] }} fa-2x text-primary" aria-hidden="true"></i>
-                        </div>
-                        <h5 class="fw-bold">{{ $f['title'] }}</h5>
-                        <p class="text-muted small">{{ $f['desc'] }}</p>
-                    </div>
-                </div>
-            @endforeach
+        <div class="section-header">
+            <h2 id="choose-heading" class="text-gray-800">Why Choose Us?</h2>
+            <p>A choice that makes the difference in your academic journey and future career</p>
         </div>
 
-        <!-- Mobile Carousel -->
-        <div class="owl-carousel why-choose-carousel d-none d-md-none" itemscope itemtype="https://schema.org/ItemList">
-            @foreach($features as $i => $f)
-                <div class="card text-center shadow-sm border-0 p-4 mx-2" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                    <meta itemprop="position" content="{{ $i + 1 }}">
-                    <div class="mb-3">
-                        <i class="fas fa-{{ $f['icon'] }} fa-2x text-primary" aria-hidden="true"></i>
-                    </div>
-                    <h5 class="fw-bold">{{ $f['title'] }}</h5>
-                    <p class="text-muted small">{{ $f['desc'] }}</p>
-                </div>
-            @endforeach
+        @php
+            // Fetching all the reasons from the 'reasons' table
+            $reasons = \App\Models\Reason::all();
+        @endphp
+
+        <div class="glide" id="reasonsCarousel">
+            <div class="glide__track" data-glide-el="track">
+                <ul class="glide__slides">
+                    @foreach($reasons as $reason)
+                        <li class="glide__slide">
+                            <div class="reason-card">
+                                <div class="reason-icon">
+                                    <i class="{{ $reason['icon'] }}"></i>
+                                </div>
+                                <div class="reason-content">
+                                    <h3 class="reason-title">{{ $reason['title'] }}</h3>
+                                    <p class="reason-description">{{ $reason['description'] }}</p>
+                                </div>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            <!-- Arrows -->
+            <div class="glide__arrows text-center mt-4" data-glide-el="controls">
+                <button class="glide__arrow glide__arrow--left me-2" data-glide-dir="<">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Owl Carousel JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-
-<!-- Mobile Carousel Init -->
+<!-- Glide.js Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Glide.js/3.6.0/glide.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        if (window.matchMedia("(max-width: 767px)").matches) {
-            const carousel = document.querySelector('.why-choose-carousel');
-            if (carousel) {
-                $(carousel).removeClass('d-none').addClass('d-block');
-                $(carousel).owlCarousel({
-                    items: 1,
-                    loop: true,
-                    margin: 20,
-                    nav: true,
-                    dots: true,
-                    autoplay: true,
-                    autoplayTimeout: 4000,
-                    smartSpeed: 600,
-                    navText: [
-                        '<span class="owl-nav-prev">‹</span>',
-                        '<span class="owl-nav-next">›</span>'
-                    ]
-                });
+        new Glide('#reasonsCarousel', {
+            type: 'carousel',
+            perView: 3,
+            gap: 24,
+            autoplay: 4000,
+            hoverpause: true,
+            breakpoints: {
+                1200: { perView: 2.5 },
+                992: { perView: 2 },
+                768: { perView: 1.5 },
+                576: { perView: 1 }
             }
-        }
+        }).mount();
     });
 </script>
-

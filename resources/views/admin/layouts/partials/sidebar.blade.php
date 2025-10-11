@@ -87,13 +87,13 @@
     <ul class="pcoded-submenu">
         @can('sms-view')
         <li class="{{ Request::is('admin/sms') ? 'active' : '' }}">
-            <a href="{{ route('sms.index') }}">{{ __('View SMS Logs') }}</a>
+            <a href="{{ route('admin.sms.index') }}">{{ __('View SMS Logs') }}</a>
         </li>
         @endcan
 
         @can('sms-send')
-        <li class="{{ Request::is('admin/sms/create') ? 'active' : '' }}">
-            <a href="{{ route('sms.create') }}">{{ __('Send New SMS') }}</a>
+        <li class="{{ Request::is('admin/sms/create*') ? 'active' : '' }}">
+            <a href="{{ route('admin.sms.create') }}">{{ __('Send New SMS') }}</a>
         </li>
         @endcan
     </ul>
@@ -102,31 +102,6 @@
 
 <!--------END OF SMS MANAGEMENT---------->
 
-
-
-<!-- resources/views/partials/sidebar.blade.php -->
-
-@canany(['sms-view', 'sms-send'])
-<li class="nav-item pcoded-hasmenu {{ Request::is('sms*') ? 'pcoded-trigger active' : '' }}">
-    <a href="#!" class="nav-link">
-        <span class="pcoded-micon"><i class="fas fa-envelope"></i></span>
-        <span class="pcoded-mtext">{{ __('SMS Management') }}</span>
-    </a>
-    <ul class="pcoded-submenu">
-        @can('sms-view')
-        <li class="{{ Request::is('sms') ? 'active' : '' }}">
-            <a href="{{ route('sms.index') }}" class="">{{ __('SMS View') }}</a>
-        </li>
-        @endcan
-
-        @can('sms-send')
-        <li class="{{ Request::is('sms/create') || Request::is('sms/send') ? 'active' : '' }}">
-            <a href="{{ route('sms.create') }}" class="">{{ __('Send New SMS') }}</a>
-        </li>
-        @endcan
-    </ul>
-</li>
-@endcanany
 
 
 
@@ -504,32 +479,9 @@
 
 
             <ul class="pcoded-submenu">
-                @can('fees-receipt-view')
-                <li class="{{ Request::is('admin/fees-receipt*') ? 'active' : '' }}"><a href="{{ route('admin.fees-receipt.index') }}" class="">{{ trans_choice('module_fees_receipt_setting', 1) }}</a></li>
-                @endcan
             </ul>
         </li>
         @endcanany
-    </ul>
-</li>
-@endcanany
-
-
-
-
-
-
-
-
-
-
-
-<!------------- END TEVETA
-
-
-
-
-
 
 
 

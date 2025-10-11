@@ -24,7 +24,6 @@ class FeesCategoryController extends Controller
         $this->path = 'fees-category';
         $this->access = 'fees-category';
 
-
         $this->middleware('permission:'.$this->access.'-view|'.$this->access.'-create|'.$this->access.'-edit|'.$this->access.'-delete', ['only' => ['index','show']]);
         $this->middleware('permission:'.$this->access.'-create', ['only' => ['create','store']]);
         $this->middleware('permission:'.$this->access.'-edit', ['only' => ['edit','update']]);
@@ -38,7 +37,6 @@ class FeesCategoryController extends Controller
      */
     public function index()
     {
-        //
         $data['title'] = $this->title;
         $data['route'] = $this->route;
         $data['view'] = $this->view;
@@ -55,51 +53,9 @@ class FeesCategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
-public function assignMultiple()
-{
-    // Fetch all categories to display in the form
-    $data['categories'] = FeesCategory::where('status', 1)->orderBy('title')->get();
-    return view('admin.fees-category.assign-fee-category', $data);
-}
-
-public function storeMultiple(Request $request)
-{
-    // Validate input
-    $request->validate([
-        'categories' => 'required|array|min:1',
-        'amounts' => 'required|array|min:1',
-    ]);
-
-    // Basic validation: categories and amounts count must match
-    if (count($request->categories) !== count($request->amounts)) {
-        return redirect()->back()->withErrors(['Category count and Amount count must match']);
-    }
-
-    $assignedCategories = [];
-
-    // Loop through each category and its amount
-    foreach ($request->categories as $index => $categoryId) {
-        $amount = $request->amounts[$index];
-
-        // Save or perform any action you need with the category and amount
-        // Here we just prepare the data to be returned to the view
-
-        $assignedCategories[] = [
-            'name' => FeesCategory::find($categoryId)->title,
-            'amount' => $amount,
-        ];
-    }
-
-    // Return to the view with the assigned categories data
-    return redirect()->route('admin.fees-category.assign-fee-category')
-        ->with('assignedCategories', $assignedCategories);
-}
-
-    
     public function create()
     {
-        //
+        abort(404); // Using modal for creation
     }
 
     /**
@@ -108,25 +64,30 @@ public function storeMultiple(Request $request)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-  public function store(Request $request)
-{
-    $request->validate([
-        'title' => 'required|max:191|unique:fees_categories,title',
-        'amount' => 'required|numeric|min:0',
-    ]);
+    public function store(Request $request)
+    {
+        // Field Validation
+        $request->validate([
+            'title' => 'required|max:191|unique:fees_categories,title',
+            'amount' => 'required|numeric|min:0',
+            'fee_type' => 'nullable|in:government,external,both',
+        ]);
 
-    $feesCategory = new FeesCategory;
-    $feesCategory->title = $request->title;
-    $feesCategory->amount = $request->amount;
-    $feesCategory->slug = Str::slug($request->title, '-');
-    $feesCategory->description = $request->description;
-    $feesCategory->status = 1; // or default status
-    $feesCategory->save();
+        // Insert Data
+        $feesCategory = new FeesCategory;
+        $feesCategory->title = $request->title;
+        $feesCategory->slug = Str::slug($request->title, '-');
+        $feesCategory->amount = $request->amount;
+        $feesCategory->fee_type = $request->fee_type;
+        $feesCategory->description = $request->description;
+        $feesCategory->status = 1;
+        $feesCategory->save();
 
-    Toastr::success(__('msg_created_successfully'), __('msg_success'));
+        Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-    return redirect()->back();
-}
+        return redirect()->back();
+    }
+
     /**
      * Display the specified resource.
      *
@@ -135,7 +96,7 @@ public function storeMultiple(Request $request)
      */
     public function show(FeesCategory $feesCategory)
     {
-        //
+        abort(404); // Not implemented
     }
 
     /**
@@ -146,7 +107,7 @@ public function storeMultiple(Request $request)
      */
     public function edit(FeesCategory $feesCategory)
     {
-        //
+        abort(404); // Using modal for editing
     }
 
     /**
@@ -157,23 +118,29 @@ public function storeMultiple(Request $request)
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, FeesCategory $feesCategory)
-{
-    $request->validate([
-        'title' => 'required|max:191|unique:fees_categories,title,'.$feesCategory->id,
-        'amount' => 'required|numeric|min:0',
-    ]);
+    {
+        // Field Validation
+        $request->validate([
+            'title' => 'required|max:191|unique:fees_categories,title,'.$feesCategory->id,
+            'amount' => 'required|numeric|min:0',
+             'fee_type' => 'nullable|in:government,external,both',
+            'status' => 'required|numeric|between:0,1',
+        ]);
 
-    $feesCategory->title = $request->title;
-    $feesCategory->amount = $request->amount;
-    $feesCategory->slug = Str::slug($request->title, '-');
-    $feesCategory->description = $request->description;
-    $feesCategory->status = $request->status;
-    $feesCategory->save();
+        // Update Data
+        $feesCategory->title = $request->title;
+        $feesCategory->slug = Str::slug($request->title, '-');
+        $feesCategory->amount = $request->amount;
+        $feesCategory->fee_type = $request->fee_type;
+        $feesCategory->description = $request->description;
+        $feesCategory->status = $request->status;
+        $feesCategory->save();
 
-    Toastr::success(__('msg_updated_successfully'), __('msg_success'));
+        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
-    return redirect()->back();
-}
+        return redirect()->back();
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -188,5 +155,56 @@ public function storeMultiple(Request $request)
         Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
 
         return redirect()->back();
+    }
+
+    /**
+     * Assign multiple fees categories
+     */
+    public function assignMultiple()
+    {
+        $data['title'] = $this->title;
+        $data['route'] = $this->route;
+        $data['view'] = $this->view;
+        
+        $data['categories'] = FeesCategory::where('status', 1)
+            ->orderBy('title')
+            ->get();
+
+        return view($this->view.'.assign-fee-category', $data);
+    }
+
+    /**
+     * Store multiple fees categories
+     */
+    public function storeMultiple(Request $request)
+    {
+        // Field Validation
+        $request->validate([
+            'categories' => 'required|array|min:1',
+            'amounts' => 'required|array|min:1',
+            'amounts.*' => 'required|numeric|min:0',
+        ]);
+
+        // Check if counts match
+        if (count($request->categories) !== count($request->amounts)) {
+            return redirect()->back()
+                ->withErrors(['msg' => 'Category count and Amount count must match']);
+        }
+
+        // Prepare data for response
+        $assignedCategories = [];
+        foreach ($request->categories as $index => $categoryId) {
+            $category = FeesCategory::findOrFail($categoryId);
+            
+            $assignedCategories[] = [
+                'name' => $category->title,
+                'amount' => $request->amounts[$index],
+                'type' => $category->fee_type,
+            ];
+        }
+
+        return redirect()->route($this->route.'.assign-multiple')
+            ->with('success', __('msg_updated_successfully'))
+            ->with('assignedCategories', $assignedCategories);
     }
 }

@@ -11,7 +11,7 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>{{ __('modal_add') }} {{ $title }}</h5>
+                        <h5>Receivable {{ $title }}</h5>
                     </div>
                     <div class="card-block">
                         <a href="{{ route($route.'.index') }}" class="btn btn-primary"><i class="fas fa-arrow-left"></i> {{ __('btn_back') }}</a>
@@ -48,13 +48,21 @@
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label for="invoice_id">{{ __('field_invoice_id') }}</label>
-                            <input type="text" class="form-control" name="invoice_id" id="invoice_id" value="{{ old('invoice_id') }}">
+    <label for="receivable_invoice_id">{{ __('field_invoice_no') }}</label>
+    <select class="form-control select2" name="receivable_invoice_id" id="receivable_invoice_id">
+        <option value="">{{ __('select') }}</option>
+        @foreach($receivableInvoices as $invoice)
+        <option value="{{ $invoice->id }}" @if(old('receivable_invoice_id') == $invoice->id) selected @endif>
+            {{ $invoice->invoice_no }} - {{ $invoice->title }} ({{ number_format($invoice->amount, 2) }})
+        </option>
+        @endforeach
+    </select>
+</div>
 
-                            <div class="invalid-feedback">
-                              {{ __('required_field') }} {{ __('field_invoice_id') }}
-                            </div>
-                        </div>
+<div class="form-group col-md-4">
+    <label for="invoice_id">Any Other Reference Code (Optional)</label>
+    <input type="text" class="form-control" name="invoice_id" id="invoice_id" value="{{ old('invoice_id') }}">
+</div>
 
                         <div class="form-group col-md-4">
                             <label for="amount">{{ __('field_amount') }} ({!! $setting->currency_symbol !!}) <span>*</span></label>
@@ -75,7 +83,7 @@
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label for="reference">{{ __('field_reference') }}</label>
+                            <label for="reference">Payment Reference</label>
                             <input type="text" class="form-control" name="reference" id="reference" value="{{ old('reference') }}">
 
                             <div class="invalid-feedback">

@@ -24,4 +24,18 @@ class Income extends Model
     {
         return $this->belongsTo('App\User', 'created_by');
     }
+    public function reconciliations()
+{
+    return $this->morphMany(Reconciliation::class, 'transaction');
+}
+
+/**
+ * Get the receivable invoice associated with the income.
+ */
+public function receivableInvoice()
+{
+    return $this->belongsTo(ReceivableInvoice::class, 'receivable_invoice_id');
+}
+
+
 }

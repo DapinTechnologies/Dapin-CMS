@@ -24,4 +24,17 @@ class Expense extends Model
     {
         return $this->belongsTo('App\User', 'created_by');
     }
+    public function reconciliations()
+{
+    return $this->morphMany(Reconciliation::class, 'transaction');
+}
+
+/**
+ * Get the billing associated with the expense.
+ */
+public function billing()
+{
+    return $this->belongsTo(Billing::class, 'billing_id');
+}
+
 }

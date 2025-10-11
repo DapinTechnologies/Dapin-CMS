@@ -28,6 +28,31 @@
     <!-- Social Meta Tags -->
     <link rel="canonical" href="{{ route('home') }}">
     
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="{{ asset('dashboard/plugins/toastr/css/toastr.min.css') }}">
+    <style>
+        /* Custom toastr styling */
+        #toast-container > .toast {
+            background-color: #333;
+            color: #fff;
+        }
+        #toast-container > .toast-success {
+            background-color: #333;
+        }
+        #toast-container > .toast-success .toast-message {
+            color: #fff;
+        }
+        #toast-container > .toast-error {
+            background-color: #d9534f;
+        }
+        #toast-container > .toast-warning {
+            background-color: #f0ad4e;
+        }
+        #toast-container > .toast-info {
+            background-color: #5bc0de;
+        }
+    </style>
+    
     @yield('social_meta_tags')
 
 
@@ -142,9 +167,54 @@
 }
 
 
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+}
+
+
 </style>
 
-    
+    <style>
+/* Add this to remove default body spacing */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+/* Ensure header has no top margin */
+.header-area {
+    margin-top: 0;
+}
+
+/* Remove any potential top spacing from slider */
+.slider-area {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.menu-area {
+    padding: 10px 0; /* or whatever makes your topbar look good */
+    margin: 0;
+}
+
+
+
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        AOS.init({
+            once: true,
+            duration: 800,
+            easing: 'ease-out-quad'
+        });
+    });
+</script>
 
 
 
@@ -153,87 +223,7 @@
 
  <body>
 
- 	<!-- header -->
-<header class="header-area header-three" style="padding-top: 10px; padding-bottom: 10px;">  
-   @include('web.layouts.nav')  
-
-    <div id="header-sticky" class="menu-area" style="padding: 5px 0;">
-        <div class="container">
-            <div class="second-menu">
-                <div class="row align-items-center py-1">
-                    <div class="col-xl-3 col-lg-3">
-                        @if(isset($setting))
-                        <div class="logo" style="max-height: 50px; overflow: hidden;">
-                            <a href="{{ route('home') }}">
-                                <img src="{{ asset('/uploads/setting/'.$setting->logo_path) }}" alt="logo" style="max-height: 40px;">
-                            </a>
-                        </div>
-                        @endif
-                    </div>
-
-                    <div class="col-xl-8 col-lg-8">
-                        <div class="main-menu text-right text-xl-right">
-                            <nav id="mobile-menu">
-                                <ul class="mb-0">
-                                    <li class="{{ Request::path() == '/' ? 'current' : '' }}"><a href="{{ route('home') }}">{{ __('navbar_home') }}</a></li>
-                                    <li class="{{ Request::is('course*') ? 'current' : '' }}"><a href="{{ route('course') }}">{{ __('navbar_course') }}</a></li>
-                                    <li class="{{ Request::is('event*') ? 'current' : '' }}"><a href="{{ route('event') }}">{{ __('navbar_event') }}</a></li>
-                                    <li class="{{ Request::is('faq*') ? 'current' : '' }}"><a href="{{ route('faq') }}">{{ __('navbar_faqs') }}</a></li>
-                                    <li class="{{ Request::is('gallery*') ? 'current' : '' }}"><a href="{{ route('gallery') }}">{{ __('navbar_gallery') }}</a></li>
-                                    <li class="{{ Request::is('news*') ? 'current' : '' }}"><a href="{{ route('news') }}">{{ __('navbar_news') }}</a></li>
-                                    <li class="{{ Request::is('about*') ? 'current' : '' }}"><a href="#">{{ __('About Us') }}</a></li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-lg-3 d-none d-lg-block text-right text-xl-right">
-                        @php 
-                        $application = App\Models\ApplicationSetting::status(); 
-                        @endphp
-                        @isset($application)
-                        <div class="login">
-                            <ul class="mb-0">
-                                <li>
-                                    <div class="second-header-btn">
-                                       <a href="{{ route('application.index') }}" target="_blank" class="btn py-1 px-3" style="font-size: 0.875rem;">{{ __('navbar_admission') }}</a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                        @endisset
-                    </div>
-
-                    <div class="col-12">
-                        <div class="mobile-menu"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
- <style>
-    /* Optional compact tweaks if not inline */
-.header-area {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
-.menu-area {
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-
-.header-area .btn {
-    padding: 6px 15px;
-    font-size: 0.875rem;
-}
-
-.logo img {
-    max-height: 40px;
-}
-
- </style>
+@include('web.layouts.header')
     <!-- header-end -->
 
  	
@@ -243,136 +233,14 @@
 
 
  	<!-- footer -->
-    <footer class="footer-bg footer-p pt-90" style="background-color: #125875;">
-        <div class="footer-top pb-70">
-            <div class="container">
-                <div class="row justify-content-between">
-                    
-                    <div class="col-xl-4 col-lg-4 col-sm-12">
-                        <div class="footer-widget mb-30">
-                            <div class="f-widget-title">
-                                <h2>{{ __('footer_socials') }}</h2>
-                            </div>
-                            <div class="footer-social mt-10">                                    
-                                @if(isset($socialSetting->facebook))
-                                <a href="{{ $socialSetting->facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                                @endif
-                                @if(isset($socialSetting->instagram))
-                                <a href="{{ $socialSetting->instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>
-                                @endif
-                                @if(isset($socialSetting->twitter))
-                                <a href="{{ $socialSetting->twitter }}" target="_blank"><i class="fab fa-twitter"></i></a>
-                                @endif
-                                @if(isset($socialSetting->linkedin))
-                                <a href="{{ $socialSetting->linkedin }}" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-                                @endif
-                                @if(isset($socialSetting->pinterest))
-                                <a href="{{ $socialSetting->pinterest }}" target="_blank"><i class="fab fa-pinterest"></i></a>
-                                @endif
-                                @if(isset($socialSetting->youtube))
-                                <a href="{{ $socialSetting->youtube }}" target="_blank"><i class="fab fa-youtube"></i></a>
-                                @endif
-                            </div>    
-                        </div>
-                    </div>
-
-                    <div class="col-xl-4 col-lg-4 col-sm-6">
-                        <div class="footer-widget mb-30">
-                            <div class="f-widget-title">
-                                <h2>{{ __('footer_links') }}</h2>
-                            </div>
-                            <div class="footer-link">
-                                <ul>
-                                    @if (Route::has('student.login'))
-                                    <li><a href="{{ route('student.login') }}" target="_blank">{{ __('field_student') }} {{ __('field_login') }}</a></li>
-                                    @endif
-                                    @if (Route::has('login'))
-                                    <li><a href="{{ route('login') }}" target="_blank">{{ __('field_staff') }} {{ __('field_login') }}</a></li>
-                                    @endif
-
-                                    @php 
-                                    $application = App\Models\ApplicationSetting::status(); 
-                                    @endphp
-                                    @isset($application)
-                                    <li><a href="{{ route('application.index') }}" target="_blank">{{ __('navbar_admission') }}</a></li>
-                                    @endisset
-
-                                    @foreach($footer_pages as $footer_page)
-                                    <li><a href="{{ route('page.single', ['slug' => $footer_page->slug]) }}">{{ $footer_page->title }}</a></li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-4 col-lg-4 col-sm-6">
-                        <div class="footer-widget mb-30">
-                            <div class="f-widget-title">
-                                <h2>{{ __('footer_contact') }}</h2>
-                            </div>
-                            <div class="f-contact">
-                                <ul>
-                                    @isset($topbarSetting->phone)
-                                    <li>
-                                        <i class="icon fal fa-phone"></i>
-                                        <span><a href="tel:{{ str_replace(' ', '', $topbarSetting->phone ?? '') }}">{{ $topbarSetting->phone ?? '' }}</a></span>
-                                    </li>
-                                    @endisset
-                                    @isset($topbarSetting->email)
-                                    <li>
-                                        <i class="icon fal fa-envelope"></i>
-                                        <span><a href="mailto:{{ $topbarSetting->email ?? '' }}">{{ $topbarSetting->email ?? '' }}</a></span>
-                                    </li>
-                                    @endisset
-                                    @isset($topbarSetting->address)
-                                    <li>
-                                        <i class="icon fal fa-map-marker-check"></i>
-                                        <span>{{ $topbarSetting->address ?? '' }}</span>
-                                    </li>
-                                    @endisset
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-
-
-        <div class="copyright-wrap">
-            <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-4 col-md-4 col-12">
-                        <div class="dropdown">
-                          <a class="btn dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ $version->name }}
-                          </a>
-
-                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                            @foreach($user_languages as $user_language)
-                            <li><a class="dropdown-item" href="{{ route('version', $user_language->code) }}">{{ $user_language->name }}</a></li>
-                            @endforeach
-                          </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-12 text-center">          
-                        
-                    </div>
-                    <div class="col-lg-4 col-md-4 col-12 text-center text-md-right">
-                        @isset($setting->copyright_text)
-                        &copy; {!! strip_tags($setting->copyright_text, '<a><b><i><u><strong>') !!}
-                        @endisset
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
+    @include('web.layouts.footer')
+  
     <!-- footer-end -->
 
 
  	<!-- Script JS -->
- 	<script src="{{ asset('web/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+    <script src="{{ asset('web/js/vendor/modernizr-3.5.0.min.js') }}"></script>
+    <!-- Load jQuery first -->
     <script src="{{ asset('web/js/vendor/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('web/js/popper.min.js') }}"></script>
     <script src="{{ asset('web/js/bootstrap.min.js') }}"></script>
@@ -390,6 +258,40 @@
     <script src="{{ asset('web/js/jquery.magnific-popup.min.js') }}"></script>
     <script src="{{ asset('web/js/element-in-view.js') }}"></script>
     <script src="{{ asset('web/js/main.js') }}"></script>
+    
+    <!-- Toastr JS -->
+    <script src="{{ asset('dashboard/plugins/toastr/js/toastr.min.js') }}"></script>
+    
+    <!-- Initialize Toastr -->
+    <script>
+        $(document).ready(function() {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": 300,
+                "hideDuration": 1000,
+                "timeOut": 5000,
+                "extendedTimeOut": 1000,
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut",
+                "tapToDismiss": true
+            };
+            
+            // Set toastr container style
+            $('body').append('<style>#toast-container > div { opacity: 1; }</style>');
+            
+            @if(session('toastr'))
+                toastr.{{ session('toastr.type') }}('{{ session("toastr.message") }}', '{{ session("toastr.title") }}');
+            @endif
+        });
+    </script>
 
  </body>
 </html>
