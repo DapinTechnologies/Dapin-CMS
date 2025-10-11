@@ -9,5 +9,11 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+<<<<<<< HEAD
 /storage/framework/views/*.php
+=======
+/storage/framework/views/*
+public/C:\\Users\\User\\Desktop\\business\\backup\\Dapin\\Dapin\\storage\\logs/
+/storage/logs/
+>>>>>>> origin/Website-dev
 

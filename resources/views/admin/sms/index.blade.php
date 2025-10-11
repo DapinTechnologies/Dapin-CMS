@@ -14,7 +14,7 @@
 
         <div class="row">
             <div class="card-block">
-                <form class="needs-validation" novalidate method="get" action="{{ route('sms.search') }}">
+                <form class="needs-validation" novalidate method="get" action="{{ route('admin.sms.search') }}">
                     @csrf
                     <div class="row gx-2">
                         <div class="form-group col-md-6">
@@ -34,7 +34,7 @@
                         </div>
                         <div class="form-group col-md-2 d-flex align-items-end">
                             <button type="submit" class="btn btn-info btn-sm btn-filter mr-2"><i class="fas fa-search"></i> {{ __('') }}</button>
-                            <a href="{{ route('sms.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> {{ __('') }}</a>
+                            <a href="{{ route('admin.sms.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-sync-alt"></i> {{ __('') }}</a>
                         </div>
                     </div>
                 </form>
@@ -81,7 +81,7 @@
                                                  <td>{{ Carbon::parse($message->sent_at)->format('H:i, d-m-Y') }}</td>
                                             <td>{{ $message->is_bulk ? 'Bulk' : 'Individual' }}</td>
                                             <td>
-                                                @can($access.'-view') <a href="{{ route('sms.show', $message->id) }}" 
+                                                @can($access.'-view') <a href="{{ route('admin.sms.show', $message->id) }}" 
                                                     class="btn btn-icon btn-primary btn-sm"> <i class="far fa-eye"></i> </a> @endcan
 
                                                

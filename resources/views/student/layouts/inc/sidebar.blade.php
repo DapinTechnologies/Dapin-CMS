@@ -1,4 +1,3 @@
-<!-- Sidemenu -->
 <div class="navbar-content scroll-div ps ps--active-y">
     <ul class="nav pcoded-inner-navbar">
 
@@ -14,7 +13,6 @@
                 <span class="pcoded-mtext">{{ trans_choice('module_dashboard', 1) }}</span>
             </a>
         </li>
-
 
         @if(($panel = panel('panel_class_routine')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/class-routine*') ? 'active' : '' }}">
@@ -33,6 +31,20 @@
             </a>
         </li>
         @endif
+
+
+
+  @if(($panel = panel('testfile')) && $panel->status == 1)
+        <li class="nav-item {{ Request::is('student/test*') ? 'active' : '' }}">
+            <a href="{{ route('student.testfile') }}" class="nav-link">
+                <span class="pcoded-micon"><i class="fas fa-align-left"></i></span>
+                <span class="pcoded-mtext">{{ trans_choice('Test', 2) }}</span>
+            </a>
+        </li>
+        @endif
+
+
+
 
         @if(($panel = panel('panel_attendance')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/attendance*') ? 'active' : '' }}">
@@ -61,15 +73,12 @@
         </li>
         @endif
 
-         
-     
-
-<li class="nav-item {{ Request::is('student/subject*') ? 'active' : '' }}">
-    <a href="{{ route('student.subject.index') }}" class="nav-link">
-        <span class="pcoded-micon"><i class="fas fa-clipboard-list"></i></span>
-        <span class="pcoded-mtext">{{ __('Register Units') }}</span>
-    </a>
-</li>
+        <li class="nav-item {{ Request::is('student/subject*') ? 'active' : '' }}">
+            <a href="{{ route('student.subject.index') }}" class="nav-link">
+                <span class="pcoded-micon"><i class="fas fa-clipboard-list"></i></span>
+                <span class="pcoded-mtext">{{ __('Register Units') }}</span>
+            </a>
+        </li>
 
         @if(($panel = panel('panel_library')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/library*') ? 'active' : '' }}">
@@ -80,14 +89,16 @@
         </li>
         @endif
     
-        @if(($panel = panel('panel_digital')) && $panel->status == 1)
-        <li class="nav-item {{ Request::is('student/digital*') ? 'active' : '' }}">
-            <a href="{{ route('studentlibrarydigital') }}" class="nav-link">
-                <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
-                <span class="pcoded-mtext">{{ trans_choice('Digital Library', 2) }}</span>
-            </a>
-        </li>
-        @endif
+
+<li class="nav-item {{ Request::is('student/all/digital/file/student*') ? 'active' : '' }}">
+    <a href="{{ route('student.studentlibrarydigital') }}" class="nav-link">
+        <span class="pcoded-micon"><i class="fas fa-book-open"></i></span>
+        <span class="pcoded-mtext">{{ trans_choice('Digital Library', 2) }}</span>
+    </a>
+</li> 
+
+
+
 
         @if(($panel = panel('panel_notice')) && $panel->status == 1)
         <li class="nav-item {{ Request::is('student/notice*') ? 'active' : '' }}">

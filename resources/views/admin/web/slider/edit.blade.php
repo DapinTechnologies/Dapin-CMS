@@ -54,7 +54,7 @@
 
                         <div class="form-group col-md-6">
                             <label for="button_link">{{ __('field_button_link') }}</label>
-                            <input type="url" class="form-control" name="button_link" id="button_link" value="{{ $row->button_link }}">
+                            <input type="text" class="form-control" name="button_link" id="button_link" value="{{ $row->button_link }}">
 
                             <div class="invalid-feedback">
                               {{ __('required_field') }} {{ __('field_button_link') }}

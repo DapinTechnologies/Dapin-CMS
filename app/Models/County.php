@@ -10,6 +10,7 @@ class County extends Model
     protected $fillable = ['CountyName', 'Capital', 'CountyCode'];
 }
 
+<<<<<<< HEAD
 // SubCounty Model
 namespace App\Models;
 
@@ -20,3 +21,5 @@ class SubCounty extends Model
     protected $primaryKey = 'SubCountyID';
     protected $fillable = ['SubCountyName', 'CountyID'];
 }
+=======
+>>>>>>> origin/Website-dev

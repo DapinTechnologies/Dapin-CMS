@@ -10,8 +10,14 @@ use App\Models\Program;
 use App\Models\Enquiry;
 use Carbon\Carbon;
 use App\User;
+use App\Models\Inquiry;
+use App\Models\Subscription;
 use Toastr;
 use Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InquiryReply;
+use Illuminate\Validation\Rule; 
+use App\Mail\BulkEmail;
 
 class EnquiryController extends Controller
 {
@@ -41,75 +47,215 @@ class EnquiryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+
+
+
+
+ public function index()
     {
-        //
-        $data['title'] = $this->title;
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = $this->path;
-        $data['access'] = $this->access;
-
-
-        if(!empty($request->reference) || $request->reference != null){
-            $data['selected_reference'] = $reference = $request->reference;
-        }
-        else{
-            $data['selected_reference'] = $reference = '0';
-        }
-
-        if(!empty($request->source) || $request->source != null){
-            $data['selected_source'] = $source = $request->source;
-        }
-        else{
-            $data['selected_source'] = $source = '0';
-        }
-
-        if(!empty($request->program) || $request->program != null){
-            $data['selected_program'] = $program = $request->program;
-        }
-        else{
-            $data['selected_program'] = $program = '0';
-        }
-
-        if(!empty($request->start_date) || $request->start_date != null){
-            $data['selected_start_date'] = $start_date = $request->start_date;
-        }
-        else{
-            $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subYear()));
-        }
-
-        if(!empty($request->end_date) || $request->end_date != null){
-            $data['selected_end_date'] = $end_date = $request->end_date;
-        }
-        else{
-            $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
-        }
-
-
-        // Search Filter
-        $data['references'] = EnquiryReference::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
-        $data['sources'] = EnquirySource::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
-        $data['programs'] = Program::where('status', '1')
-                            ->orderBy('title', 'asc')->get();
-
-        $rows = Enquiry::whereDate('date', '>=', $start_date)
-                    ->whereDate('date', '<=', $end_date);
-                    if(!empty($request->reference) || $request->reference != null){
-                        $rows->where('reference_id', $reference);
-                    }
-                    if(!empty($request->source) || $request->source != null){
-                        $rows->where('source_id', $source);
-                    }
-                    if(!empty($request->program) || $request->program != null){
-                        $rows->where('program_id', $program);
-                    }
-        $data['rows'] = $rows->orderBy('id', 'desc')->get();
-
-        return view($this->view .'.index', $data);
+           $inquiries = Inquiry::orderBy('created_at', 'desc')->paginate(15);
+        return view('admin.frontdesk.enqury.index', compact('inquiries'));
     }
+public function deleteInquiry($id)
+{
+    try {
+        $inquiry = Inquiry::findOrFail($id);
+        $inquiry->delete();
+
+        session()->flash('success', 'Inquiry deleted successfully.');
+       return redirect()->back();
+    } catch (\Exception $e) {
+        session()->flash('error', 'An error occurred. Please try again later.');
+        return redirect()->back();
+    }
+}
+
+
+
+public function show($id)
+{
+    // Fetch the inquiry by ID
+    $inquiry = Inquiry::findOrFail($id);
+
+    // Return the view with the inquiry data
+    return view('admin.frontdesk.enqury.detail', compact('inquiry'));
+}
+
+
+
+public function reply(Request $request, $id)
+{
+    $validated = $request->validate([
+        'reply_message' => 'required|string|max:1000',
+    ]);
+
+    $inquiry = Inquiry::findOrFail($id);
+
+    try {
+        // Store the reply in the database if needed
+        $inquiry->update([
+            'reply_message' => $validated['reply_message'],
+            'replied_at' => now(),
+            'status' => 'replied'
+        ]);
+
+        // Send email with both inquiry and reply message
+        Mail::send('emails.inquiry_reply', [
+            'inquiry' => $inquiry,
+            'replyMessage' => $validated['reply_message']
+        ], function($message) use ($inquiry) {
+            $message->to($inquiry->email)
+                   ->subject('Response to Your Inquiry - ' . config('app.name'));
+        });
+
+        return redirect()
+            ->route('admin.admin.inquiry.show', $inquiry->id)
+            ->with('success', 'Reply sent successfully!');
+            
+    } catch (\Exception $e) {
+        \Log::error('Reply sending failed: ' . $e->getMessage());
+        return back()
+            ->withInput()
+            ->with('error', 'Failed to send reply: ' . $e->getMessage());
+    }
+}
+
+
+public function destroy(Inquiry $inquiry)
+    {
+        $inquiry->delete();
+      // Use Toastr
+        return redirect()->back();
+    }
+
+      public function sendBulkEmail(Request $request)
+    {
+        // Validate the message content
+        $validated = $request->validate([
+            'message_content' => 'required|string|max:1000',
+        ]);
+
+        // Fetch all the subscribers' emails
+        $subscribers = Subscription::all();
+
+        // Send the email to each subscriber
+        foreach ($subscribers as $subscriber) {
+            try {
+                Mail::to($subscriber->email)->send(new BulkEmail($validated['message_content']));
+            } catch (\Exception $e) {
+                \Log::error('Error sending bulk email: ' . $e->getMessage());
+                return response()->json(['success' => false, 'message' => 'An error occurred while sending the emails.'], 500);
+            }
+        }
+
+        // Flash success message
+        session()->flash('success', 'Bulk email sent successfully to all subscribers!');
+        
+        return redirect()->back();
+    }
+
+
+
+
+
+public function subindex()
+{
+    // Fetch all subscriptions with pagination
+    $subscriptions = Subscription::paginate(15);
+    
+    return view('admin.frontdesk.enqury.subscription', compact('subscriptions'));
+}
+
+
+public function destroysub($id)
+{
+    // Find the subscription by ID and delete it
+    $subscription = Subscription::findOrFail($id);
+    $subscription->delete();
+
+    // Redirect back with success message
+    return redirect()->route('admin.subscriptions.index')->with('success', 'Subscription deleted successfully.');
+}
+
+
+
+
+
+
+
+
+
+//      public function index(Request $request)
+//     {
+        
+//   dd('logs');
+
+//         $data['title'] = $this->title;
+//         $data['route'] = $this->route;
+//         $data['view'] = $this->view;
+//         $data['path'] = $this->path;
+//         $data['access'] = $this->access;
+
+
+//         if(!empty($request->reference) || $request->reference != null){
+//             $data['selected_reference'] = $reference = $request->reference;
+//         }
+//         else{
+//             $data['selected_reference'] = $reference = '0';
+//         }
+
+//         if(!empty($request->source) || $request->source != null){
+//             $data['selected_source'] = $source = $request->source;
+//         }
+//         else{
+//             $data['selected_source'] = $source = '0';
+//         }
+
+//         if(!empty($request->program) || $request->program != null){
+//             $data['selected_program'] = $program = $request->program;
+//         }
+//         else{
+//             $data['selected_program'] = $program = '0';
+//         }
+
+//         if(!empty($request->start_date) || $request->start_date != null){
+//             $data['selected_start_date'] = $start_date = $request->start_date;
+//         }
+//         else{
+//             $data['selected_start_date'] = $start_date = date('Y-m-d', strtotime(Carbon::now()->subYear()));
+//         }
+
+//         if(!empty($request->end_date) || $request->end_date != null){
+//             $data['selected_end_date'] = $end_date = $request->end_date;
+//         }
+//         else{
+//             $data['selected_end_date'] = $end_date = date('Y-m-d', strtotime(Carbon::today()));
+//         }
+
+
+//         // Search Filter
+//         $data['references'] = EnquiryReference::where('status', '1')
+//                             ->orderBy('title', 'asc')->get();
+//         $data['sources'] = EnquirySource::where('status', '1')
+//                             ->orderBy('title', 'asc')->get();
+//         $data['programs'] = Program::where('status', '1')
+//                             ->orderBy('title', 'asc')->get();
+
+//         $rows = Enquiry::whereDate('date', '>=', $start_date)
+//                     ->whereDate('date', '<=', $end_date);
+//                     if(!empty($request->reference) || $request->reference != null){
+//                         $rows->where('reference_id', $reference);
+//                     }
+//                     if(!empty($request->source) || $request->source != null){
+//                         $rows->where('source_id', $source);
+//                     }
+//                     if(!empty($request->program) || $request->program != null){
+//                         $rows->where('program_id', $program);
+//                     }
+//         $data['rows'] = $rows->orderBy('id', 'desc')->get();
+
+//         return view($this->view .'.index', $data);
+//     }
 
     /**
      * Show the form for creating a new resource.
@@ -141,42 +287,42 @@ class EnquiryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        // Field Validation
-        $request->validate([
-            'program' => 'required',
-            'name' => 'required',
-            'email' => 'nullable|email',
-            'date' => 'required|date|before_or_equal:today',
-            'follow_up_date' => 'nullable|date|after_or_equal:today',
-        ]);
+    // public function store(Request $request)
+    // {
+    //     // Field Validation
+    //     $request->validate([
+    //         'program' => 'required',
+    //         'name' => 'required',
+    //         'email' => 'nullable|email',
+    //         'date' => 'required|date|before_or_equal:today',
+    //         'follow_up_date' => 'nullable|date|after_or_equal:today',
+    //     ]);
 
 
-        //Insert Data
-        $enquiry = new Enquiry;
-        $enquiry->reference_id = $request->reference;
-        $enquiry->source_id = $request->source;
-        $enquiry->program_id = $request->program;
-        $enquiry->name = $request->name;
-        $enquiry->father_name = $request->father_name;
-        $enquiry->phone = $request->phone;
-        $enquiry->email = $request->email;
-        $enquiry->address = $request->address;
-        $enquiry->purpose = $request->purpose;
-        $enquiry->note = $request->note;
-        $enquiry->date = $request->date;
-        $enquiry->follow_up_date = $request->follow_up_date;
-        $enquiry->assigned = $request->assigned;
-        $enquiry->number_of_students = 1;
-        $enquiry->created_by = Auth::guard('web')->user()->id;
-        $enquiry->save();
+    //     //Insert Data
+    //     $enquiry = new Enquiry;
+    //     $enquiry->reference_id = $request->reference;
+    //     $enquiry->source_id = $request->source;
+    //     $enquiry->program_id = $request->program;
+    //     $enquiry->name = $request->name;
+    //     $enquiry->father_name = $request->father_name;
+    //     $enquiry->phone = $request->phone;
+    //     $enquiry->email = $request->email;
+    //     $enquiry->address = $request->address;
+    //     $enquiry->purpose = $request->purpose;
+    //     $enquiry->note = $request->note;
+    //     $enquiry->date = $request->date;
+    //     $enquiry->follow_up_date = $request->follow_up_date;
+    //     $enquiry->assigned = $request->assigned;
+    //     $enquiry->number_of_students = 1;
+    //     $enquiry->created_by = Auth::guard('web')->user()->id;
+    //     $enquiry->save();
 
 
-        Toastr::success(__('msg_created_successfully'), __('msg_success'));
+    //     Toastr::success(__('msg_created_successfully'), __('msg_success'));
 
-        return redirect()->route($this->route.'.index');
-    }
+    //     return redirect()->route($this->route.'.index');
+    // }
 
     /**
      * Display the specified resource.
@@ -184,18 +330,18 @@ class EnquiryController extends Controller
      * @param  \App\Enquiry  $enquiry
      * @return \Illuminate\Http\Response
      */
-    public function show(Enquiry $enquiry)
-    {
-        //
-        $data['title'] = $this->title;
-        $data['route'] = $this->route;
-        $data['view'] = $this->view;
-        $data['path'] = $this->path;
+    // public function show(Enquiry $enquiry)
+    // {
+    //     //
+    //     $data['title'] = $this->title;
+    //     $data['route'] = $this->route;
+    //     $data['view'] = $this->view;
+    //     $data['path'] = $this->path;
 
-        $data['row'] = $enquiry;
+    //     $data['row'] = $enquiry;
 
-        return view($this->view.'.show', $data);
-    }
+    //     return view($this->view.'.show', $data);
+    // }
 
     /**
      * Show the form for editing the specified resource.
@@ -274,15 +420,15 @@ class EnquiryController extends Controller
      * @param  \App\Enquiry  $enquiry
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Enquiry $enquiry)
-    {
-        // Delete data
-        $enquiry->delete();
+    // public function destroy(Enquiry $enquiry)
+    // {
+    //     // Delete data
+    //     $enquiry->delete();
 
-        Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
+    //     Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
 
-        return redirect()->back();
-    }
+    //     return redirect()->back();
+    // }
 
     /**
      * Display a listing of the resource.

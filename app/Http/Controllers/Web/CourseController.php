@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Web\Course;
 use App\Models\Language;
-
+use App\Models\Setting;
 class CourseController extends Controller
 {
     /**
@@ -29,13 +29,21 @@ class CourseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($slug)
-    {
-        // Course                                
-        $data['course'] = Course::where('slug', $slug)
+
+
+
+public function show($slug)
+{
+    $data['course'] = Course::where('slug', $slug)
                             ->where('status', '1')
                             ->firstOrFail();
 
-        return view('web.course-single', $data);
-    }
+    $data['setting'] = Setting::first(); // Add this line if you use $setting in view
+
+    return view('web.course-single', $data);
+}
+
+
+
+
 }

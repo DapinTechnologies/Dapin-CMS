@@ -33,11 +33,11 @@
                                         <td>{{ \Illuminate\Support\Str::limit($category->description, 30, '...') }}</td>
                                         <td>
                                             @can('edit-category')
-                                            <a href="{{ route('catedit', $category->id) }}" class="btn btn-icon btn-primary btn-sm">
+                                            <a href="{{ route('admin.catedit', $category->id) }}" class="btn btn-icon btn-primary btn-sm">
                                                 <i class="far fa-edit"></i>
                                             </a>
                                             @endcan
-                                            @can('delete-category') <form action="{{ route('categdestroy', $category->id) }}" 
+                                            @can('delete-category') <form action="{{ route('admin.categdestroy', $category->id) }}" 
                                                 method="POST" style="display:inline-block;"> 
                                                 @csrf @method('DELETE') 
                                                 <button type="submit"
@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <form class="needs-validation" novalidate action="{{ route('categoriesstore') }}" method="post">
+                <form class="needs-validation" novalidate action="{{ route('admin.categoriesstore') }}" method="post">
                 @csrf
                     <div class="card">
                         <div class="card-header">
@@ -78,7 +78,7 @@
                         </div>
                         <div class="card-footer">
                             <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> {{ __('Save') }}</button>
-                            <a href="{{ route('alldigitalbooks') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+                            <a href="{{ route('admin.alldigitalbooks') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                         </div>
                     </div>
                 </form>

@@ -76,7 +76,7 @@ class SliderController extends Controller
         //Field Validation
         $request->validate([
             'title' => 'required|unique:sliders,title',
-            'button_link' => 'nullable|url',
+            'button_link' => 'nullable',
             'attach' => 'required|image',
         ]);
 
@@ -128,7 +128,7 @@ class SliderController extends Controller
         //Field Validation
         $request->validate([
             'title' => 'required|unique:sliders,title,'.$slider->id,
-            'button_link' => 'nullable|url',
+            'button_link' => 'nullable',
             'attach' => 'nullable|image',
         ]);
 
