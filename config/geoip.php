@@ -42,7 +42,8 @@ return [
     | Default Cache Driver
     |----------------------------------------------------------------------
     */
-    'cache' => 'all',  // This will cache all locations
+    'cache' => 'file',
+  // This will cache all locations(channged from all to file)
 
     /*
     |----------------------------------------------------------------------
