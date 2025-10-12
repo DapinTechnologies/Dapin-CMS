@@ -11,6 +11,7 @@
         .was-validated .form-control:invalid ~ .invalid-feedback,
         .was-validated .form-control:invalid ~ .invalid-feedback,
         .form-control.is-invalid ~ .invalid-feedback { display: block; }
+        .debug-info { background: #f8f9fa; padding: 10px; margin: 10px 0; border-left: 4px solid #007bff; }
     </style>
 </head>
 <body>
@@ -23,11 +24,30 @@
     $programs = Program::all();
     $counties = County::all();
     $subCounties = SubCounty::all();
+
+    // Debug: Log available data
+    \Log::info('Application Form Loaded', [
+        'programs_count' => $programs->count(),
+        'counties_count' => $counties->count(),
+        'subCounties_count' => $subCounties->count(),
+        'old_data' => old()
+    ]);
 @endphp
 
 @isset($applicationSetting)
 <div class="main-body">
     <div class="page-wrapper">
+        <!-- Debug Information -->
+        <div class="debug-info">
+            <strong>Debug Info:</strong> 
+            Programs: {{ $programs->count() }}, 
+            Counties: {{ $counties->count() }}, 
+            SubCounties: {{ $subCounties->count() }}
+            @if($errors->any())
+                <br><strong>Errors:</strong> {{ $errors->count() }} validation errors
+            @endif
+        </div>
+
         <div class="card">
             <div class="card-block">
                 <div class="row mt-5 mb-5">
@@ -50,6 +70,9 @@
                     <div class="wizard-sec-bg">
                     <form id="wizard-advanced-form" class="needs-validation" action="{{ route($route.'.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
+
+                    <!-- Hidden debug field to test submission -->
+                    <input type="hidden" name="debug_test" value="debug_value_123">
 
                         <!-- Basic Information -->
                         <h3>{{ __('tab_basic_info') }}</h3>
@@ -324,8 +347,35 @@
 <script>
     "use strict";
     $(document).ready(function () {
+        console.log('Form initialization started');
+        
         // Initialize form steps
         var form = $("#wizard-advanced-form").show();
+        
+        // Debug: Log form data before submission
+        form.on('submit', function(e) {
+            console.log('Form submitted');
+            
+            // Log all form data
+            var formData = new FormData(this);
+            console.log('Form data being submitted:');
+            for (var pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+            
+            // Log validation status
+            console.log('Form validation status:', this.checkValidity());
+            
+            if (this.checkValidity() === false) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Form validation failed');
+            } else {
+                console.log('Form validation passed, submitting...');
+            }
+            $(this).addClass('was-validated');
+        });
+
         form.steps({
             headerTag: "h3",
             bodyTag: "content",
@@ -336,6 +386,8 @@
                 previous: "{{ __('btn_previous') }}",
             },
             onStepChanging: function (event, currentIndex, newIndex) {
+                console.log('Step changing from', currentIndex, 'to', newIndex);
+                
                 // Always allow going backward
                 if (currentIndex > newIndex) {
                     return true;
@@ -343,30 +395,43 @@
                 
                 // Validate current step before proceeding
                 var form = $(this);
+                var isValid = true;
+                
                 if (currentIndex < newIndex) {
                     $(".form-step").eq(currentIndex).find("[required]").each(function() {
                         if (!$(this).val()) {
+                            console.log('Validation failed for:', $(this).attr('name'));
                             $(this).addClass("is-invalid");
-                            form.steps("show", currentIndex);
-                            return false;
+                            isValid = false;
+                        } else {
+                            $(this).removeClass("is-invalid");
                         }
                     });
                 }
                 
-                return true;
+                if (!isValid) {
+                    form.steps("show", currentIndex);
+                    console.log('Step validation failed, staying on current step');
+                }
+                
+                return isValid;
             },
             onFinished: function () {
+                console.log('Form finished, submitting...');
                 $("#wizard-advanced-form").submit();
             }
         });
 
         // Store all sub-county options in a variable
         var allSubCounties = $('#sub_county').html();
+        console.log('Sub-counties loaded:', $('#sub_county option').length);
 
         // Dynamic Sub-County Filtering Based on Selected County
         $('#county').change(function () {
             var countyId = $(this).val();
             var $subCountySelect = $('#sub_county');
+            
+            console.log('County changed to:', countyId);
             
             // Clear current options except the first one
             $subCountySelect.html('<option value="">{{ __('Select Sub-County') }}</option>');
@@ -375,19 +440,25 @@
             if (!countyId) return;
 
             // Filter and append matching sub-counties
+            var matchedCount = 0;
             $(allSubCounties).filter('option').each(function() {
                 if ($(this).data('county-id') == countyId) {
                     $subCountySelect.append($(this).clone());
+                    matchedCount++;
                 }
             });
+            
+            console.log('Matched sub-counties:', matchedCount);
         });
 
         // Initialize county/sub-county if returning with errors
         @if(old('county'))
+            console.log('Initializing with old county value:', '{{ old('county') }}');
             $('#county').val('{{ old('county') }}').trigger('change');
             // Need a small delay to ensure the change event has processed
             setTimeout(function() {
                 $('#sub_county').val('{{ old('sub_county') }}');
+                console.log('Set sub-county to:', '{{ old('sub_county') }}');
             }, 100);
         @endif
 
@@ -402,27 +473,25 @@
             const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
             const maxSize = 2 * 1024 * 1024; // 2MB
             
+            console.log('File selected:', file ? file.name : 'none');
+            
             if (file && !allowedTypes.includes(file.type)) {
+                console.log('Invalid file type:', file.type);
                 this.setCustomValidity('Only JPG, PNG or PDF files are allowed');
                 this.reportValidity();
                 this.value = '';
             } else if (file && file.size > maxSize) {
+                console.log('File too large:', file.size);
                 this.setCustomValidity('File size must be less than 2MB');
                 this.reportValidity();
                 this.value = '';
             } else {
+                console.log('File validation passed');
                 this.setCustomValidity('');
             }
         });
 
-        // Show validation on submit
-        form.on('submit', function(e) {
-            if (this.checkValidity() === false) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            $(this).addClass('was-validated');
-        });
+        console.log('Form initialization completed');
     });
 </script>
 </body>

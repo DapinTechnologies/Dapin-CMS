@@ -5,8 +5,15 @@ use App\Http\Controllers\Admin\SmsController;
 use App\Services\SMSService;
 use Illuminate\Support\Facades\Http;
 use App\Models\SmsConfiguration;
+use App\Http\Controllers\Admin\EnquiryController;
+use App\Http\Controllers\Admin\AdmissionProcessController;
+use App\Http\Controllers\Admin\VisitController;
 use App\Http\Controllers\Admin\FileController;
+use App\Http\Controllers\Admin\DirectorController;
+use App\Http\Controllers\Admin\StatisticController;
+use App\Http\Controllers\Admin\ReasonController;
 use App\Http\Controllers\PesaController;
+use App\Http\Controllers\Admin\Web\CoreValueController;
 use App\Http\Controllers\Admin\FeesStudentController;
 use App\Http\Controllers\Admin\FeesCategoryController;
 use App\Http\Controllers\Admin\FeeStructureController;
@@ -16,6 +23,7 @@ use App\Http\Controllers\Admin\FeeDashboardController;
 use App\Http\Controllers\Admin\FeeReconciliationController;
 use App\Http\Controllers\Admin\BursaryAllocationController;
 use App\Http\Controllers\Admin\FeesAdjustmentController;
+use App\Http\Controllers\Admin\Web\AboutUsController;
 use App\Http\Controllers\Admin\DefaultersController;
 use App\Http\Controllers\Admin\PartialPaymentsController;
 use App\Http\Controllers\Admin\BursaryReportController;
@@ -24,7 +32,7 @@ use App\Http\Controllers\Admin\FeeCollectionReportController;
 use App\Http\Controllers\Admin\GovernmentFeesReportController;
 use App\Http\Controllers\Admin\ExternalFeesReportController;
 use App\Http\Controllers\Admin\OutstandingFeesController;
-use App\Http\Controllers\DirectorController;
+// use App\Http\Controllers\DirectorController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\IncomeReportController;
 use App\Http\Controllers\Admin\ExpenseReportController;
@@ -39,7 +47,7 @@ use App\Http\Controllers\Admin\ReceivableInvoiceController;
 
 
 
-
+Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::prefix('reconciliation')->name('reconciliation.')->group(function () {
@@ -55,10 +63,86 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function() {
 
+Route::get('/digital/files', [FileController::class, 'index'])->name('alldigitalbooks');
 
+Route::get('statistics', [StatisticController::class, 'index'])->name('statistics.index');
+    Route::get('statistics/create', [StatisticController::class, 'create'])->name('statistics.create');
+    Route::post('statistics', [StatisticController::class, 'store'])->name('statistics.store');
+    Route::get('statistics/{id}/edit', [StatisticController::class, 'edit'])->name('statistics.edit');
+    Route::put('statistics/{id}', [StatisticController::class, 'update'])->name('statistics.update');
+    Route::delete('statistics/{id}', [StatisticController::class, 'destroy'])->name('statistics.destroy');
 
+    Route::get('/visits/map', [VisitController::class, 'showMap'])->name('visits.map');
+Route::get('/visit-stats', [VisitController::class, 'showStats'])->name('visits.stats');
+Route::get('/all/reason', [ReasonController::class, 'index'])->name('admin.reasons.index');
+Route::get('/create/reason', [ReasonController::class, 'create'])->name('admin.reasons.create');
+Route::post('/store/reasons', [ReasonController::class, 'store'])->name('admin.reasons.store');
+Route::get('/edit/reason/{id}', [ReasonController::class, 'edit'])->name('admin.reasons.edit');
+Route::post('/update/reasons/{id}', [ReasonController::class, 'update'])->name('admin.reasons.update');
+Route::delete('/delete/reason/{id}', [ReasonController::class, 'destroy'])->name('admin.reasons.destroy');
+Route::get('/admission-process', [AdmissionProcessController::class, 'index'])->name('admission.process.index');
+Route::get('/admission-process/create', [AdmissionProcessController::class, 'create'])->name('admission.process.create');
+Route::post('/admission-process', [AdmissionProcessController::class, 'store'])->name('admission.process.store');
+Route::get('/admission-process/{id}/edit', [AdmissionProcessController::class, 'edit'])->name('admission.process.edit');
+Route::put('/admission-process/{id}', [AdmissionProcessController::class, 'update'])->name('admission.process.update');
+Route::delete('/admission-process/{id}', [AdmissionProcessController::class, 'destroy'])->name('admission.process.destroy');
+Route::get('/directors', [DirectorController::class, 'index'])->name('directors.index');
+    Route::post('/store/director', [DirectorController::class, 'store'])->name('directors.store');
+    Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
+    Route::post('histories', [AboutUsController::class, 'saveHistories'])->name('histories.store');
+    
+   Route::get('histories', [AboutUsController::class, 'histories'])->name('histories.index');
+    Route::get('histories/create', [AboutUsController::class, 'create'])->name('histories.create');
+    // Route::post('histories/store', [AboutUsController::class, 'saveHistories'])->name('histories.store');
+      Route::get('histories/{id}/edit', [AboutUsController::class, 'edit'])->name('histories.edit');
+    Route::post('histories/update/{id}', [AboutUsController::class, 'update'])->name('histories.update');
+  Route::delete('histories/{id}', [AboutUsController::class, 'destroy'])->name('histories.destroy');
+  Route::get('partners', [AboutUsController::class, 'partners'])->name('admin.about-us.partners');
+Route::get('partners', [AboutUsController::class, 'partners'])->name('admin.about-us.partners');
+Route::get('partners/create', [AboutUsController::class, 'createPartner'])->name('admin.about-us.partners.create');
+Route::post('partners', [AboutUsController::class, 'storePartner'])->name('admin.about-us.partners.store');
+Route::get('partners/{id}/edit', [AboutUsController::class, 'editPartner'])->name('admin.about-us.partners.edit');
+Route::put('partners/{id}', [AboutUsController::class, 'updatePartner'])->name('admin.about-us.partners.update');
+Route::delete('partners/{id}', [AboutUsController::class, 'destroyPartner'])->name('admin.about-us.partners.destroy');
 
+Route::get('accreditations', [AboutUsController::class, 'accreditations'])->name('admin.about-us.accreditations');
+Route::get('accreditations/create', [AboutUsController::class, 'createAccreditation'])->name('admin.about-us.accreditations.create');
+Route::post('accreditations', [AboutUsController::class, 'storeAccreditation'])->name('admin.about-us.accreditations.store');
+Route::get('accreditations/{id}/edit', [AboutUsController::class, 'editAccreditation'])->name('admin.about-us.accreditations.edit');
+Route::put('accreditations/{id}', [AboutUsController::class, 'updateAccreditation'])->name('admin.about-us.accreditations.update');
+Route::delete('accreditations/{id}', [AboutUsController::class, 'destroyAccreditation'])->name('admin.about-us.accreditations.destroy');
+
+    Route::get('core-values', [CoreValueController::class, 'index'])->name('core-values.index');
+    Route::get('core-values/create', [CoreValueController::class, 'create'])->name('core-values.create');
+    Route::post('core-values', [CoreValueController::class, 'store'])->name('core-values.store');
+    Route::get('core-values/{id}/edit', [CoreValueController::class, 'edit'])->name('core-values.edit');
+    Route::put('core-values/{id}', [CoreValueController::class, 'update'])->name('core-values.update');
+    Route::delete('core-values/{id}', [CoreValueController::class, 'destroy'])->name('core-values.destroy');
+
+    Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
+Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
+Route::post('/digita/file', [FileController::class, 'store'])->name('filepost');
+Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
+Route::post('category/store/file', [FileController::class, 'Catestore'])->name('categoriesstore');
+Route::get('/create/cate/item', [FileController::class, 'Catecreate'])->name('categoriescreate');
+Route::get('/edit/cate/item/{id}', [FileController::class, 'CateEdit'])->name('catedit');
+Route::post('category/update/{id}', [FileController::class, 'CateUpdate'])->name('categoriesupdate');
+Route::delete('/categories/{id}', [FileController::class, 'destroyCate'])->name('categdestroy');
+Route::get('/edit/file/{id}', [FileController::class, 'EditFile'])->name('editfile');
+Route::post('material/update/{id}', [FileController::class, 'MaterialUpdate'])->name('materialsupdate');
+Route::get('/material/show/file/{id}', [FileController::class, 'ShowMaterial'])->name('fileshow');
+
+Route::delete('/materials/{id}', [FileController::class, 'destroy'])->name('deletefile');
+Route::delete('/admin/inquiries/{id}', [EnquiryController::class, 'deleteInquiry'])->name('admin.inquiry.delete');
+Route::get('admin/inquiry/{id}', [EnquiryController::class, 'show'])->name('admin.inquiry.show');
+Route::post('admin/inquiry/{id}/reply', [EnquiryController::class, 'reply'])->name('admin.inquiry.reply');
+Route::post('/admin/subscriptions/sendBulkEmail', [EnquiryController::class, 'sendBulkEmail'])->name('admin.subscriptions.sendBulkEmail');
+Route::get('/admin/subscriptions', [EnquiryController::class, 'subindex'])->name('admin.subscriptions.index');
+Route::delete('/admin/subscriptions/{id}', [EnquiryController::class, 'destroysub'])->name('admin.subscriptions.destroy');
+
+});
 
 Route::prefix('admin')->group(function () {
     Route::get('income-report', [IncomeReportController::class, 'index'])->name('admin.income-report.index');
@@ -417,7 +501,8 @@ Route::middleware(['XSS', 'track.visits'])->namespace('Web')->group(function () 
     Route::get('/set-cookie', 'HomeController@setCookie')->name('setCookie');
 // Route::post('/frontend/inquiry/store', [FrontendController::class, 'storeInquiry'])->name('frontend.inquiry.store');
 Route::post('/frontend/newsletter/store', [FrontendController::class, 'storeNewsletterSubscription'])->name('frontend.newsletterstore');
-
+Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
+Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
 
 
 });

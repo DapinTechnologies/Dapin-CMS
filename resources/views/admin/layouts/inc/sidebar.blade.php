@@ -28,11 +28,6 @@
                 <li class="{{ Request::is('admin/admission/student') ? 'active' : '' }}"><a href="{{ route('admin.student.index') }}" class="">{{ trans_choice('module_student', 1) }} {{ __('list') }}</a></li>
                 @endcanany
 
-
-
-
-
-
                 @canany(['student-transfer-in-create', 'student-transfer-in-view', 'student-transfer-out-create', 'student-transfer-out-view'])
                 <li class="nav-item pcoded-hasmenu {{ Request::is('admin/admission/student-transfer*') ? 'pcoded-trigger active' : '' }}">
                     <a href="#!" class="nav-link">
@@ -77,64 +72,29 @@
         @endcanany
 
         <!--------START OF SMS MANAGEMENT---------->
+        @canany(['sms-view', 'sms-send', 'sms-balance'])
+        <li class="nav-item pcoded-hasmenu {{ Request::is('admin/sms*') ? 'pcoded-trigger active' : '' }}">
+            <a href="#!" class="nav-link">
+                <span class="pcoded-micon"><i class="fas fa-envelope"></i></span>
+                <span class="pcoded-mtext">SMS Management</span>
+            </a>
+            <ul class="pcoded-submenu">
+                @can('sms-view')
+                <li class="{{ Request::is('admin/sms*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.sms.index') }}">{{ __('View SMS Logs') }}</a>
+                </li>
+                @endcan
 
-@canany(['sms-view', 'sms-send', 'sms-balance'])
-<li class="nav-item pcoded-hasmenu {{ Request::is('admin/sms*') ? 'pcoded-trigger active' : '' }}">
-    <a href="#!" class="nav-link">
-        <span class="pcoded-micon"><i class="fas fa-envelope"></i></span>
-        <span class="pcoded-mtext">SMS Management</span>
-    </a>
-    <ul class="pcoded-submenu">
-        @can('sms-view')
-        <li class="{{ Request::is('admin/sms*') ? 'active' : '' }}">
-            <a href="{{ route('admin.sms.index') }}">{{ __('View SMS Logs') }}</a>
+                @can('sms-send')
+                <li class="{{ Request::is('admin/sms/create') ? 'active' : '' }}">
+                    <a href="{{ route('admin.sms.create') }}">{{ __('Send New SMS') }}</a>
+                </li>
+                @endcan
+            </ul>
         </li>
-        @endcan
-
-        @can('sms-send')
-        <li class="{{ Request::is('admin/sms/create') ? 'active' : '' }}">
-            <a href="{{ route('admin.sms.create') }}">{{ __('Send New SMS') }}</a>
-        </li>
-        @endcan
-    </ul>
-</li>
-@endcanany
-
-
-
-
-
-
-
-
-<!--------END OF SMS MANAGEMENT---------->
-
-
-
-
-
-
-
-
-<!-- End ------------------->
-
-
-
-
-
-
-        <!--------START OF SMS MANAGEMENT---------->
-
-       
-
-
-
-
-
-
-
-
-
+        @endcanany
+        <!--------END OF SMS MANAGEMENT---------->
+        
         @canany(['student-attendance-action', 'student-attendance-report', 'student-leave-manage-view', 'student-leave-manage-edit', 'student-note-create', 'student-note-view', 'student-enroll-single', 'student-enroll-group', 'student-enroll-adddrop', 'student-enroll-complete', 'student-enroll-alumni'])
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/student*') ? 'pcoded-trigger active' : '' }}">
             <a href="#!" class="nav-link">
@@ -338,18 +298,13 @@
                 @canany(['admit-setting-view', 'result-contribution-view'])
                 <li class="nav-item pcoded-hasmenu {{ Request::is('admin/exam/admit-setting*') ? 'pcoded-trigger active' : '' }} {{ Request::is('admin/exam/result-contribution*') ? 'pcoded-trigger active' : '' }}">
                     <a href="#!" class="nav-link">
-                        <span class="pcoded-mtext">Fees Reports</span>
+                        <span class="pcoded-mtext">{{ trans_choice('module_setting', 2) }}</span>
                     </a>
 
                     <ul class="pcoded-submenu">
-
-                     @can('fee-dashboard-view')
-    <li class="{{ Request::is('admin/fee-dashboard*') ? 'active' : '' }}">
-        <a href="{{ route('admin.fee-dashboard.index') }}">
-            <i class=""></i> Fee Dashboard
-        </a>
-    </li>
-@endcan
+                        @can('admit-setting-view')
+                        <li class="{{ Request::is('admin/exam/admit-setting*') ? 'active' : '' }}"><a href="{{ route('admin.admit-setting.index') }}" class="">{{ trans_choice('module_admit_setting', 1) }}</a></li>
+                        @endcan
 
                         @can('result-contribution-view')
                         <li class="{{ Request::is('admin/exam/result-contribution*') ? 'active' : '' }}"><a href="{{ route('admin.result-contribution.index') }}" class="">{{ trans_choice('module_result_contribution', 2) }}</a></li>
@@ -383,7 +338,7 @@
         </li>
         @endcanany
         
-<!-- Fees Main Menu -->
+        <!-- Fees Main Menu -->
         @canany(['fees-student-due', 'fees-student-quick-assign', 'fees-student-quick-received', 'fees-student-report', 'fees-student-print', 'fees-master-view', 'fees-master-create', 'fees-category-view', 'fees-category-create', 'fees-discount-view', 'fees-discount-create', 'fees-fine-view', 'report-collected-fees', 'report-student-fees','fees-fine-create', 'fees-receipt-view'])
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/fees*') ? 'pcoded-trigger active' : '' }}">
             <a href="#!" class="nav-link">
@@ -398,167 +353,130 @@
                     </a>
 
                     <ul class="pcoded-submenu">
-
-                     @can('fees-student-quick-assign')
+                        @can('fees-student-quick-assign')
                         <li class="{{ Request::is('admin/fees-student-quick-assign*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.quick.assign') }}" class="">{{ trans_choice('module_fees_quick_assign', 1) }} Fees</a></li>
                         @endcan
-
-                       {{-- @canany(['fees-master-create'])
-    <li class="{{ Request::is('admin/fees-master/create*') ? 'active' : '' }}"><a href="{{ route('admin.fees-master.create') }}" class="">{{ trans_choice('module_fees_master', 2) }}</a></li>
-@endcanany --}}
-
-{{--   @can('payments-create')
-    <li class="{{ Request::is('admin/payments/quick-receive*') ? 'active' : '' }}">
-        <a href="{{ route('admin.payments.quick-receive') }}" class="">
-            <i class=""></i> Quick Fees Receive 
-        </a>
-    </li>
-@endcan  --}}
-
 
                         @can('fees-student-due')
                         <li class="{{ Request::is('admin/fees-student') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.index') }}" class="">All {{ trans_choice('module_fees_due', 1) }}</a></li>
                         @endcan
 
-  @can('bursary-allocation-access')
-    <li class="{{ Request::is('admin/bursary-allocation*') ? 'active' : '' }}">
-        <a href="{{ route('admin.bursary-allocation.index') }}" class="">
-            <i class=""></i> Bursary Allocation
-        </a>
-    </li>
-@endcan
-
-                       {{-- @can('fees-student-quick-received')
-                        <li class="{{ Request::is('admin/fees-student-quick-received*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.quick.received') }}" class="">Discounts / Fines </a></li>
-                        @endcan --}}
+                        @can('bursary-allocation-access')
+                        <li class="{{ Request::is('admin/bursary-allocation*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.bursary-allocation.index') }}" class="">
+                                <i class=""></i> Bursary Allocation
+                            </a>
+                        </li>
+                        @endcan
 
                         @can('fees-adjustment-create')
-<li class="{{ Request::is('admin/fees-adjustment*') ? 'active' : '' }}">
-    <a href="{{ route('admin.fees-adjustment.index') }}" class="">
-        <i class=""></i> Discounts / Fines
-    </a>
-</li>
-@endcan
-
- {{-- @canany(['fees-master-view'])
-    <li class="{{ Request::is('admin/fees-master') ? 'active' : '' }}"><a href="{{ route('admin.fees-master.index') }}" class="">{{ trans_choice('module_fees_master_history', 2) }}</a></li>
-@endcanany --}}
-
-                       
+                        <li class="{{ Request::is('admin/fees-adjustment*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.fees-adjustment.index') }}" class="">
+                                <i class=""></i> Discounts / Fines
+                            </a>
+                        </li>
+                        @endcan
                     </ul>
                 </li>
                 @endcanany
                 
-
                 @can('fee-structure-view')
-    <li class="{{ Request::is('admin/fee-structures*') ? 'active' : '' }}">
-        <a href="{{ route('admin.fee-structures.index') }}"><i class="fa fa-money"></i> Fee Structures</a>
-    </li>
-@endcan
+                <li class="{{ Request::is('admin/fee-structures*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.fee-structures.index') }}"><i class="fa fa-money"></i> Fee Structures</a>
+                </li>
+                @endcan
 
-@can('view fee reconciliation')
-    <li class="{{ Request::is('admin/fee-reconciliation*') ? 'active' : '' }}">
-        <a href="{{ route('admin.fee-reconciliation.index') }}">
-            <i class=""></i> Fee Reconciliation
-        </a>
-    </li>
-@endcan
+                @can('view fee reconciliation')
+                <li class="{{ Request::is('admin/fee-reconciliation*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.fee-reconciliation.index') }}">
+                        <i class=""></i> Fee Reconciliation
+                    </a>
+                </li>
+                @endcan
 
-@can('fee-clearance-view')
-    <li class="{{ Request::is('admin/fee-clearance*') ? 'active' : '' }}">
-        <a href="{{ route('admin.fee-clearance.index') }}">
-            <i class=""></i> Fee Clearance
-        </a>
-    </li>
-@endcan
+                @can('fee-clearance-view')
+                <li class="{{ Request::is('admin/fee-clearance*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.fee-clearance.index') }}">
+                        <i class=""></i> Fee Clearance
+                    </a>
+                </li>
+                @endcan
 
-
-                 
-
-            <!-- Fees Reports Main Menu -->
-                 @canany(['report-student-fees', 'report-collected-fees', 'fees-student-report','fees-student-print'])
+                <!-- Fees Reports Main Menu -->
+                @canany(['report-student-fees', 'report-collected-fees', 'fees-student-report','fees-student-print'])
                 <li class="nav-item pcoded-hasmenu {{ Request::is('admin/fees-receipt*') ? 'pcoded-trigger active' : '' }}">
                     <a href="#!" class="nav-link">
                         <span class="pcoded-mtext">Fees Reports</span>
                     </a>
 
                     <ul class="pcoded-submenu">
+                        @can('fee-dashboard-view')
+                        <li class="{{ Request::is('admin/fee-dashboard*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.fee-dashboard.index') }}">
+                                <i class=""></i> Fee Dashboard
+                            </a>
+                        </li>
+                        @endcan
 
-                     @can('fee-dashboard-view')
-    <li class="{{ Request::is('admin/fee-dashboard*') ? 'active' : '' }}">
-        <a href="{{ route('admin.fee-dashboard.index') }}">
-            <i class=""></i> Fee Dashboard
-        </a>
-    </li>
-@endcan
+                        @can('report-student-fees')
+                        <li class="{{ Request::is('admin/report/student-fees') ? 'active' : '' }}"><a href="{{ route('admin.report.student-fees') }}" class="">All {{ trans_choice('module_student_fees', 1) }}</a></li>
+                        @endcan
 
-@can('report-student-fees')
-                <li class="{{ Request::is('admin/report/student-fees') ? 'active' : '' }}"><a href="{{ route('admin.report.student-fees') }}" class="">All {{ trans_choice('module_student_fees', 1) }}</a></li>
-                @endcan
-
-                @can('report-collected-fees')
-                <li class="{{ Request::is('admin/report/fees') ? 'active' : '' }}"><a href="{{ route('admin.report.fees') }}" class="">Total {{ trans_choice('module_collected_fees', 1) }}</a></li>
-                @endcan
+                        @can('report-collected-fees')
+                        <li class="{{ Request::is('admin/report/fees') ? 'active' : '' }}"><a href="{{ route('admin.report.fees') }}" class="">Total {{ trans_choice('module_collected_fees', 1) }}</a></li>
+                        @endcan
 
                         @canany(['view fee defaulters', 'fees-student-report', 'fees-student-print'])
-    <li class="{{ Request::is('admin/defaulters*') ? 'active' : '' }}">
-        <a href="{{ route('admin.defaulters.index') }}" class="">Defaulters List</a>
-    </li>
-@endcanany
+                        <li class="{{ Request::is('admin/defaulters*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.defaulters.index') }}" class="">Defaulters List</a>
+                        </li>
+                        @endcanany
 
-                         @canany(['view partial payments', 'fees-student-report', 'fees-student-print'])
-    <li class="{{ Request::is('admin/partial-payments*') ? 'active' : '' }}">
-        <a href="{{ route('admin.partial-payments.index') }}" class="">Partial Payments List</a>
-    </li>
-@endcanany
+                        @canany(['view partial payments', 'fees-student-report', 'fees-student-print'])
+                        <li class="{{ Request::is('admin/partial-payments*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.partial-payments.index') }}" class="">Partial Payments List</a>
+                        </li>
+                        @endcanany
 
-@can('view outstanding fees reports')
-    <li class="{{ Request::is('admin/outstanding-fees*') ? 'active' : '' }}">
-        <a href="{{ route('admin.outstanding-fees.index') }}">Outstanding Fees Report</a>
-    </li>
-@endcan
+                        @can('view outstanding fees reports')
+                        <li class="{{ Request::is('admin/outstanding-fees*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.outstanding-fees.index') }}">Outstanding Fees Report</a>
+                        </li>
+                        @endcan
 
- @canany(['view bursary reports', 'fees-student-report', 'fees-student-print'])
-    <li class="{{ Request::is('admin/bursary-report*') ? 'active' : '' }}">
-        <a href="{{ route('admin.bursary-report.index') }}" class="">Bursary | Sponsorship</a>
-    </li>
-@endcanany
+                        @canany(['view bursary reports', 'fees-student-report', 'fees-student-print'])
+                        <li class="{{ Request::is('admin/bursary-report*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.bursary-report.index') }}" class="">Bursary | Sponsorship</a>
+                        </li>
+                        @endcanany
 
- @canany(['view financial reports', 'fees-student-report', 'fees-student-print'])
-    <li class="{{ Request::is('admin/fines-discounts-report*') ? 'active' : '' }}">
-        <a href="{{ route('admin.fines-discounts-report.index') }}" class="">Fines & Discounts</a>
-    </li>
-@endcanany
+                        @canany(['view financial reports', 'fees-student-report', 'fees-student-print'])
+                        <li class="{{ Request::is('admin/fines-discounts-report*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.fines-discounts-report.index') }}" class="">Fines & Discounts</a>
+                        </li>
+                        @endcanany
 
-@canany(['view fee collection reports', 'fees-student-report', 'fees-student-print'])
-    <li class="{{ Request::is('admin/fee-collection-report*') ? 'active' : '' }}">
-        <a href="{{ route('admin.fee-collection-report.index') }}" class="">Fee Collection Summary</a>
-    </li>
-@endcanany
+                        @canany(['view fee collection reports', 'fees-student-report', 'fees-student-print'])
+                        <li class="{{ Request::is('admin/fee-collection-report*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.fee-collection-report.index') }}" class="">Fee Collection Summary</a>
+                        </li>
+                        @endcanany
 
-@can('view government fees reports')
-    <li class="{{ Request::is('admin/government-fees-report*') ? 'active' : '' }}">
-        <a href="{{ route('admin.government-fees-report.index') }}">Government Fees Report</a>
-    </li>
-@endcan
+                        @can('view government fees reports')
+                        <li class="{{ Request::is('admin/government-fees-report*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.government-fees-report.index') }}">Government Fees Report</a>
+                        </li>
+                        @endcan
 
-@can('view external fees reports')
-    <li class="{{ Request::is('admin/external-fees-report*') ? 'active' : '' }}">
-        <a href="{{ route('admin.external-fees-report.index') }}">External Exam Fees Report</a>
-    </li>
-@endcan
-
-
-                   {{-- @canany(['fees-student-report', 'fees-student-print'])
-                        <li class="{{ Request::is('admin/fees-student-report*') ? 'active' : '' }}"><a href="{{ route('admin.fees-student.report') }}" class="">{{ trans_choice('module_fees_report', 2) }}</a></li>
-                        @endcanany --}}
-
-                    
-                       
+                        @can('view external fees reports')
+                        <li class="{{ Request::is('admin/external-fees-report*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.external-fees-report.index') }}">External Exam Fees Report</a>
+                        </li>
+                        @endcan
                     </ul>
                 </li>
                 @endcanany
-           <!-- End of Fees Reports Main Menu -->
+                <!-- End of Fees Reports Main Menu -->
 
                 @canany(['fees-fine-view', 'fees-fine-create', 'fees-receipt-view'])
                 <li class="nav-item pcoded-hasmenu {{ Request::is('admin/fees-receipt*') ? 'pcoded-trigger active' : '' }}">
@@ -567,27 +485,25 @@
                     </a>
 
                     <ul class="pcoded-submenu">
+                        @canany(['fees-category-view', 'fees-category-create'])
+                        <li class="{{ Request::is('admin/fees-category*') ? 'active' : '' }}"><a href="{{ route('admin.fees-category.index') }}" class="">{{ trans_choice('module_fees_category', 2) }}</a></li>
+                        @endcanany
 
-                     @canany(['fees-category-view', 'fees-category-create'])
-                <li class="{{ Request::is('admin/fees-category*') ? 'active' : '' }}"><a href="{{ route('admin.fees-category.index') }}" class="">{{ trans_choice('module_fees_category', 2) }}</a></li>
+                        @canany(['fees-discount-view', 'fees-discount-create'])
+                        <li class="{{ Request::is('admin/fees-discount*') ? 'active' : '' }}"><a href="{{ route('admin.fees-discount.index') }}" class="">{{ trans_choice('module_fees_discount', 2) }}</a></li>
+                        @endcanany
+
+                        @canany(['fees-fine-view', 'fees-fine-create'])
+                        <li class="{{ Request::is('admin/fees-fine*') ? 'active' : '' }}"><a href="{{ route('admin.fees-fine.index') }}" class="">{{ trans_choice('module_fees_fine', 2) }}</a></li>
+                        @endcanany
+
+                        @can('fees-receipt-view')
+                        <li class="{{ Request::is('admin/fees-receipt*') ? 'active' : '' }}"><a href="{{ route('admin.fees-receipt.index') }}" class="">{{ trans_choice('module_fees_receipt_setting', 1) }}</a></li>
+                        @endcan
+                    </ul>
+                </li>
                 @endcanany
-
-                @canany(['fees-discount-view', 'fees-discount-create'])
-                <li class="{{ Request::is('admin/fees-discount*') ? 'active' : '' }}"><a href="{{ route('admin.fees-discount.index') }}" class="">{{ trans_choice('module_fees_discount', 2) }}</a></li>
-                @endcanany
-
-                @canany(['fees-fine-view', 'fees-fine-create'])
-                <li class="{{ Request::is('admin/fees-fine*') ? 'active' : '' }}"><a href="{{ route('admin.fees-fine.index') }}" class="">{{ trans_choice('module_fees_fine', 2) }}</a></li>
-                @endcanany
-
-                @can('fees-receipt-view')
-                <li class="{{ Request::is('admin/fees-receipt*') ? 'active' : '' }}"><a href="{{ route('admin.fees-receipt.index') }}" class="">{{ trans_choice('module_fees_receipt_setting', 1) }}</a></li>
-                @endcan
-
             </ul>
-        </li>
-        @endcanany
-    </ul>
         </li>
         @endcanany
 
@@ -634,8 +550,8 @@
 
                     <ul class="pcoded-submenu">
                         @canany(['deduction-setting-create', 'deduction-setting-view'])
-<li class="{{ Request::is('admin/payroll/deduction-setting*') ? 'active' : '' }}"><a href="{{ route('admin.deduction-setting.index') }}" class="">{{ trans_choice('module_deduction_setting', 2) }}</a></li>
-@endcanany
+                        <li class="{{ Request::is('admin/payroll/deduction-setting*') ? 'active' : '' }}"><a href="{{ route('admin.deduction-setting.index') }}" class="">{{ trans_choice('module_deduction_setting', 2) }}</a></li>
+                        @endcanany
                         @canany(['tax-setting-create', 'tax-setting-view'])
                         <li class="{{ Request::is('admin/staff/tax-setting*') ? 'active' : '' }}"><a href="{{ route('admin.tax-setting.index') }}" class="">{{ trans_choice('module_tax_setting', 2) }}</a></li>
                         @endcanany
@@ -703,132 +619,116 @@
         @endcanany
 
         @canany(['income-create', 'income-view', 'income-category-create', 'income-category-view', 'expense-create', 'expense-view', 'expense-category-create', 'expense-category-view', 'outcome-view'])
-<li class="nav-item pcoded-hasmenu {{ Request::is('admin/account*') ? 'pcoded-trigger active' : '' }}">
-    <a href="#!" class="nav-link">
-        <span class="pcoded-micon"><i class="fas fa-credit-card"></i></span>
-        <span class="pcoded-mtext">{{ trans_choice('module_income_expense', 2) }}</span>
-    </a>
-    <ul class="pcoded-submenu">
-        {{-- Outcome --}}
-        @can('outcome-view')
-        <li class="{{ Request::is('admin/account/outcome*') ? 'active' : '' }}">
-            <a href="{{ route('admin.outcome.index') }}">Account Dashboard</a>
-        </li>
-        @endcan
-        
-
-        
-         @canany(['income-category-create', 'income-category-view'])
-        <li class="pcoded-hasmenu {{  'pcoded-trigger active' }}">
+        <li class="nav-item pcoded-hasmenu {{ Request::is('admin/account*') ? 'pcoded-trigger active' : '' }}">
             <a href="#!" class="nav-link">
+                <span class="pcoded-micon"><i class="fas fa-credit-card"></i></span>
+                <span class="pcoded-mtext">{{ trans_choice('module_income_expense', 2) }}</span>
+            </a>
+            <ul class="pcoded-submenu">
+                @can('outcome-view')
+                <li class="{{ Request::is('admin/account/outcome*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.outcome.index') }}">Account Dashboard</a>
+                </li>
+                @endcan
                 
-                <span class="pcoded-mtext">Payables</span>
-            </a>
-            <ul class="pcoded-submenu">
-               {{-- Billing --}}
-@canany(['billing-view', 'billing-create', 'billing-edit', 'billing-delete'])
-<li class="{{ Request::is('admin/billing*') ? 'active' : '' }}">
-    <a href="{{ route('admin.billing.index') }}">
-        
-        <span>{{ __('module_billing') }}</span>
-    </a>
-</li>
-@endcanany
-
-                {{-- Expense --}}
-        @canany(['expense-create', 'expense-view'])
-        <li class="{{ Request::is('admin/account/expense*') ? 'active' : '' }}">
-            <a href="{{ route('admin.expense.index') }}">Payable Receipt</a>
-        </li>
-        @endcanany
-            </ul>
-        </li>
-        @endcanany
-
-        @canany(['income-create', 'income-view'])
-        <li class="pcoded-hasmenu {{ Request::is('admin/account/*-category*') ? 'pcoded-trigger active' : '' }}">
-            <a href="#!" class="nav-link">
-
-                <span class="pcoded-mtext">Receivables</span>
-            </a>
-            <ul class="pcoded-submenu">
-                {{-- Receivable Invoices --}}
-@canany(['receivable-invoice-view', 'receivable-invoice-create', 'receivable-invoice-edit', 'receivable-invoice-delete'])
-<li class="{{ Request::is('admin/receivable-invoice*') ? 'active' : '' }}">
-    <a href="{{ route('admin.receivable-invoice.index') }}">
-        <span>Invoicing</span>
-    </a>
-</li>
-@endcanany
-
-                {{-- Income --}}
-        @canany(['income-create', 'income-view'])
-        <li class="{{ Request::is('admin/account/income*') ? 'active' : '' }}">
-            <a href="{{ route('admin.income.index') }}">Receivable Receipt</a>
-        </li>
-        @endcanany
-            </ul>
-        </li>
-        @endcanany
-
-        {{-- Reconciliation --}}
-@canany(['reconciliation-create', 'reconciliation-view', 'reconciliation-edit'])
-<li class="{{ Request::is('admin/account/reconciliation*') ? 'active' : '' }}">
-    <a href="{{ route('admin.reconciliation.index') }}">
-         <span>Banking</span>
-    </a>
-</li>
-@endcanany
-
-         @canany(['income-category-create', 'income-category-view', 'expense-category-create', 'expense-category-view'])
-        <li class="pcoded-hasmenu {{  'pcoded-trigger active' }}">
-            <a href="#!" class="nav-link">
-                
-                <span class="pcoded-mtext">Reports</span>
-            </a>
-            <ul class="pcoded-submenu">
-               @canany(['income-report-view'])
-<li class="{{ Request::is('admin/income-report*') ? 'active' : '' }}">
-    <a href="{{ route('admin.income-report.index') }}">Receivable Report</a>
-</li>
-@endcanany
-
-                @canany(['expense-report-view'])
-<li class="{{ Request::is('admin/expense-report*') ? 'active' : '' }}">
-    <a href="{{ route('admin.expense-report.index') }}">Payable Report</a>
-</li>
-@endcanany
-            </ul>
-        </li>
-        @endcanany
-
-        {{-- Settings Submenu --}}
-        @canany(['income-category-create', 'income-category-view', 'expense-category-create', 'expense-category-view'])
-        <li class="pcoded-hasmenu {{ Request::is('admin/account/*-category*') ? 'pcoded-trigger active' : '' }}">
-            <a href="#!" class="nav-link">
-                
-                <span class="pcoded-mtext">{{ __('Settings') }}</span>
-            </a>
-            <ul class="pcoded-submenu">
                 @canany(['income-category-create', 'income-category-view'])
-                <li class="{{ Request::is('admin/account/income-category*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.income-category.index') }}">Receivable Categories</a>
+                <li class="pcoded-hasmenu {{ Request::is('admin/account/expense*') ? 'pcoded-trigger active' : '' }}">
+                    <a href="#!" class="nav-link">
+                        <span class="pcoded-mtext">Payables</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        @canany(['billing-view', 'billing-create', 'billing-edit', 'billing-delete'])
+                        <li class="{{ Request::is('admin/billing*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.billing.index') }}">
+                                <span>{{ __('module_billing') }}</span>
+                            </a>
+                        </li>
+                        @endcanany
+
+                        @canany(['expense-create', 'expense-view'])
+                        <li class="{{ Request::is('admin/account/expense*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.expense.index') }}">Payable Receipt</a>
+                        </li>
+                        @endcanany
+                    </ul>
                 </li>
                 @endcanany
 
-                @canany(['expense-category-create', 'expense-category-view'])
-                <li class="{{ Request::is('admin/account/expense-category*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.expense-category.index') }}">Payable Categories</a>
+                @canany(['income-create', 'income-view'])
+                <li class="pcoded-hasmenu {{ Request::is('admin/account/income*') ? 'pcoded-trigger active' : '' }}">
+                    <a href="#!" class="nav-link">
+                        <span class="pcoded-mtext">Receivables</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        @canany(['receivable-invoice-view', 'receivable-invoice-create', 'receivable-invoice-edit', 'receivable-invoice-delete'])
+                        <li class="{{ Request::is('admin/receivable-invoice*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.receivable-invoice.index') }}">
+                                <span>Invoicing</span>
+                            </a>
+                        </li>
+                        @endcanany
+
+                        @canany(['income-create', 'income-view'])
+                        <li class="{{ Request::is('admin/account/income*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.income.index') }}">Receivable Receipt</a>
+                        </li>
+                        @endcanany
+                    </ul>
+                </li>
+                @endcanany
+
+                @canany(['reconciliation-create', 'reconciliation-view', 'reconciliation-edit'])
+                <li class="{{ Request::is('admin/account/reconciliation*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.reconciliation.index') }}">
+                        <span>Banking</span>
+                    </a>
+                </li>
+                @endcanany
+
+                @canany(['income-category-create', 'income-category-view', 'expense-category-create', 'expense-category-view'])
+                <li class="pcoded-hasmenu {{ Request::is('admin/income-report*') ? 'pcoded-trigger active' : '' }}">
+                    <a href="#!" class="nav-link">
+                        <span class="pcoded-mtext">Reports</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        @canany(['income-report-view'])
+                        <li class="{{ Request::is('admin/income-report*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.income-report.index') }}">Receivable Report</a>
+                        </li>
+                        @endcanany
+
+                        @canany(['expense-report-view'])
+                        <li class="{{ Request::is('admin/expense-report*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.expense-report.index') }}">Payable Report</a>
+                        </li>
+                        @endcanany
+                    </ul>
+                </li>
+                @endcanany
+
+                @canany(['income-category-create', 'income-category-view', 'expense-category-create', 'expense-category-view'])
+                <li class="pcoded-hasmenu {{ Request::is('admin/account/*-category*') ? 'pcoded-trigger active' : '' }}">
+                    <a href="#!" class="nav-link">
+                        <span class="pcoded-mtext">{{ __('Settings') }}</span>
+                    </a>
+                    <ul class="pcoded-submenu">
+                        @canany(['income-category-create', 'income-category-view'])
+                        <li class="{{ Request::is('admin/account/income-category*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.income-category.index') }}">Receivable Categories</a>
+                        </li>
+                        @endcanany
+
+                        @canany(['expense-category-create', 'expense-category-view'])
+                        <li class="{{ Request::is('admin/account/expense-category*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.expense-category.index') }}">Payable Categories</a>
+                        </li>
+                        @endcanany
+                    </ul>
                 </li>
                 @endcanany
             </ul>
         </li>
         @endcanany
-
-    </ul>
-</li>
-@endcanany
-
 
         @canany(['email-notify-create', 'email-notify-view', 'sms-notify-create', 'sms-notify-view', 'event-create', 'event-view', 'event-calendar', 'notice-create', 'notice-view', 'notice-category-create', 'notice-category-view'])
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/communicate*') ? 'pcoded-trigger active' : '' }}">
@@ -879,8 +779,6 @@
                 <li class="{{ Request::is('admin/library/issue-return') ? 'active' : '' }}"><a href="{{ route('admin.issue-return.index') }}" class="">{{ trans_choice('module_book_issue_return', 1) }}</a></li>
                 @endcanany
 
-            
-
                 @canany(['library-member-create', 'library-member-view', 'library-member-card'])
                 <li class="nav-item pcoded-hasmenu {{ Request::is('admin/member/library*') ? 'pcoded-trigger active' : '' }}">
                     <a href="#!" class="nav-link">
@@ -923,14 +821,11 @@
                 </li>
                 @endcanany
 
-
                 @canany(['book-issue-action'])
                 <li class="{{ Request::is('digital/book/') ? 'active' : '' }}">
                     <a href="{{ route('admin.alldigitalbooks') }}" class="">{{ __('Digital Books') }}</a>
                 </li>
-            @endcanany
-
-
+                @endcanany
             </ul>
         </li>
         @endcanany
@@ -1117,10 +1012,6 @@
         </li>
         @endcanany
         
-        <!-- Remove the standalone Transcript module since it's now part of Examination -->
-        
-        @canany(['report-student-progress', 'report-subject-students', 'report-student-attendance', 'report-subject-attendance',  'report-salary-paid', 'report-staff-leaves', 'report-income', 'report-expense', 'report-library', 'report-book-return', 'report-inventory', 'report-hostel', 'report-transport'])
-
         @canany(['marksheet-view', 'marksheet-print', 'marksheet-download', 'marksheet-setting-view', 'certificate-view', 'certificate-create', 'certificate-print', 'certificate-download', 'certificate-template-view', 'certificate-template-create'])
         <li class="nav-item pcoded-hasmenu {{ Request::is('admin/transcript*') ? 'pcoded-trigger active' : '' }}">
             <a href="#!" class="nav-link">
@@ -1173,8 +1064,6 @@
                 @can('report-subject-attendance')
                 <li class="{{ Request::is('admin/report/subject-attendance') ? 'active' : '' }}"><a href="{{ route('admin.report.subject-attendance') }}" class="">{{ trans_choice('module_student_subject_attendance', 1) }}</a></li>
                 @endcan
-
-               
 
                 @can('report-salary-paid')
                 <li class="{{ Request::is('admin/report/payroll') ? 'active' : '' }}"><a href="{{ route('admin.report.payroll') }}" class="">{{ trans_choice('module_salary_paid', 1) }}</a></li>
@@ -1242,26 +1131,21 @@
                 <li class="{{ Request::is('admin/web/feature*') ? 'active' : '' }}"><a href="{{ route('admin.feature.index') }}" class="">{{ trans_choice('module_feature', 2) }}</a></li>
                 @endcanany
 
-
-                  @canany(['statistics'])
+                @canany(['statistics'])
                 <li class="{{ Request::is('admin/web/statistics*') ? 'active' : '' }}"><a href="{{ route('admin.statistics.index') }}" class="">{{ trans_choice('Statistics', 2) }}</a></li>
                 @endcanany
                 
-
-                 @canany(['stats'])
+                @canany(['stats'])
                 <li class="{{ Request::is('admin/visit-stats*') ? 'active' : '' }}"><a href="{{ route('admin.visits.stats') }}" class="">{{ trans_choice('Visitor Data', 2) }}</a></li>
                 @endcanany
-
                 
-                 @canany(['Reasons'])
+                @canany(['Reasons'])
                 <li class="{{ Request::is('admin/reasons*') ? 'active' : '' }}"><a href="{{ route('admin.admin.reasons.index') }}" class="">{{ trans_choice('Reasons', 2) }}</a></li>
                 @endcanany
 
                 @canany(['admission'])
                 <li class="{{ Request::is('admin/admission/process/index*') ? 'active' : '' }}"><a href="{{ route('admin.admission.process.index') }}" class="">{{ trans_choice('Admission Process', 2) }}</a></li>
                 @endcanany
-
-
 
                 @canany(['course-view', 'course-create'])
                 <li class="{{ Request::is('admin/web/course*') ? 'active' : '' }}"><a href="{{ route('admin.course.index') }}" class="">{{ trans_choice('module_course', 2) }}</a></li>
@@ -1280,9 +1164,6 @@
                     <a href="{{ route('admin.directors.index') }}">{{ __('Add Directors') }}</a>
                 </li>
                 @endcanany
-
-
-
 
                 @canany(['faq-view', 'faq-create'])
                 <li class="{{ Request::is('admin/web/faq*') ? 'active' : '' }}"><a href="{{ route('admin.faq.index') }}" class="">{{ trans_choice('module_faq', 2) }}</a></li>
@@ -1349,10 +1230,6 @@
                 @can('application-setting-view')
                 <li class="{{ Request::is('admin/setting/application-setting*') ? 'active' : '' }}"><a href="{{ route('admin.application-setting.index') }}" class="">{{ trans_choice('module_application_setting', 1) }}</a></li>
                 @endcan
-
-                {{-- @can('schedule-setting-view')
-                <li class="{{ Request::is('admin/setting/schedule-setting*') ? 'active' : '' }}"><a href="{{ route('admin.schedule-setting.index') }}" class="">{{ trans_choice('module_schedule_setting', 1) }}</a></li>
-                @endcan --}}
 
                 @canany(['role-view', 'role-edit'])
                 <li class="{{ Request::is('admin/setting/role*') ? 'active' : '' }}"><a href="{{ route('admin.role.index') }}" class="">{{ trans_choice('module_role', 2) }}</a></li>
