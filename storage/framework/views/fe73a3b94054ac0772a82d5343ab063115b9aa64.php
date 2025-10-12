@@ -549,9 +549,7 @@
                     </a>
 
                     <ul class="pcoded-submenu">
-                        <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['deduction-setting-create', 'deduction-setting-view'])): ?>
-                        <li class="<?php echo e(Request::is('admin/payroll/deduction-setting*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.deduction-setting.index')); ?>" class=""><?php echo e(trans_choice('module_deduction_setting', 2)); ?></a></li>
-                        <?php endif; ?>
+                        
                         <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->any(['tax-setting-create', 'tax-setting-view'])): ?>
                         <li class="<?php echo e(Request::is('admin/staff/tax-setting*') ? 'active' : ''); ?>"><a href="<?php echo e(route('admin.tax-setting.index')); ?>" class=""><?php echo e(trans_choice('module_tax_setting', 2)); ?></a></li>
                         <?php endif; ?>

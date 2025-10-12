@@ -549,9 +549,9 @@
                     </a>
 
                     <ul class="pcoded-submenu">
-                        @canany(['deduction-setting-create', 'deduction-setting-view'])
+                        {{--@canany(['deduction-setting-create', 'deduction-setting-view'])
                         <li class="{{ Request::is('admin/payroll/deduction-setting*') ? 'active' : '' }}"><a href="{{ route('admin.deduction-setting.index') }}" class="">{{ trans_choice('module_deduction_setting', 2) }}</a></li>
-                        @endcanany
+                        @endcanany --}}
                         @canany(['tax-setting-create', 'tax-setting-view'])
                         <li class="{{ Request::is('admin/staff/tax-setting*') ? 'active' : '' }}"><a href="{{ route('admin.tax-setting.index') }}" class="">{{ trans_choice('module_tax_setting', 2) }}</a></li>
                         @endcanany
