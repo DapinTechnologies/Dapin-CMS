@@ -53,7 +53,10 @@ class AboutUsController extends Controller
 
         return view($this->view.'.index', $data);
     }
-
+ public function create()
+    {
+        return view('admin.web.about-us.histories.create'); // Make sure this matches your blade file path
+    }
 
 // Show history management page
 public function histories()
