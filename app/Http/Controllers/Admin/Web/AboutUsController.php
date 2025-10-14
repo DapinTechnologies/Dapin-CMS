@@ -399,10 +399,11 @@ public function destroyAccreditation($id)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+   public function store(Request $request)
     {
+        \Log::info('AboutUs Store Method Called');
         \Log::info('Request Data:', $request->all());
-    //dd($request->all()); // Temporary - remove after debugging
+
         // Field Validation
         $request->validate([
             'label' => 'required',
@@ -454,21 +455,11 @@ public function destroyAccreditation($id)
             $aboutUs->save();
         }
 
-        // Save Histories
-        $this->saveHistories($id, $request->histories ?? []);
-
-        // Save Partners
-        $this->savePartners($id, $request->partners ?? []);
-
-        // Save Accreditations
-        $this->saveAccreditations($id, $request->accreditations ?? []);
-
+       
         Toastr::success(__('msg_updated_successfully'), __('msg_success'));
 
         return redirect()->back();
     }
-
-
 
 
 }
