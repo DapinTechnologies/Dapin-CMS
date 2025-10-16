@@ -83,48 +83,7 @@
                 </div>
             </div>
             
-             <div class="col-sm-6 col-md-6 col-xl-3">
-                <div class="card theme-bg bitcoin-wallet">
-                    <div class="card-block">
-                        <!-- Fetch and display the SMS balance -->
-                        <?php 
-                            $smsConfig = \App\Models\SmsConfiguration::first();
-                            $balance = 'No SMS configuration found';
-                            if ($smsConfig) {
-                                $apiKey = $smsConfig->api_key;
-                                $response = \Illuminate\Support\Facades\Http::post('https://smsportal.dapintechnologies.com/sms/v3/profile', [
-                                    'api_key' => $apiKey
-                                ]);
-                                if ($response->successful()) {
-                                    $responseJson = $response->json();
-                                    $balance = $responseJson[0]['wallet']['credit_balance'] ?? 'Balance not found';
-                                    // Check if the balance is numeric before formatting it
-                                    if (is_numeric($balance)) {
-                                        $balance = number_format((float) $balance, 0);
-                                        // Ensure it's treated as a float
-                                        if ($balance == 0) {
-                                            $balance = '0'; // Explicitly set to string '0'
-                                        }
-                                    } else {
-                                        $balance = 'No Credit';
-                                    }
-                                } else {
-                                    $balance = 'Failed to authenticate API key.';
-                                }
-                            }
-                        ?>
-                        <h5 class="text-white mb-2"><?php echo e(__('SMS Credit')); ?></h5>
-                        <h2 class="text-white mb-2 f-w-300">
-                            <?php if($balance == 'Balance not found' || $balance == 'Failed to authenticate API key.' || $balance == 'No SMS configuration found' || $balance == 'No Credit' || $balance === '0'): ?>
-                                <span class="badge badge-danger alert"> <?php echo e($balance); ?> </span>
-                            <?php else: ?>
-                                <span class="badge badge-success"> <?php echo e($balance); ?> </span>
-                            <?php endif; ?>
-                        </h2>
-                        <i class="fas fa-exchange-alt f-70 text-white"></i>
-                    </div>
-                </div>
-            </div> 
+             
 
 
 
