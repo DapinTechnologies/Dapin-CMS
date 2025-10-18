@@ -18,11 +18,7 @@ class HomeController extends Controller
      * Display a listing of the resource.
      */
 
-     public function __construct()
-    {
-        // Apply middleware to the 'index' method
-        $this->middleware('track.visits')->only('index');
-    }
+     
     public function index()
     {
         

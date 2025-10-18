@@ -182,8 +182,7 @@ class PayrollController extends Controller
         return $period;
     }
 
-    // Save payroll draft for individual employee
-    // Updated saveDraft method with validation fix
+   // Save payroll draft for individual employee
 public function saveDraft(Request $request)
 {
     $request->validate([
@@ -235,7 +234,6 @@ public function saveDraft(Request $request)
         $customAllowances = [];
         if ($request->has('custom_allowances')) {
             foreach ($request->custom_allowances as $allowance) {
-                // Fix: Check if name exists and is not empty
                 if (!empty($allowance['name'])) {
                     $amount = $allowance['amount'] ?? 0;
                     $customAllowances[] = [
@@ -252,7 +250,6 @@ public function saveDraft(Request $request)
         $customDeductions = [];
         if ($request->has('custom_deductions')) {
             foreach ($request->custom_deductions as $deduction) {
-                // Fix: Check if name exists and is not empty
                 if (!empty($deduction['name'])) {
                     $amount = $deduction['amount'] ?? 0;
                     $customDeductions[] = [
@@ -283,11 +280,31 @@ public function saveDraft(Request $request)
                 'gross_earnings' => $grossEarnings,
                 'total_deductions' => $totalDeductions,
                 'net_pay' => $netPay,
-                'updated_by' => auth()->id()
+                'updated_by' => auth()->id(),
+                'updated_at' => now()
             ]);
+            
+            $draft = $existingDraft;
         } else {
-            // Create new draft
-            EmployeePayrollDraft::create([
+            // Create new draft with manual ID generation
+            $lastId = EmployeePayrollDraft::max('id') ?? 0;
+            $newId = $lastId + 1;
+            
+            // Ensure the ID doesn't exist
+            $maxAttempts = 10;
+            $attempt = 0;
+            
+            while (EmployeePayrollDraft::where('id', $newId)->exists() && $attempt < $maxAttempts) {
+                $newId++;
+                $attempt++;
+            }
+            
+            if ($attempt >= $maxAttempts) {
+                throw new \Exception("Unable to find available ID after {$maxAttempts} attempts");
+            }
+            
+            $draft = EmployeePayrollDraft::create([
+                'id' => $newId,
                 'user_id' => $request->user_id,
                 'payroll_period_id' => $request->payroll_period_id,
                 'basic_salary' => $basicSalary,
@@ -297,7 +314,9 @@ public function saveDraft(Request $request)
                 'gross_earnings' => $grossEarnings,
                 'total_deductions' => $totalDeductions,
                 'net_pay' => $netPay,
-                'created_by' => auth()->id()
+                'created_by' => auth()->id(),
+                'created_at' => now(),
+                'updated_at' => now()
             ]);
         }
 
@@ -305,11 +324,18 @@ public function saveDraft(Request $request)
 
         return response()->json([
             'success' => true,
-            'message' => 'Payroll draft saved successfully'
+            'message' => 'Payroll draft saved successfully',
+            'draft_id' => $draft->id
         ]);
 
     } catch (\Exception $e) {
         DB::rollBack();
+        \Log::error('Error saving payroll draft: ' . $e->getMessage(), [
+            'user_id' => $request->user_id,
+            'period_id' => $request->payroll_period_id,
+            'error' => $e->getMessage()
+        ]);
+        
         return response()->json([
             'success' => false,
             'message' => 'Error saving draft: ' . $e->getMessage()
@@ -1403,7 +1429,114 @@ private function applyUserFilters($query, $department, $designation, $salary_typ
 
 private function getDeductionAnalysis($year, $month, $department = null, $designation = null, $salary_type = null, $shift = null, $contract_type = null)
 {
-    $query = DB::table('payroll_entries as pe')
+    // Get payroll period ID
+    $payrollPeriod = DB::table('payroll_periods')
+        ->whereYear('start_date', $year)
+        ->whereMonth('start_date', $month)
+        ->first();
+
+    if (!$payrollPeriod) {
+        return collect([]);
+    }
+
+    // Get all employee payroll drafts with deduction data
+    $query = DB::table('employee_payroll_drafts as epd')
+        ->join('users as u', 'epd.user_id', '=', 'u.id')
+        ->where('epd.payroll_period_id', $payrollPeriod->id);
+
+    // Apply filters
+    if ($department && $department != '0') {
+        $query->where('u.department_id', $department);
+    }
+    if ($designation && $designation != '0') {
+        $query->where('u.designation_id', $designation);
+    }
+    if ($salary_type && $salary_type != '0') {
+        $query->where('u.salary_type', $salary_type);
+    }
+    if ($shift && $shift != '0') {
+        $query->where('u.work_shift', $shift);
+    }
+    if ($contract_type && $contract_type != '0') {
+        $query->where('u.contract_type', $contract_type);
+    }
+
+    $employeeDrafts = $query->select(
+        'epd.id',
+        'epd.user_id',
+        'epd.selected_components',
+        'epd.custom_deductions',
+        'u.first_name',
+        'u.last_name',
+        'u.staff_id'
+    )->get();
+
+    // Process deductions to get individual breakdown
+    $deductionBreakdown = [];
+
+    foreach ($employeeDrafts as $draft) {
+        // Process selected components (from payroll_components table)
+        $selectedComponents = $this->safeJsonDecode($draft->selected_components);
+        if (is_array($selectedComponents)) {
+            foreach ($selectedComponents as $component) {
+                if (is_array($component) && 
+                    isset($component['type']) && 
+                    $component['type'] === 'deduction' && 
+                    isset($component['amount']) && 
+                    $component['amount'] > 0) {
+                    
+                    $deductionName = $component['name'] ?? 'Unknown Deduction';
+                    $amount = floatval($component['amount']);
+                    
+                    if (!isset($deductionBreakdown[$deductionName])) {
+                        $deductionBreakdown[$deductionName] = [
+                            'deduction_name' => $deductionName,
+                            'total_amount' => 0,
+                            'employee_count' => 0,
+                            'category' => $component['category'] ?? 'General',
+                            'is_statutory' => $component['is_statutory'] ?? false,
+                            'source' => 'Component'
+                        ];
+                    }
+                    
+                    $deductionBreakdown[$deductionName]['total_amount'] += $amount;
+                    $deductionBreakdown[$deductionName]['employee_count']++;
+                }
+            }
+        }
+
+        // Process custom deductions (manually entered - show each by name)
+        $customDeductions = $this->safeJsonDecode($draft->custom_deductions);
+        if (is_array($customDeductions)) {
+            foreach ($customDeductions as $deduction) {
+                if (is_array($deduction) && 
+                    !empty($deduction['name']) && 
+                    isset($deduction['amount']) && 
+                    $deduction['amount'] > 0) {
+                    
+                    $deductionName = $deduction['name'];
+                    $amount = floatval($deduction['amount']);
+                    
+                    if (!isset($deductionBreakdown[$deductionName])) {
+                        $deductionBreakdown[$deductionName] = [
+                            'deduction_name' => $deductionName,
+                            'total_amount' => 0,
+                            'employee_count' => 0,
+                            'category' => 'Custom',
+                            'is_statutory' => false,
+                            'source' => 'Custom'
+                        ];
+                    }
+                    
+                    $deductionBreakdown[$deductionName]['total_amount'] += $amount;
+                    $deductionBreakdown[$deductionName]['employee_count']++;
+                }
+            }
+        }
+    }
+
+    // Get statutory deductions from payroll_entries - show each by name
+    $payrollEntriesQuery = DB::table('payroll_entries as pe')
         ->join('payroll_runs as pr', 'pe.payroll_run_id', '=', 'pr.id')
         ->join('payroll_periods as pp', 'pr.payroll_period_id', '=', 'pp.id')
         ->join('users as u', 'pe.user_id', '=', 'u.id')
@@ -1411,33 +1544,154 @@ private function getDeductionAnalysis($year, $month, $department = null, $design
         ->whereMonth('pp.start_date', $month);
 
     // Apply filters
-    $this->applyFilters($query, $department, $designation, $salary_type, $shift, $contract_type);
+    $this->applyFilters($payrollEntriesQuery, $department, $designation, $salary_type, $shift, $contract_type);
 
-    // Get deduction breakdown by type
-    $deductionBreakdown = $query->select(
-        DB::raw("'Statutory Deductions' as deduction_name"),
-        DB::raw('SUM(pe.nssf_employee + pe.nhif + pe.paye_net) as total_amount'),
-        DB::raw('AVG(pe.nssf_employee + pe.nhif + pe.paye_net) as average_amount'),
-        DB::raw('COUNT(DISTINCT pe.user_id) as employee_count')
-    )->first();
+    $statutoryEntries = $payrollEntriesQuery->select(
+        'pe.id',
+        'pe.user_id',
+        'pe.nssf_employee',
+        'pe.nhif',
+        'pe.paye_net',
+        'pe.loan_deductions',
+        'pe.other_deductions',
+        'u.staff_id'
+    )->get();
 
-    $loanDeductions = $query->select(
-        DB::raw("'Loan Deductions' as deduction_name"),
-        DB::raw('SUM(pe.loan_deductions) as total_amount'),
-        DB::raw('AVG(pe.loan_deductions) as average_amount'),
-        DB::raw('COUNT(DISTINCT CASE WHEN pe.loan_deductions > 0 THEN pe.user_id END) as employee_count')
-    )->first();
+    // Process statutory deductions individually
+    foreach ($statutoryEntries as $entry) {
+        // NSSF
+        if ($entry->nssf_employee > 0) {
+            $deductionName = 'NSSF';
+            if (!isset($deductionBreakdown[$deductionName])) {
+                $deductionBreakdown[$deductionName] = [
+                    'deduction_name' => $deductionName,
+                    'total_amount' => 0,
+                    'employee_count' => 0,
+                    'category' => 'Statutory',
+                    'is_statutory' => true,
+                    'source' => 'Statutory'
+                ];
+            }
+            $deductionBreakdown[$deductionName]['total_amount'] += $entry->nssf_employee;
+            $deductionBreakdown[$deductionName]['employee_count']++;
+        }
 
-    $otherDeductions = $query->select(
-        DB::raw("'Other Deductions' as deduction_name"),
-        DB::raw('SUM(pe.other_deductions) as total_amount'),
-        DB::raw('AVG(pe.other_deductions) as average_amount'),
-        DB::raw('COUNT(DISTINCT CASE WHEN pe.other_deductions > 0 THEN pe.user_id END) as employee_count')
-    )->first();
+        // NHIF
+        if ($entry->nhif > 0) {
+            $deductionName = 'NHIF';
+            if (!isset($deductionBreakdown[$deductionName])) {
+                $deductionBreakdown[$deductionName] = [
+                    'deduction_name' => $deductionName,
+                    'total_amount' => 0,
+                    'employee_count' => 0,
+                    'category' => 'Statutory',
+                    'is_statutory' => true,
+                    'source' => 'Statutory'
+                ];
+            }
+            $deductionBreakdown[$deductionName]['total_amount'] += $entry->nhif;
+            $deductionBreakdown[$deductionName]['employee_count']++;
+        }
 
-    return collect([$deductionBreakdown, $loanDeductions, $otherDeductions])->filter(function($item) {
-        return ($item->total_amount ?? 0) > 0;
+        // PAYE
+        if ($entry->paye_net > 0) {
+            $deductionName = 'PAYE';
+            if (!isset($deductionBreakdown[$deductionName])) {
+                $deductionBreakdown[$deductionName] = [
+                    'deduction_name' => $deductionName,
+                    'total_amount' => 0,
+                    'employee_count' => 0,
+                    'category' => 'Statutory',
+                    'is_statutory' => true,
+                    'source' => 'Statutory'
+                ];
+            }
+            $deductionBreakdown[$deductionName]['total_amount'] += $entry->paye_net;
+            $deductionBreakdown[$deductionName]['employee_count']++;
+        }
+
+        // Loan Deductions
+        if ($entry->loan_deductions > 0) {
+            $deductionName = 'Loan Deductions';
+            if (!isset($deductionBreakdown[$deductionName])) {
+                $deductionBreakdown[$deductionName] = [
+                    'deduction_name' => $deductionName,
+                    'total_amount' => 0,
+                    'employee_count' => 0,
+                    'category' => 'Loans',
+                    'is_statutory' => false,
+                    'source' => 'Statutory'
+                ];
+            }
+            $deductionBreakdown[$deductionName]['total_amount'] += $entry->loan_deductions;
+            $deductionBreakdown[$deductionName]['employee_count']++;
+        }
+
+        // Other Deductions - This shows the total but we want individual names
+        // Since other_deductions is a total, we'll show it as "Other Deductions"
+        if ($entry->other_deductions > 0) {
+            $deductionName = 'Other Deductions';
+            if (!isset($deductionBreakdown[$deductionName])) {
+                $deductionBreakdown[$deductionName] = [
+                    'deduction_name' => $deductionName,
+                    'total_amount' => 0,
+                    'employee_count' => 0,
+                    'category' => 'Other',
+                    'is_statutory' => false,
+                    'source' => 'Statutory'
+                ];
+            }
+            $deductionBreakdown[$deductionName]['total_amount'] += $entry->other_deductions;
+            $deductionBreakdown[$deductionName]['employee_count']++;
+        }
+    }
+
+    // Convert to collection and calculate averages
+    $result = collect($deductionBreakdown)->map(function ($item) {
+        $item['average_amount'] = $item['employee_count'] > 0 ? $item['total_amount'] / $item['employee_count'] : 0;
+        return (object) $item;
     });
+
+    return $result->sortByDesc('total_amount')->values();
+}
+
+/**
+ * Safely decode JSON with proper error handling
+ */
+private function safeJsonDecode($jsonString)
+{
+    if (empty($jsonString)) {
+        return [];
+    }
+
+    // If it's already an array, return it
+    if (is_array($jsonString)) {
+        return $jsonString;
+    }
+
+    // If it's already an object, convert to array
+    if (is_object($jsonString)) {
+        return (array) $jsonString;
+    }
+
+    // If it's not a string, return empty array
+    if (!is_string($jsonString)) {
+        return [];
+    }
+
+    // Try to decode the JSON
+    $decoded = json_decode($jsonString, true);
+
+    // Check for JSON decoding errors
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        \Log::warning('JSON decode error in deduction analysis', [
+            'error' => json_last_error_msg(),
+            'input' => substr($jsonString, 0, 100)
+        ]);
+        return [];
+    }
+
+    return $decoded ?? [];
 }
 
 private function getComponentAnalysisData()

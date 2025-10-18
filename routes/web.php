@@ -475,7 +475,7 @@ Route::prefix('admin/fee-structures')->group(function () {
 });
 
 // Web Routes
-Route::middleware(['XSS', 'track.visits'])->namespace('Web')->group(function () {
+Route::middleware(['XSS'])->namespace('Web')->group(function () {
 
     // Home Route
     Route::get('/', 'HomeController@index')->name('home');

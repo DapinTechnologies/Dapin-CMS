@@ -215,83 +215,119 @@
                     </div>
                 </div>
 
-                <!-- Deduction Type Performance Table -->
+                <!-- Deduction Breakdown Table -->
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">
                 <div class="row">
-                    <div class="col-sm-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>{{ __('Deduction Type Performance Summary') }}</h5>
-                            </div>
-                            <div class="card-block">
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>{{ __('Deduction Type') }}</th>
-                                                <th>{{ __('Total Amount') }}</th>
-                                                <th>{{ __('Average per Employee') }}</th>
-                                                <th>{{ __('Employee Count') }}</th>
-                                                <th>{{ __('% of Total Deductions') }}</th>
-                                                <th>{{ __('Status') }}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @php
-                                                $totalDeductions = $report_data['summary']['total_deductions'] ?? 0;
-                                                $deductionTypes = $report_data['deduction_analysis'] ?? [];
-                                            @endphp
-                                            
-                                            @forelse($deductionTypes as $deduction)
-                                            <tr>
-                                                <td>{{ $deduction->deduction_name ?? $deduction->component_name ?? 'N/A' }}</td>
-                                                <td>{{ number_format($deduction->total_amount ?? 0, 2) }}</td>
-                                                <td>{{ number_format($deduction->average_amount ?? 0, 2) }}</td>
-                                                <td>{{ $deduction->employee_count ?? 0 }}</td>
-                                                <td>
-                                                    @php
-                                                        $percentage = $totalDeductions > 0 ? (($deduction->total_amount ?? 0) / $totalDeductions) * 100 : 0;
-                                                    @endphp
-                                                    {{ number_format($percentage, 1) }}%
-                                                </td>
-                                                <td>
-                                                    @php
-                                                        $employeeCount = $deduction->employee_count ?? 0;
-                                                        $totalEmployees = $report_data['summary']['total_employees'] ?? 1;
-                                                        $coveragePercentage = ($employeeCount / $totalEmployees) * 100;
-                                                    @endphp
-                                                    @if($coveragePercentage >= 80)
-                                                        <span class="badge badge-success">{{ __('High Coverage') }}</span>
-                                                    @elseif($coveragePercentage >= 50)
-                                                        <span class="badge badge-warning">{{ __('Medium Coverage') }}</span>
-                                                    @else
-                                                        <span class="badge badge-danger">{{ __('Low Coverage') }}</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @empty
-                                            <tr>
-                                                <td colspan="6" class="text-center">{{ __('No deduction data available') }}</td>
-                                            </tr>
-                                            @endforelse
-                                        </tbody>
-                                        @if(count($deductionTypes) > 0)
-                                        <tfoot>
-                                            <tr class="table-primary">
-                                                <td><strong>{{ __('Total') }}</strong></td>
-                                                <td><strong>{{ number_format($totalDeductions, 2) }}</strong></td>
-                                                <td><strong>{{ number_format($totalDeductions / ($report_data['summary']['total_employees'] ?? 1), 2) }}</strong></td>
-                                                <td><strong>{{ $report_data['summary']['total_employees'] ?? 0 }}</strong></td>
-                                                <td><strong>100%</strong></td>
-                                                <td></td>
-                                            </tr>
-                                        </tfoot>
-                                        @endif
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        <h5>{{ __('Detailed Deduction Breakdown') }}</h5>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="printDeductionTable()">
+                            <i class="fas fa-print"></i> {{ __('Print Report') }}
+                        </button>
                     </div>
                 </div>
+            </div>
+            <div class="card-block">
+                <div class="table-responsive" id="deductionTable">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>{{ __('Deduction Name') }}</th>
+                                <th>{{ __('Category') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Source') }}</th>
+                                <th>{{ __('Total Amount') }}</th>
+                                <th>{{ __('Average Amount') }}</th>
+                                <th>{{ __('Employee Count') }}</th>
+                                <th>{{ __('% of Total') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $totalDeductions = $report_data['summary']['total_deductions'] ?? 0;
+                                $deductionTypes = $report_data['deduction_analysis'] ?? collect([]);
+                                $totalEmployees = $report_data['summary']['total_employees'] ?? 1;
+                            @endphp
+                            
+                            @forelse($deductionTypes as $deduction)
+                            <tr>
+                                <td>
+                                    <strong>{{ $deduction->deduction_name }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ 
+                                        $deduction->category == 'Statutory' ? 'primary' : 
+                                        ($deduction->category == 'Custom' ? 'warning' : 
+                                        ($deduction->category == 'Loans' ? 'info' : 'secondary')) 
+                                    }}">
+                                        {{ $deduction->category }}
+                                    </span>
+                                </td>
+                                <td>
+                                    @if($deduction->is_statutory)
+                                        <span class="badge badge-danger">Statutory</span>
+                                    @else
+                                        <span class="badge badge-success">Voluntary</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ 
+                                        $deduction->source == 'Statutory' ? 'dark' : 
+                                        ($deduction->source == 'Component' ? 'primary' : 'warning') 
+                                    }}">
+                                        {{ $deduction->source }}
+                                    </span>
+                                </td>
+                                <td>Ksh {{ number_format($deduction->total_amount, 2) }}</td>
+                                <td>Ksh {{ number_format($deduction->average_amount, 2) }}</td>
+                                <td>{{ $deduction->employee_count }}</td>
+                                <td>
+                                    @php
+                                        $percentage = $totalDeductions > 0 ? ($deduction->total_amount / $totalDeductions) * 100 : 0;
+                                    @endphp
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar 
+                                            @if($percentage >= 50) bg-danger
+                                            @elseif($percentage >= 20) bg-warning
+                                            @else bg-success
+                                            @endif" 
+                                            role="progressbar" 
+                                            style="width: {{ $percentage }}%;" 
+                                            aria-valuenow="{{ $percentage }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                            {{ number_format($percentage, 1) }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="8" class="text-center">{{ __('No deduction data available for the selected period') }}</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                        @if(count($deductionTypes) > 0)
+                        <tfoot>
+                            <tr class="table-primary">
+                                <td colspan="4"><strong>{{ __('Grand Total') }}</strong></td>
+                                <td><strong>Ksh {{ number_format($totalDeductions, 2) }}</strong></td>
+                                <td><strong>Ksh {{ number_format($totalDeductions / $totalEmployees, 2) }}</strong></td>
+                                <td><strong>{{ $totalEmployees }}</strong></td>
+                                <td><strong>100%</strong></td>
+                            </tr>
+                        </tfoot>
+                        @endif
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                 <!-- Detailed Tables Section -->
                 <div class="row">
@@ -438,6 +474,118 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     @endif
 });
+</script>
+
+<!-- Print Script -->
+<script>
+function printDeductionTable() {
+    // Create a new window for printing
+    var printWindow = window.open('', '_blank');
+    
+    // Get the table HTML
+    var tableContent = document.getElementById('deductionTable').innerHTML;
+    
+    // Create the print document
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Deduction Breakdown Report</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    margin: 20px; 
+                    color: #333;
+                }
+                .print-header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    border-bottom: 2px solid #333;
+                    padding-bottom: 10px;
+                }
+                .print-header h2 {
+                    margin: 0;
+                    color: #2c3e50;
+                }
+                .print-info {
+                    margin-bottom: 20px;
+                }
+                table { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    margin-top: 10px;
+                    font-size: 12px;
+                }
+                th, td { 
+                    border: 1px solid #ddd; 
+                    padding: 8px; 
+                    text-align: left; 
+                }
+                th { 
+                    background-color: #f8f9fa; 
+                    font-weight: bold;
+                    color: #2c3e50;
+                }
+                .table-primary { 
+                    background-color: #e3f2fd; 
+                    font-weight: bold;
+                }
+                .progress { 
+                    margin-bottom: 0; 
+                    height: 15px; 
+                    background-color: #f8f9fa;
+                    border-radius: 3px;
+                }
+                .progress-bar { 
+                    background-color: #007bff; 
+                    text-align: center;
+                    color: white;
+                    font-size: 10px;
+                    line-height: 15px;
+                }
+                .badge { 
+                    padding: 3px 6px; 
+                    border-radius: 3px; 
+                    font-size: 10px; 
+                    font-weight: bold;
+                }
+                .badge-primary { background-color: #007bff; color: white; }
+                .badge-warning { background-color: #ffc107; color: black; }
+                .badge-secondary { background-color: #6c757d; color: white; }
+                .badge-danger { background-color: #dc3545; color: white; }
+                .badge-success { background-color: #28a745; color: white; }
+                .badge-info { background-color: #17a2b8; color: white; }
+                .badge-dark { background-color: #343a40; color: white; }
+                @media print {
+                    body { margin: 0; }
+                    .print-header { margin-top: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-header">
+                <h2>Deduction Breakdown Report</h2>
+            </div>
+            <div class="print-info">
+                <p><strong>Generated on:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Period:</strong> {{ date('F Y', mktime(0, 0, 0, $selected_month, 1, $selected_year)) }}</p>
+                <p><strong>Total Employees:</strong> {{ $totalEmployees }}</p>
+                <p><strong>Total Deductions:</strong> Ksh {{ number_format($totalDeductions, 2) }}</p>
+            </div>
+            ${tableContent}
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    
+    // Wait for content to load then print
+    printWindow.onload = function() {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    };
+}
 </script>
 
 @endsection
