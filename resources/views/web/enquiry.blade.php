@@ -130,37 +130,34 @@
         <div class="row">
           <div class="col-md-6 border-right">
             <h5 class="fw-bold mb-3" style="color: var(--primary-color);">Send an Inquiry</h5>
-            <form id="inquiryForm" method="POST" action="{{ route('frontend.inquiry.store') }}">
-              @csrf
-              <div class="form-group mb-2">
-                <label class="small">Full Name</label>
-                <input type="text" name="name" class="form-control" placeholder="Your Name" required>
-                <div class="invalid-feedback" id="name-error"></div>
-              </div>
-              <div class="form-group mb-2">
-                <label class="small">Phone Number</label>
-                <input type="tel" name="phone" class="form-control" placeholder="+2547XXXXXXXX" required>
-                <div class="invalid-feedback" id="phone-error"></div>
-              </div>
-              <div class="form-group mb-2">
-                <label class="small">Email Address</label>
-                <input type="email" name="email" class="form-control" placeholder="you@example.com" required>
-                <div class="invalid-feedback" id="email-error"></div>
-              </div>
-              <div class="form-group mb-2">
-                <label class="small">Your Message</label>
-                <textarea name="message" rows="3" class="form-control" placeholder="Ask us anything..." required></textarea>
-                <div class="invalid-feedback" id="message-error"></div>
-              </div>
-              <button type="submit" class="btn w-100 mt-2 btn-submit-inquiry">Send Your Inquiry</button>
-              <div class="alert alert-success mt-2 d-none" id="inquiry-success-message" role="alert"></div>
-              <div class="alert alert-danger mt-2 d-none" id="inquiry-error-message" role="alert"></div>
-            </form>
+           <form id="inquiryForm" method="POST" action="{{ url('/frontend-inquiry') }}">
+    @csrf
+    <div class="form-group mb-2">
+        <label class="small">Full Name</label>
+        <input type="text" name="name" class="form-control" placeholder="Your Name" required>
+        <div class="invalid-feedback" id="name-error"></div>
+    </div>
+    <div class="form-group mb-2">
+        <label class="small">Phone Number</label>
+        <input type="tel" name="phone" class="form-control" placeholder="+2547XXXXXXXX" required>
+        <div class="invalid-feedback" id="phone-error"></div>
+    </div>
+    <div class="form-group mb-2">
+        <label class="small">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="your@email.com" required>
+        <div class="invalid-feedback" id="email-error"></div>
+    </div>
+    <div class="form-group mb-3">
+        <label class="small">Message</label>
+        <textarea name="message" class="form-control" rows="3" placeholder="Your message..."></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">Submit Inquiry</button>
+</form>
           </div>
           <div class="col-md-6">
             <h5 class="fw-bold mb-3" style="color: var(--secondary-color);">Subscribe</h5>
             <p class="small text-muted">Get news, course updates & event alerts directly in your inbox.</p>
-            <form id="subscribeForm" method="POST" action="{{ route('frontend.newsletterstore') }}">
+            <form id="subscribeForm" method="POST" action="{{ url('/frontend-subscribe') }}">
               @csrf
               <div class="form-group mb-3">
                 <label class="small">Email Address</label>

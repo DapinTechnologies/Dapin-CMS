@@ -14,7 +14,7 @@ use App\Http\Controllers\Admin\StatisticController;
 use App\Http\Controllers\Admin\ReasonController;
 use App\Http\Controllers\PesaController;
 use App\Http\Controllers\Admin\Web\CoreValueController;
-
+use App\Http\Controllers\FrontendInquiryController;
 
 use App\Http\Controllers\Admin\FeesStudentController;
 use App\Http\Controllers\Admin\FeesCategoryController;
@@ -48,8 +48,8 @@ use App\Http\Controllers\Admin\ReceivableInvoiceController;
 
 
 
-
-Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
+Route::post('/frontend-inquiry', [FrontendInquiryController::class, 'store'])->name('frontend.inquiry.store');
+Route::post('/frontend-subscribe', [FrontendInquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::prefix('reconciliation')->name('reconciliation.')->group(function () {
@@ -124,8 +124,7 @@ Route::delete('accreditations/{id}', [AboutUsController::class, 'destroyAccredit
     Route::put('core-values/{id}', [CoreValueController::class, 'update'])->name('core-values.update');
     Route::delete('core-values/{id}', [CoreValueController::class, 'destroy'])->name('core-values.destroy');
 
-    Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
-Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
+
 Route::post('/digita/file', [FileController::class, 'store'])->name('filepost');
 Route::get('/files/{id}', [FileController::class, 'show'])->name('files.show');
 Route::post('category/store/file', [FileController::class, 'Catestore'])->name('categoriesstore');
@@ -504,8 +503,8 @@ Route::middleware(['XSS'])->namespace('Web')->group(function () {
     Route::get('/set-cookie', 'HomeController@setCookie')->name('setCookie');
 // Route::post('/frontend/inquiry/store', [FrontendController::class, 'storeInquiry'])->name('frontend.inquiry.store');
 Route::post('/frontend/newsletter/store', [FrontendController::class, 'storeNewsletterSubscription'])->name('frontend.newsletterstore');
-Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
-Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
+//Route::post('/frontend-inquiry', [App\Http\Controllers\Admin\EnquiryController::class, 'store'])->name('frontend.inquiry.store');
+//Route::post('/frontend-subscribe', [App\Http\Controllers\Admin\EnquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
 
 
 });

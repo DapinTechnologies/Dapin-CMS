@@ -81,7 +81,52 @@ public function show($id)
     return view('admin.frontdesk.enqury.detail', compact('inquiry'));
 }
 
+public function store(Request $request)
+{
+    // Field Validation
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'phone' => 'required|string|max:20',
+        'email' => 'required|email|max:255',
+    ]);
 
+    try {
+        // Insert Data into Inquiry model
+        $inquiry = new Inquiry();
+        $inquiry->name = $request->name;
+        $inquiry->phone = $request->phone;
+        $inquiry->email = $request->email;
+        $inquiry->subject = $request->subject ?? 'General Inquiry';
+        $inquiry->message = $request->message;
+        $inquiry->status = 'pending';
+        $inquiry->save();
+
+        // Optional: Send email notification
+        // Mail::to('admin@example.com')->send(new InquiryNotification($inquiry));
+
+        // Return success response for AJAX or redirect
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Thank you for your inquiry. We will get back to you soon!'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Thank you for your inquiry. We will get back to you soon!');
+
+    } catch (\Exception $e) {
+        \Log::error('Inquiry store error: ' . $e->getMessage());
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred. Please try again.'
+            ], 500);
+        }
+
+        return redirect()->back()->with('error', 'An error occurred. Please try again.');
+    }
+}
 
 public function reply(Request $request, $id)
 {
