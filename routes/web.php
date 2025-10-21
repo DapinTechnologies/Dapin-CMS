@@ -46,8 +46,8 @@ use App\Http\Controllers\Admin\ReceivableInvoiceController;
 
 
 
-
-
+Route::get('/admission', [App\Http\Controllers\Web\AdmissionProcessController::class, 'process'])->name('admission.process');
+Route::get('/admission-process', [App\Http\Controllers\Web\AdmissionController::class, 'process'])->name('admission.process');
 Route::post('/frontend-inquiry', [FrontendInquiryController::class, 'store'])->name('frontend.inquiry.store');
 Route::post('/frontend-subscribe', [FrontendInquiryController::class, 'storeNewsletter'])->name('frontend.newsletter.store');
 
@@ -84,12 +84,14 @@ Route::post('/store/reasons', [ReasonController::class, 'store'])->name('admin.r
 Route::get('/edit/reason/{id}', [ReasonController::class, 'edit'])->name('admin.reasons.edit');
 Route::post('/update/reasons/{id}', [ReasonController::class, 'update'])->name('admin.reasons.update');
 Route::delete('/delete/reason/{id}', [ReasonController::class, 'destroy'])->name('admin.reasons.destroy');
+
 Route::get('/admission-process', [AdmissionProcessController::class, 'index'])->name('admission.process.index');
 Route::get('/admission-process/create', [AdmissionProcessController::class, 'create'])->name('admission.process.create');
 Route::post('/admission-process', [AdmissionProcessController::class, 'store'])->name('admission.process.store');
 Route::get('/admission-process/{id}/edit', [AdmissionProcessController::class, 'edit'])->name('admission.process.edit');
 Route::put('/admission-process/{id}', [AdmissionProcessController::class, 'update'])->name('admission.process.update');
 Route::delete('/admission-process/{id}', [AdmissionProcessController::class, 'destroy'])->name('admission.process.destroy');
+
 Route::get('/directors', [DirectorController::class, 'index'])->name('directors.index');
     Route::post('/store/director', [DirectorController::class, 'store'])->name('directors.store');
     Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
