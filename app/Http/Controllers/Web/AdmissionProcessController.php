@@ -133,32 +133,7 @@ class AdmissionProcessController extends Controller
     /**
      * Update the order of steps (Admin)
      */
-public function update(Request $request, $id)
-{
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'required|string',
-        'requirements' => 'required|string', // Change from array to string
-    ]);
 
-    $step = AdmissionProcessStep::findOrFail($id);
-    
-    // Convert textarea input to array
-    $requirements = array_filter(
-        array_map('trim', explode("\n", $request->requirements)),
-        function($item) {
-            return !empty($item);
-        }
-    );
-    
-    $step->update([
-        'title' => $request->title,
-        'description' => $request->description,
-        'requirements' => json_encode($requirements),
-    ]);
-
-    return redirect()->route('admin.admission.process.index')->with('success', 'Admission process step updated successfully!');
-}
 
     /**
      * Default steps if no data in database

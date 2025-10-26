@@ -26,12 +26,12 @@
     $subCounties = SubCounty::all();
 
     // Debug: Log available data
-    \Log::info('Application Form Loaded', [
-        'programs_count' => $programs->count(),
-        'counties_count' => $counties->count(),
-        'subCounties_count' => $subCounties->count(),
-        'old_data' => old()
-    ]);
+    // \Log::info('Application Form Loaded', [
+    //     'programs_count' => $programs->count(),
+    //     'counties_count' => $counties->count(),
+    //     'subCounties_count' => $subCounties->count(),
+    //     'old_data' => old()
+    // ]);
 @endphp
 
 @isset($applicationSetting)
