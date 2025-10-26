@@ -12,19 +12,13 @@ use App\Models\Web\AboutUsAccreditation;
 
 use App\Models\Language;
 use Toastr;
-
+use Log;
 class AboutUsController extends Controller
 {
-    use FileUploader;
+   use FileUploader;
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
-        // Module Data
         $this->title    = trans_choice('module_about_us', 1);
         $this->route    = 'admin.about-us';
         $this->view     = 'admin.web.about-us';
@@ -34,11 +28,6 @@ class AboutUsController extends Controller
         $this->middleware('permission:'.$this->access.'-view');
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $data['title']  = $this->title;
@@ -47,12 +36,21 @@ class AboutUsController extends Controller
         $data['path']   = $this->path;
         $data['access'] = $this->access;
 
-        $data['row'] = AboutUs::where('language_id', Language::version()->id)
-                        ->with(['histories', 'partners', 'accreditations'])
-                        ->first();
+        // Get existing record or create empty object
+        $aboutUs = AboutUs::where('language_id', Language::version()->id)->first();
+        
+        if (!$aboutUs) {
+            $aboutUs = new AboutUs();
+        }
+
+        $data['row'] = $aboutUs;
 
         return view($this->view.'.index', $data);
     }
+
+
+
+
  public function create()
     {
         return view('admin.web.about-us.histories.create'); // Make sure this matches your blade file path
@@ -399,33 +397,27 @@ public function destroyAccreditation($id)
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-   public function store(Request $request)
-    {
-        \Log::info('AboutUs Store Method Called');
-        \Log::info('Request Data:', $request->all());
+    public function store(Request $request)
+{
+    // Field Validation - Make short_desc required
+    $request->validate([
+        'label' => 'required|string|max:255',
+        'title' => 'required|string|max:255',
+        'short_desc' => 'required|string', // Changed to required
+        'description' => 'required|string',
+        'attach' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        // Field Validation
-        $request->validate([
-            'label' => 'required',
-            'title' => 'required',
-            'description' => 'required',
-            'attach' => 'nullable|image',
-            'histories.*.year' => 'required_if:histories.*.title,!=,null',
-            'histories.*.title' => 'required_if:histories.*.year,!=,null',
-            'partners.*.name' => 'required_if:partners.*.logo,!=,null',
-            'accreditations.*.name' => 'required_if:accreditations.*.logo,!=,null',
-        ]);
-
+    try {
         $id = $request->id;
 
-        // -1 means no data row found
         if($id == -1){
-            // Insert Data
-            $aboutUs = new AboutUs;
+            // Create New Record
+            $aboutUs = new AboutUs();
             $aboutUs->language_id = Language::version()->id;
             $aboutUs->label = $request->label;
             $aboutUs->title = $request->title;
-            $aboutUs->short_desc = $request->short_desc;
+            $aboutUs->short_desc = $request->short_desc; // No need for null check since it's required
             $aboutUs->description = $request->description;
             $aboutUs->button_text = $request->button_text;
             $aboutUs->video_id = $request->video_id;
@@ -436,30 +428,49 @@ public function destroyAccreditation($id)
             $aboutUs->mission_desc = $request->mission_desc;
             $aboutUs->save();
 
-            $id = $aboutUs->id;
-        }
-        else{
-            // Update Data
+            Toastr::success('About Us content created successfully', __('msg_success'));
+
+        } else {
+            // Update Existing Record
             $aboutUs = AboutUs::find($id);
+            
+            if (!$aboutUs) {
+                Toastr::error('Record not found', __('msg_error'));
+                return redirect()->back();
+            }
+
             $aboutUs->label = $request->label;
             $aboutUs->title = $request->title;
-            $aboutUs->short_desc = $request->short_desc;
+            $aboutUs->short_desc = $request->short_desc; // No need for null check since it's required
             $aboutUs->description = $request->description;
             $aboutUs->button_text = $request->button_text;
             $aboutUs->video_id = $request->video_id;
-            $aboutUs->attach = $this->updateImage($request, 'attach', $this->path, null, 800, $aboutUs, 'attach');
             $aboutUs->vision_title = $request->vision_title;
             $aboutUs->vision_desc = $request->vision_desc;
             $aboutUs->mission_title = $request->mission_title;
             $aboutUs->mission_desc = $request->mission_desc;
+            
+            // Handle image update
+            if ($request->hasFile('attach')) {
+                $aboutUs->attach = $this->updateImage($request, 'attach', $this->path, null, 800, $aboutUs, 'attach');
+            }
+            
+            // Handle image removal
+            if ($request->has('remove_attach') && $aboutUs->attach) {
+                $this->deleteImage($this->path, $aboutUs->attach);
+                $aboutUs->attach = null;
+            }
+            
             $aboutUs->save();
+            Toastr::success('About Us content updated successfully', __('msg_success'));
         }
 
-       
-        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
-
-        return redirect()->back();
+    } catch (\Exception $e) {
+        Toastr::error(__('msg_updated_failed'), __('msg_error'));
     }
+
+    return redirect()->back();
+}
 
 
 }

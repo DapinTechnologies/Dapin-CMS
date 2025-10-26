@@ -18,7 +18,7 @@
                 @endisset
                 <li><i class="fas fa-user-graduate me-1"></i><a href="{{ route('student.login') }}">Student Portal</a></li>
                 <li><i class="fas fa-user-tie me-1"></i><a href="{{ route('login') }}">Staff Portal</a></li>
-                <li><i class="fas fa-book-reader me-1"></i><a href="#">E-learning</a></li>
+                <li><i class="fas fa-book-reader me-1"></i><a href="https://elearning.dapineducation.co.ke/">E-learning</a></li>
                 <li><i class="fas fa-book me-1"></i><a href="{{ route('materialhome') }}">Digital Library</a></li>
                 <li><i class="fas fa-user-plus me-1"></i><a href="{{ route('application.index') }}">Join Now</a></li>
                 <li><i class="fas fa-chalkboard-teacher me-1"></i><a href="#">E-Courses</a></li>

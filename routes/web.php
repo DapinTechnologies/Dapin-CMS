@@ -67,6 +67,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function() {
 
+    Route::get('about-us', [AboutUsController::class, 'index'])->name('about-us.index');
+    Route::post('about-us/store', [AboutUsController::class, 'store'])->name('about-us.store');
+
 Route::get('/digital/files', [FileController::class, 'index'])->name('alldigitalbooks');
 
 Route::get('statistics', [StatisticController::class, 'index'])->name('statistics.index');
@@ -96,8 +99,9 @@ Route::get('/directors', [DirectorController::class, 'index'])->name('directors.
     Route::post('/store/director', [DirectorController::class, 'store'])->name('directors.store');
     Route::put('/update/director/{id}', [DirectorController::class, 'update'])->name('directors.update');
     Route::post('histories', [AboutUsController::class, 'saveHistories'])->name('histories.store');
-    // In routes/web.php - make sure you have:
-Route::post('/about-us', [AboutUsController::class, 'store'])->name('admin.about-us.store');
+ 
+
+
    Route::get('histories', [AboutUsController::class, 'histories'])->name('histories.index');
     Route::get('histories/create', [AboutUsController::class, 'create'])->name('histories.create');
     // Route::post('histories/store', [AboutUsController::class, 'saveHistories'])->name('histories.store');
