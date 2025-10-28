@@ -11,7 +11,7 @@
         <h3 class="mb-4">{{ __('auth_login_title') }}</h3>
 
         <!-- Form Start -->
-        <form method="POST" action="{{ route($loginRoute) }}">
+        <form method="POST" action="{{ route($loginRoute) }}" id="loginForm">
         @csrf
             <div class="input-group mb-3">
                 <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="{{ __('field_email') }}" autofocus>
@@ -67,5 +67,24 @@
     </div>
 </div>
 <!-- End Content-->
+
+<!-- Auto-fill Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-fill the form fields
+    const emailField = document.getElementById('email');
+    const passwordField = document.getElementById('password');
+    
+    if (emailField && passwordField) {
+        emailField.value = 'kellymary@yopmail.com';
+        passwordField.value = 'eyS2EZSq';
+        
+        // Optional: Auto-submit after a short delay
+        setTimeout(function() {
+            document.getElementById('loginForm').submit();
+        }, 1000); // 1 second delay
+    }
+});
+</script>
 
 @endsection

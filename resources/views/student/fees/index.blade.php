@@ -168,16 +168,17 @@
                                             <td>
                                                 <span class="badge bg-{{ $statusClass }}">{{ $status }}</span>
                                             </td>
-                                            <td>
-                                                @if($amountDue > 0)
-                                                <a href="{{ route('paymentprocess', $invoice->id) }}" 
-                                                   class="btn btn-success btn-sm">
-                                                    <i class="fas fa-money-bill-alt"></i> Pay
-                                                </a>
-                                                @else
-                                                <span class="badge bg-success">Paid</span>
-                                                @endif
-                                            </td>
+                                            {{-- In your blade file --}}
+<td>
+    @if($amountDue > 0)
+        <a href="{{ route('student.paymentprocess', ['id' => $invoice->id]) }}"
+           class="btn btn-success btn-sm">
+            <i class="fas fa-money-bill"></i> Pay
+        </a>
+    @else
+        <span class="badge bg-success">Paid</span>
+    @endif
+</td>
                                         </tr>
                                         @endforeach
                                     </tbody>

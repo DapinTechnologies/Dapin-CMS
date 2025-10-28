@@ -544,11 +544,9 @@ Route::get('/materials/{id}', [FileController::class, 'allpdfshow'])->name('mate
 Route::get('/view/file/home/{id}', [FileController::class, 'ViewOnlyFile'])->name('viewOnlyFile');
 
 
+Route::middleware(['auth:student', 'XSS'])->prefix('student')->name('student.')->namespace('Student')->group(function () {
 
-// Display M-Pesa payment page
-Route::get('/payment-process/{feeId}', [PesaController::class, 'Feepaymentmpesa'])
-    ->name('paymentprocess');
-
+Route::get('paymentprocess/{id}', [PesaController::class, 'process'])->name('paymentprocess');
 // Process STK Push payment - use the correct method name 'initiatePush'
 Route::post('/initiate-push', [PesaController::class, 'initiatePush'])
     ->name('initiatepush');
@@ -558,19 +556,12 @@ Route::post('/api/mpesa/callback', [PesaController::class, 'handleCallback'])
     ->name('mpesa.callback');
     Route::post('/stkcallback',[PesaController::class,'stkCallback'])->name('stkcallback');
 
-
-
-
-
 Route::post('/paybill/store', [PesaController::class, 'store'])->name('storegatedetails');
 Route::get('/settings', [PesaController::class, 'index'])->name('settings.index');
-
- Route::get('/pay/pesa/store/', [PesaController::class, 'Feepaymentmpesa'])->name('paymentprocess');
-
 // Route::get('/payment/{fee_id}', [PaymentController::class, 'showPaymentForm'])->name('paymentform');
 
-Route::get('/payment/success/{fee_id}', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
-
+Route::get('/payment/success/{fee_id}', [PesaController::class, 'paymentSuccess'])->name('payment.success');
+});
 
 
 
