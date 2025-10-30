@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\ReasonController;
 use App\Http\Controllers\PesaController;
 use App\Http\Controllers\Admin\Web\CoreValueController;
 use App\Http\Controllers\FrontendInquiryController;
+use App\Http\Controllers\Admin\ApplicationController;
 
 use App\Http\Controllers\Admin\FeesStudentController;
 use App\Http\Controllers\Admin\FeesCategoryController;

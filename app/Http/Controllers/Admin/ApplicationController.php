@@ -11,12 +11,12 @@ use Illuminate\Http\Request;
 use App\Traits\FileUploader;
 use App\Models\Application;
 use App\Models\StatusType;
+use App\Models\County;
+use App\Models\SubCounty;
 use App\Models\Document;
 use App\Models\Program;
 use App\Models\Student;
 use App\Models\Batch;
-use App\Models\County;
-use App\Models\SubCounty;
 use Carbon\Carbon;
 use Toastr;
 use Auth;
@@ -24,7 +24,9 @@ use Hash;
 use DB;
 use App\Services\SmsService;
 use App\Models\SmsConfiguration;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Log;
+use App\Services\ApplicationSmsService;
 use Illuminate\Support\Facades\Http;
 
 class ApplicationController extends Controller
@@ -76,7 +78,7 @@ class ApplicationController extends Controller
         $data['programs'] = Program::where('status', '1')->orderBy('title', 'asc')->get();
 
         // Query applications with filters
-        $query = Application::with(['program', 'batch', 'county', 'subCounty'])
+        $data['rows'] = Application::with(['program', 'batch', 'county', 'subCounty'])
             ->when($request->start_date && $request->end_date, function ($query) use ($request) {
                 $query->whereDate('apply_date', '>=', $request->start_date)
                       ->whereDate('apply_date', '<=', $request->end_date);
@@ -93,9 +95,8 @@ class ApplicationController extends Controller
             ->when($request->status && $request->status != '99', function($query) use ($request) {
                 $query->where('status', $request->status);
             })
-            ->orderBy('created_at', 'desc');
-
-        $data['rows'] = $query->get();
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view($this->view . '.index', $data);
     }
@@ -120,78 +121,203 @@ class ApplicationController extends Controller
     {
         // Field Validation
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'student_id' => 'required|unique:students,student_id',
+            'batch' => 'required',
+            'program' => 'required',
+            'session' => 'required',
+            'semester' => 'required',
+            'section' => 'required',
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|email|unique:students,email',
+            'phone' => 'required',
+            'gender' => 'required',
             'dob' => 'required|date',
-            'phone' => 'required|string|max:30',
-            'email' => 'required|email|max:255|unique:applications,email',
-            'national_id' => 'required|string|max:50',
-            'gender' => 'required|in:1,2,3',
-            'program_id' => 'required|integer|exists:programs,id',
-            'kcse_index_no' => 'required|string|max:50',
-            'kcse_year' => 'required|string|max:10',
-            'kcse_grade' => 'required|string|max:10',
-            'kcse_certificate' => 'required|file|mimes:pdf,jpg,jpeg,png',
-            'kcse_result_slip' => 'required|file|mimes:pdf,jpg,jpeg,png',
-            'county_id' => 'required|integer|exists:counties,CountyID',
-            'sub_county_id' => 'required|integer|exists:sub_counties,SubCountyID',
-            'physical_address' => 'nullable|string|max:255',
-            'mode_of_study' => 'required|string|in:Physical,Online,Hybrid',
+            'admission_date' => 'required|date',
+            'photo' => 'nullable|image',
+            'signature' => 'nullable|image',
         ]);
 
-        try {
+        // Random Password
+        $password = str_random(8);
+        $data = Application::where('registration_no', $request->registration_no)->firstOrFail();
+
+        // Insert Data
+        try{
             DB::beginTransaction();
-
-            // Generate registration number
-            $registrationNo = 'APP-' . date('Y') . '-' . str_pad(Application::count() + 1, 5, '0', STR_PAD_LEFT);
-
-            // Create application
-            $application = new Application();
-            $application->registration_no = $registrationNo;
-            $application->batch_id = $request->batch_id ?? 1;
-            $application->program_id = $request->program_id;
-            $application->apply_date = Carbon::now()->format('Y-m-d');
+            
+            $student = new Student;
+            $student->student_id = $request->student_id;
+            $student->registration_no = $request->registration_no;
+            $student->batch_id = $request->batch;
+            $student->program_id = $request->program;
+            $student->admission_date = $request->admission_date;
 
             // Personal Information
-            $application->first_name = $request->first_name;
-            $application->last_name = $request->last_name;
-            $application->dob = $request->dob;
-            $application->phone = $request->phone;
-            $application->email = $request->email;
-            $application->national_id = $request->national_id;
-            $application->gender = $request->gender;
-
-            // KCSE Information
-            $application->kcse_index_no = $request->kcse_index_no;
-            $application->kcse_year = $request->kcse_year;
-            $application->kcse_grade = $request->kcse_grade;
+            $student->first_name = $request->first_name;
+            $student->last_name = $request->last_name;
+            $student->father_name = $request->father_name;
+            $student->mother_name = $request->mother_name;
+            $student->father_occupation = $request->father_occupation;
+            $student->mother_occupation = $request->mother_occupation;
+            $student->email = $request->email;
+            $student->password = Hash::make($password);
+            $student->password_text = Crypt::encryptString($password);
 
             // Location Information
-            $application->county_id = $request->county_id;
-            $application->sub_county_id = $request->sub_county_id;
-            $application->permanent_address = $request->physical_address;
-            $application->mode_of_study = $request->mode_of_study;
+            $student->country = $request->country;
+            $student->present_address = $request->present_address;
+            $student->permanent_address = $request->permanent_address;
 
-            // Upload KCSE documents
-            if ($request->hasFile('kcse_certificate')) {
-                $application->kcse_certificate = $this->uploadMedia($request, 'kcse_certificate', 'applications');
+            // Personal Details
+            $student->gender = $request->gender;
+            $student->dob = $request->dob;
+            $student->phone = $request->phone;
+            $student->emergency_phone = $request->emergency_phone;
+            $student->nationality = $request->nationality;
+            $student->national_id = $request->national_id;
+
+            // KCSE Information from application
+            $student->kcse_index_no = $data->kcse_index_no;
+            $student->kcse_year = $data->kcse_year;
+            $student->kcse_grade = $data->kcse_grade;
+            $student->mode_of_study = $data->mode_of_study;
+
+            // County Information from application
+            $student->county_id = $data->county_id;
+            $student->sub_county_id = $data->sub_county_id;
+
+            // Education Information
+            $student->school_name = $request->school_name;
+            $student->school_exam_id = $request->school_exam_id;
+            $student->school_graduation_year = $request->school_graduation_year;
+            $student->school_graduation_point = $request->school_graduation_point;
+            $student->collage_name = $request->collage_name;
+            $student->collage_exam_id = $request->collage_exam_id;
+            $student->collage_graduation_year = $request->collage_graduation_year;
+            $student->collage_graduation_point = $request->collage_graduation_point;
+
+            // File Uploads
+            if($request->hasFile('school_transcript')){
+                $student->school_transcript = $this->uploadMedia($request, 'school_transcript', $this->path);
+            } else {
+                $student->school_transcript = $data->school_transcript;
             }
-            if ($request->hasFile('kcse_result_slip')) {
-                $application->kcse_result_slip = $this->uploadMedia($request, 'kcse_result_slip', 'applications');
+            
+            if($request->hasFile('school_certificate')){
+                $student->school_certificate = $this->uploadMedia($request, 'school_certificate', $this->path);
+            } else {
+                $student->school_certificate = $data->school_certificate;
+            }
+            
+            if($request->hasFile('collage_transcript')){
+                $student->collage_transcript = $this->uploadMedia($request, 'collage_transcript', $this->path);
+            } else {
+                $student->collage_transcript = $data->collage_transcript;
+            }
+            
+            if($request->hasFile('collage_certificate')){
+                $student->collage_certificate = $this->uploadMedia($request, 'collage_certificate', $this->path);
+            } else {
+                $student->collage_certificate = $data->collage_certificate;
             }
 
-            $application->status = '1';
-            $application->created_by = Auth::guard('web')->user()->id;
-            $application->save();
+            // KCSE Documents from application
+            $student->kcse_certificate = $data->kcse_certificate;
+            $student->kcse_result_slip = $data->kcse_result_slip;
+
+            if($request->hasFile('photo')){
+                $student->photo = $this->uploadImage($request, 'photo', $this->path, 300, 300);
+            } else {
+                $student->photo = $data->photo;
+            }
+            
+            if($request->hasFile('signature')){
+                $student->signature = $this->uploadImage($request, 'signature', $this->path, 300, 100);
+            } else {
+                $student->signature = $data->signature;
+            }
+            
+            $student->status = '1';
+            $student->created_by = Auth::guard('web')->user()->id;
+            $student->save();
+
+            // Attach Status
+            $student->statuses()->attach($request->statuses);
+
+            // Student Relatives
+            if(is_array($request->relations)){
+                foreach($request->relations as $key => $relation){
+                    if($relation != '' && $relation != null){
+                        $studentRelative = new StudentRelative;
+                        $studentRelative->student_id = $student->id;
+                        $studentRelative->relation = $request->relations[$key];
+                        $studentRelative->name = $request->relative_names[$key];
+                        $studentRelative->occupation = $request->occupations[$key];
+                        $studentRelative->phone = $request->relative_phones[$key];
+                        $studentRelative->address = $request->addresses[$key];
+                        $studentRelative->save();
+                    }
+                }
+            }
+
+            // Student Documents
+            if(is_array($request->documents)){
+                $documents = $request->file('documents');
+                foreach($documents as $key => $attach){
+                    $valid_extensions = array('JPG','JPEG','jpg','jpeg','png','gif','ico','svg','webp','pdf','doc','docx','txt','zip','rar','csv','xls','xlsx','ppt','pptx','mp3','avi','mp4','mpeg','3gp','mov','ogg','mkv');
+                    $file_ext = $attach->getClientOriginalExtension();
+                    if(in_array($file_ext, $valid_extensions, true)) {
+                        $filename = $attach->getClientOriginalName();
+                        $extension = $attach->getClientOriginalExtension();
+                        $fileNameToStore = str_replace([' ','-','&','#','$','%','^',';',':'],'_',$filename).'_'.time().'.'.$extension;
+
+                        $attach->move('uploads/'.$this->path.'/', $fileNameToStore);
+
+                        $document = new Document;
+                        $document->title = $request->titles[$key];
+                        $document->attach = $fileNameToStore;
+                        $document->save();
+
+                        $document->students()->attach($student->id);
+                    }
+                }
+            }
+
+            // Student Enroll
+            $enroll = new StudentEnroll();
+            $enroll->student_id = $student->id;
+            $enroll->program_id = $request->program;
+            $enroll->session_id = $request->session;
+            $enroll->semester_id = $request->semester;
+            $enroll->section_id = $request->section;
+            $enroll->created_by = Auth::guard('web')->user()->id;
+            $enroll->save();
+
+            // Assign Subjects
+            $enrollSubject = EnrollSubject::where('program_id', $request->program)
+                ->where('semester_id', $request->semester)
+                ->where('section_id', $request->section)
+                ->first();
+            
+            if(isset($enrollSubject)){
+                foreach($enrollSubject->subjects as $subject){
+                    $enroll->subjects()->attach($subject->id);
+                }
+            }
+
+            // Application Status Update
+            $data->status = '2';
+            $data->updated_by = Auth::guard('web')->user()->id;
+            $data->save();
 
             DB::commit();
 
-            Toastr::success(__('Application submitted successfully'), __('msg_success'));
-            return redirect()->route($this->route . '.index');
-
-        } catch (\Exception $e) {
+            Toastr::success(__('msg_created_successfully'), __('msg_success'));
+            return redirect()->route($this->route.'.index');
+        }
+        catch(\Exception $e){
             DB::rollBack();
-            Log::error('Error storing application: ' . $e->getMessage());
             Toastr::error(__('msg_created_error'), __('msg_error'));
             return redirect()->back();
         }
@@ -229,11 +355,11 @@ class ApplicationController extends Controller
         $data['view'] = $this->view;
         $data['path'] = $this->path;
 
-        // Only load necessary data - no provinces or districts
-        $data['counties'] = County::where('status', '1')->orderBy('title', 'asc')->get();
-        $data['sub_counties'] = SubCounty::where('status', '1')->orderBy('title', 'asc')->get();
+        // Load counties and sub-counties instead of provinces and districts
+        $data['counties'] = County::where('status', '1')->orderBy('CountyName', 'asc')->get();
+        $data['sub_counties'] = SubCounty::where('status', '1')->orderBy('SubCountyName', 'asc')->get();
+        $data['statuses'] = StatusType::where('status', '1')->get();
         $data['batches'] = Batch::where('status', '1')->orderBy('id', 'desc')->get();
-        $data['programs'] = Program::where('status', '1')->orderBy('title', 'asc')->get();
 
         $data['row'] = $application;
 
@@ -249,86 +375,17 @@ class ApplicationController extends Controller
      */
     public function update(Request $request, Application $application)
     {
-        // Field Validation for editing application data
-        $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'dob' => 'required|date',
-            'phone' => 'required|string|max:30',
-            'email' => 'required|email|max:255|unique:applications,email,' . $application->id,
-            'national_id' => 'required|string|max:50',
-            'gender' => 'required|in:1,2,3',
-            'program_id' => 'required|integer|exists:programs,id',
-            'kcse_index_no' => 'required|string|max:50',
-            'kcse_year' => 'required|string|max:10',
-            'kcse_grade' => 'required|string|max:10',
-            'kcse_certificate' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-            'kcse_result_slip' => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-            'county_id' => 'required|integer|exists:counties,CountyID',
-            'sub_county_id' => 'required|integer|exists:sub_counties,SubCountyID',
-            'physical_address' => 'nullable|string|max:255',
-            'mode_of_study' => 'required|string|in:Physical,Online,Hybrid',
-        ]);
-
-        DB::beginTransaction();
-        
-        try {
-            $oldStatus = $application->status;
-            
-            // Update application fields
-            $application->first_name = $request->first_name;
-            $application->last_name = $request->last_name;
-            $application->dob = $request->dob;
-            $application->phone = $request->phone;
-            $application->email = $request->email;
-            $application->national_id = $request->national_id;
-            $application->gender = $request->gender;
-            $application->program_id = $request->program_id;
-            $application->kcse_index_no = $request->kcse_index_no;
-            $application->kcse_year = $request->kcse_year;
-            $application->kcse_grade = $request->kcse_grade;
-            $application->county_id = $request->county_id;
-            $application->sub_county_id = $request->sub_county_id;
-            $application->permanent_address = $request->physical_address;
-            $application->mode_of_study = $request->mode_of_study;
-
-            // Handle file uploads
-            if ($request->hasFile('kcse_certificate')) {
-                $application->kcse_certificate = $this->uploadMedia($request, 'kcse_certificate', 'applications');
-            }
-            if ($request->hasFile('kcse_result_slip')) {
-                $application->kcse_result_slip = $this->uploadMedia($request, 'kcse_result_slip', 'applications');
-            }
-
-            // Handle status change and SMS
-            $newStatus = $request->status;
-            $application->status = $newStatus;
-            $application->updated_by = Auth::guard('web')->user()->id;
-            $application->save();
-
-            // Send SMS based on status change
-            if ($oldStatus != $newStatus) {
-                if ($newStatus == '0') { // Rejected
-                    $this->sendRejectionSMS($application);
-                } elseif ($newStatus == '2') { // Approved
-                    // Auto-register as student if approved
-                    $student = $this->approveAndRegisterStudent($application);
-                    $this->sendWelcomeSMS($student);
-                } elseif ($newStatus == '1' && $oldStatus == '0') { // Reinstated from rejected
-                    $this->sendReinstatementSMS($application);
-                }
-            }
-
-            DB::commit();
-            
-            Toastr::success(__('Application updated successfully'), __('msg_success'));
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating application: ' . $e->getMessage());
-            Toastr::error(__('Error updating application'), __('msg_error'));
+        // Toggle status (approve/reject)
+        if($application->status == 0){
+            $application->status = '1'; // Approve
+        } else {
+            $application->status = '0'; // Reject
         }
+        
+        $application->updated_by = Auth::guard('web')->user()->id;
+        $application->save();
 
+        Toastr::success(__('msg_updated_successfully'), __('msg_success'));
         return redirect()->back();
     }
 
@@ -342,252 +399,53 @@ class ApplicationController extends Controller
     {
         DB::beginTransaction();
         try {
-            // Delete associated files
-            $this->deleteMultiMedia('applications', $application, 'kcse_certificate');
-            $this->deleteMultiMedia('applications', $application, 'kcse_result_slip');
+            // Delete files
+            $this->deleteMultiMedia($this->path, $application, 'photo');
+            $this->deleteMultiMedia($this->path, $application, 'signature');
+            $this->deleteMultiMedia($this->path, $application, 'school_transcript');
+            $this->deleteMultiMedia($this->path, $application, 'school_certificate');
+            $this->deleteMultiMedia($this->path, $application, 'collage_transcript');
+            $this->deleteMultiMedia($this->path, $application, 'collage_certificate');
+            $this->deleteMultiMedia($this->path, $application, 'kcse_certificate');
+            $this->deleteMultiMedia($this->path, $application, 'kcse_result_slip');
             
             $application->delete();
             DB::commit();
 
-            Toastr::success(__('Application deleted successfully'), __('msg_success'));
-
+            Toastr::success(__('msg_deleted_successfully'), __('msg_success'));
         } catch (\Exception $e) {
             DB::rollBack();
-            Toastr::error(__('Error deleting application'), __('msg_error'));
+            Toastr::error(__('msg_deleted_error'), __('msg_error'));
         }
 
         return redirect()->back();
     }
 
     /**
-     * Approve application and register as student (manual approval)
+     * Approve and register student (additional method if needed)
      */
     public function approve($id)
     {
-        DB::beginTransaction();
-        
-        try {
-            $application = Application::findOrFail($id);
-            
-            if ($application->status != '1') {
-                Toastr::error(__('Application is not pending for approval'), __('msg_error'));
-                return redirect()->back();
-            }
-            
-            // Update application status to approved
-            $application->status = '2';
-            $application->updated_by = Auth::guard('web')->user()->id;
-            $application->save();
+        $application = Application::findOrFail($id);
+        $application->status = '1'; // Approved
+        $application->updated_by = Auth::guard('web')->user()->id;
+        $application->save();
 
-            // Register as student
-            $student = $this->approveAndRegisterStudent($application);
-
-            DB::commit();
-            
-            Toastr::success(__('Application approved and student registered successfully'), __('msg_success'));
-            
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error approving application: ' . $e->getMessage());
-            Toastr::error(__('Error approving application'), __('msg_error'));
-        }
-
-        return redirect()->route($this->route . '.index');
+        Toastr::success(__('Application approved successfully'), __('msg_success'));
+        return redirect()->back();
     }
 
     /**
-     * Approve application and register as student
+     * Reject application (additional method if needed)
      */
-    private function approveAndRegisterStudent($application)
+    public function reject($id)
     {
-        try {
-            // Generate student ID
-            $studentId = $this->generateStudentId($application);
-            
-            // Check if student already exists
-            $existingStudent = Student::where('student_id', $studentId)->orWhere('email', $application->email)->first();
-            if ($existingStudent) {
-                $studentId = $this->generateStudentId($application) . rand(100, 999);
-            }
-            
-            // Create new student
-            $student = new Student();
-            $student->student_id = $studentId;
-            $student->registration_no = $application->registration_no;
-            $student->batch_id = $application->batch_id;
-            $student->program_id = $application->program_id;
-            $student->admission_date = Carbon::now()->format('Y-m-d');
+        $application = Application::findOrFail($id);
+        $application->status = '0'; // Rejected
+        $application->updated_by = Auth::guard('web')->user()->id;
+        $application->save();
 
-            // Personal Information
-            $student->first_name = $application->first_name;
-            $student->last_name = $application->last_name;
-            $student->dob = $application->dob;
-            $student->phone = $application->phone;
-            $student->email = $application->email;
-            $student->national_id = $application->national_id;
-            $student->gender = $application->gender;
-            
-            // Generate random password
-            $password = str_random(8);
-            $student->password = Hash::make($password);
-            $student->password_text = Crypt::encryptString($password);
-
-            // Location information
-            $student->county_id = $application->county_id;
-            $student->sub_county_id = $application->sub_county_id;
-            $student->permanent_address = $application->permanent_address;
-            
-            // KCSE Information
-            $student->kcse_index_no = $application->kcse_index_no;
-            $student->kcse_year = $application->kcse_year;
-            $student->kcse_grade = $application->kcse_grade;
-            $student->mode_of_study = $application->mode_of_study;
-
-            // Move documents from applications to students folder
-            if ($application->kcse_certificate) {
-                $student->kcse_certificate = $this->moveDocument($application->kcse_certificate, $student);
-            }
-            if ($application->kcse_result_slip) {
-                $student->kcse_result_slip = $this->moveDocument($application->kcse_result_slip, $student);
-            }
-            
-            $student->status = '1';
-            $student->created_by = Auth::guard('web')->user()->id;
-            $student->save();
-
-            return $student;
-
-        } catch (\Exception $e) {
-            Log::error('Error registering student: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * SMS Helper Methods
-     */
-
-    /**
-     * Send welcome SMS to student
-     */
-    private function sendWelcomeSMS($student)
-    {
-        try {
-            $phone = $this->formatPhoneNumber($student->phone);
-            $message = "Dear {$student->first_name}, Welcome to our institution! Your application has been approved. Your Student ID: {$student->student_id}. Login details will be sent to your email.";
-            
-            return $this->sendSMS($phone, $message);
-            
-        } catch (\Exception $e) {
-            Log::error('Welcome SMS failed: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Send rejection SMS to applicant
-     */
-    private function sendRejectionSMS($application)
-    {
-        try {
-            $phone = $this->formatPhoneNumber($application->phone);
-            $message = "Dear {$application->first_name}, We regret to inform you that your application #{$application->registration_no} has not been successful. Thank you for your interest.";
-            
-            return $this->sendSMS($phone, $message);
-            
-        } catch (\Exception $e) {
-            Log::error('Rejection SMS failed: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Send reinstatement SMS to applicant
-     */
-    private function sendReinstatementSMS($application)
-    {
-        try {
-            $phone = $this->formatPhoneNumber($application->phone);
-            $message = "Dear {$application->first_name}, Your application #{$application->registration_no} has been reinstated and is now under review. Thank you.";
-            
-            return $this->sendSMS($phone, $message);
-            
-        } catch (\Exception $e) {
-            Log::error('Reinstatement SMS failed: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Format phone number to international format
-     */
-    private function formatPhoneNumber($phoneNumber)
-    {
-        if (substr($phoneNumber, 0, 1) === '0') {
-            return '+254' . substr($phoneNumber, 1);
-        }
-        return $phoneNumber;
-    }
-
-    /**
-     * Generate student ID
-     */
-    private function generateStudentId($application)
-    {
-        return 'STD-' . date('Y') . '-' . str_pad($application->id, 5, '0', STR_PAD_LEFT);
-    }
-
-    /**
-     * Move document from applications to students folder
-     */
-    private function moveDocument($filename, $student)
-    {
-        $oldPath = public_path('uploads/applications/' . $filename);
-        $newPath = public_path('uploads/students/' . $filename);
-        
-        if (file_exists($oldPath)) {
-            if (!file_exists(dirname($newPath))) {
-                mkdir(dirname($newPath), 0755, true);
-            }
-            
-            rename($oldPath, $newPath);
-            return $filename;
-        }
-        return null;
-    }
-
-    /**
-     * Send SMS using your SMS service
-     */
-    private function sendSMS($phone, $message)
-    {
-        try {
-            // Use your existing SMS service
-            if (class_exists('App\Services\SmsService')) {
-                $smsService = new SmsService();
-                return $smsService->sendSMS($phone, $message);
-            }
-            
-            // Alternative: Use HTTP request if you have an SMS gateway
-            $smsConfig = SmsConfiguration::where('status', 1)->first();
-            
-            if ($smsConfig) {
-                $response = Http::post($smsConfig->url, [
-                    'api_key' => $smsConfig->api_key,
-                    'sender_id' => $smsConfig->sender_id,
-                    'phone' => $phone,
-                    'message' => $message
-                ]);
-                
-                return $response->successful();
-            }
-            
-            Log::info('SMS would be sent to: ' . $phone . ' - Message: ' . $message);
-            return true;
-            
-        } catch (\Exception $e) {
-            Log::error('SMS sending failed: ' . $e->getMessage());
-            return false;
-        }
+        Toastr::success(__('Application rejected successfully'), __('msg_success'));
+        return redirect()->back();
     }
 }
