@@ -43,7 +43,10 @@ class Student extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-
+ public function application()
+    {
+        return $this->hasOne(Application::class);
+    }
     public function batch()
     {
         return $this->belongsTo(Batch::class, 'batch_id');

@@ -503,6 +503,9 @@ Route::middleware(['XSS'])->namespace('Web')->group(function () {
     // Application Route
     Route::get('application', 'ApplicationController@index')->name('application.index');
     Route::post('application', 'ApplicationController@store')->name('application.store');
+Route::get('/register/student/{id}', [ApplicationController::class, 'register'])->name('students.register');
+Route::post('/register/update/{id}', [ApplicationController::class, 'update'])->name('students.update');
+
 
 
     // SetCookie Route

@@ -10,8 +10,19 @@
                                 <div class="col-lg-7 col-md-7">
                                     <div class="slider-content s-slider-content mt-130 text-white">
                                         <h2 class="animated-title">
-                                            @foreach(str_split($slider->title) as $i => $char)
-                                                <span style="animation-delay: {{ $i * 0.18 }}s">{{ $char }}</span>
+                                            @php
+                                                $words = explode(' ', $slider->title);
+                                                $totalDelay = 0;
+                                            @endphp
+                                            
+                                            @foreach($words as $word)
+                                                <span class="word">
+                                                    @foreach(str_split($word) as $char)
+                                                        <span class="letter" style="animation-delay: {{ $totalDelay }}s">{{ $char }}</span>
+                                                        @php $totalDelay += 0.1; @endphp
+                                                    @endforeach
+                                                </span>
+                                                @php $totalDelay += 0.2; @endphp
                                             @endforeach
                                         </h2>
 
@@ -100,89 +111,123 @@
     .btn-slider-cta:hover i {
         transform: translateX(5px);
     }
-/* Clean everything globally for title and all children */
-.animated-title, .animated-title * {
-    text-decoration: none !important;
-    border: 0 !important;
-    border-bottom: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
-    outline: none !important;
-    color: inherit !important;
-    filter: none !important;
-}
 
-/* Animated Title container */
-.animated-title {
-    font-size: 20rem; /* Increased from 15.8rem to make the title even bigger */
-    font-weight: 800;
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 2px;
-    line-height: 1.2;
-    white-space: nowrap;
-    transform: none;
-}
+    /* COMPLETELY CLEAN ANIMATED TITLE - NO ORANGE UNDERLINE */
+    .animated-title, 
+    .animated-title *,
+    .animated-title .word,
+    .animated-title .letter {
+        text-decoration: none !important;
+        border: none !important;
+        border-bottom: none !important;
+        background: none !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        outline: none !important;
+        color: white !important;
+        filter: none !important;
+        -webkit-text-fill-color: white !important;
+        -webkit-text-stroke: none !important;
+        -webkit-background-clip: initial !important;
+        -webkit-text-fill-color: initial !important;
+    }
 
-/* Animate each letter one by one */
-.animated-title span {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-    animation: letterFadeIn 0.6s ease-out forwards;
-    border-bottom: none !important;
-}
+    /* Animated Title container */
+    .animated-title {
+        font-size: 4.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        white-space: normal;
+        transform: none;
+        margin-bottom: 1rem;
+        /* Remove any potential gradient backgrounds */
+        background: none !important;
+        background-image: none !important;
+        -webkit-background-clip: initial !important;
+        -webkit-text-fill-color: white !important;
+    }
 
-/* Keyframes */
-@keyframes letterFadeIn {
-    from {
+    /* Word container - creates space between words */
+    .word {
+        display: inline-block;
+        margin-right: 0.5rem;
+        /* Ensure no background effects */
+        background: none !important;
+        background-image: none !important;
+    }
+
+    /* Animate each letter one by one - NO ORANGE EFFECTS */
+    .animated-title .letter {
+        display: inline-block;
         opacity: 0;
         transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Extra cleanup for ::before/::after */
-.animated-title span::before,
-.animated-title span::after {
-    display: none !important;
-    content: '' !important;
-    border: none !important;
-    border-bottom: none !important;
-    background: none !important;
-}
-
-/* Adjustments for "move down little" */
-.slider-content {
-    margin-top: 200px; /* Increased to move the title further down */
-}
-
-/* Responsive design adjustments */
-@media (max-width: 767.98px) {
-    /* Reduce bottom space below the slider */
-    .slider-area {
-        margin-bottom: 20px !important;
-        padding-bottom: 10px !important;
+        animation: letterFadeIn 0.6s ease-out forwards;
+        /* Pure white text with no effects */
+        color: white !important;
+        background: none !important;
+        background-image: none !important;
+        text-shadow: none !important;
+        -webkit-text-fill-color: white !important;
+        -webkit-text-stroke: none !important;
     }
 
-    /* Reduce top space above services section */
-    .service-details-two {
-        margin-top: 10px !important;
-        padding-top: 10px !important;
+    /* Keyframes - keep it clean */
+    @keyframes letterFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+            /* No background effects during animation */
+            background: none !important;
+            text-shadow: none !important;
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            /* No background effects after animation */
+            background: none !important;
+            text-shadow: none !important;
+        }
     }
 
-    /* Optionally reduce inner padding for smaller screens */
+    /* Extra cleanup for pseudo-elements */
+    .animated-title::before,
+    .animated-title::after,
+    .animated-title .word::before,
+    .animated-title .word::after,
+    .animated-title .letter::before,
+    .animated-title .letter::after {
+        display: none !important;
+        content: '' !important;
+        border: none !important;
+        border-bottom: none !important;
+        background: none !important;
+        background-image: none !important;
+    }
+
+    /* Adjustments for "move down little" */
     .slider-content {
-        margin-top: 100px !important; /* Increased for mobile view */
+        margin-top: 150px;
     }
 
-    /* Make title smaller on mobile to fit */
-    .animated-title {
-        font-size: 3.5rem; /* Adjusted for mobile screens */
+    /* Responsive design adjustments */
+    @media (max-width: 767.98px) {
+        .slider-area {
+            margin-bottom: 20px !important;
+            padding-bottom: 10px !important;
+        }
+
+        .service-details-two {
+            margin-top: 10px !important;
+            padding-top: 10px !important;
+        }
+
+        .slider-content {
+            margin-top: 100px !important;
+        }
+
+        .animated-title {
+            font-size: 2.5rem;
+        }
     }
-}
 </style>
